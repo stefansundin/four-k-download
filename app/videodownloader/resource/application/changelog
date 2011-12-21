@@ -1,0 +1,66 @@
+4kvideodownloader (2.1-1) stable; urgency=medium
+
+* Smart Mode.
+* Social shareing.
+* Some gui improvements.
+* Major bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Thu, 10 November 2011 15:10:27 +0300
+
+
+4kvideodownloader (2.0-1) stable; urgency=medium
+
+* YouTube playlist support.
+* MP3 playback fixed.
+* Major bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Tue, 27 September 2011 00:12:35 +0300
+
+
+4kvideodownloader (1.5-1) stable; urgency=medium
+
+* Metacafe support.
+* Bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Fri, 19 August 2011 20:23:07 +0300
+
+
+4kvideodownloader (1.4-1) stable; urgency=medium
+
+* Megavideo support.
+* YouTube new video formats support.
+
+-- 4kdownload <support@4kdownload.com>  Sat, 23 July 2011 10:37:00 +0300
+
+
+4kvideodownloader (1.3-1) stable; urgency=medium
+
+* Facebook, vimeo and dailymotion support.
+* Minor bug fixes and gui enhancements.
+
+-- 4kdownload <support@4kdownload.com>  Mon, 27 June 2011 11:05:10 +0300
+
+
+4kvideodownloader (1.2-1) stable; urgency=medium
+
+* Increase download speed.
+* Display remaining time.
+* Minor bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Sun, 5 June 2011 12:24:12 +0300
+
+
+4kvideodownloader (1.1-1) stable; urgency=medium
+
+* Extract mp3 support.
+* Play media function.
+* Minor bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Sun, 15 May 2011 10:35:35 +0300
+
+
+4kvideodownloader (1.0-1) stable; urgency=medium
+
+* Initial release.
+
+-- 4kdownload <support@4kdownload.com>  Fri, 22 Apr 2011 00:11:46 +0300

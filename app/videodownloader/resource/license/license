@@ -1,0 +1,125 @@
+4kdownload.com Freeware License
+===============================
+
+NOTICE TO USER:
+Please, read this carefully. By using all or any portion of the
+Software you accept all the terms and conditions of this Agreement. If
+you do not agree, do not use this Software.
+
+1. Definitions
+When used in this Agreement, the following terms shall have the
+respective meanings indicated, such meanings to be applicable to both
+the singular and plural forms of the terms defined:
+
+"Licensor" means 4kdownload company. "Licensee" means You or Your
+Company, unless otherwise indicated.
+
+"Software" means (a) all of the contents of the files, disk(s),
+CD-ROM(s) or other media with which this Agreement is provided
+
+"Use" or "Using" means to access, install, download, copy or otherwise
+benefit from using the functionality of the Software.
+
+"Computer" means an electronic device that accepts information in
+digital or similar form and manipulates it for a specific result based
+on a sequence of instructions.
+
+2. General use
+You are granted a non-exclusive License to Use the downloaded Software
+for any purposes for an unlimited period of time.
+The software product under this License is provided free of charge.
+Even though a license fee is not paid for the use of such software, it
+does not mean that there are no conditions for using such software.
+
+2.1. The Software may be installed and Used by the Licensee for any
+legal purpose.
+2.2. The Software may be installed and Used by the Licensee on any
+number of computers owned, leased or controlled by the Licensee.
+2.3. The Software can be copied and distributed under the condition
+that original copyright notice and disclaimer of warranty will stay
+intact and the Licensee will not charge money or fees for the Software
+product, except to cover distribution costs.
+2.4. The Licensee will not have any proprietary rights in and to the
+Software. The Licensee acknowledges and agrees that the Licensor
+retains all copyrights and other proprietary rights in and to the
+Software.
+2.5 Use within the scope of this License is free of charge and no
+royalty or licensing fees shall be paid by the Licensee.
+
+3. Disclaimer of Warranty
+The Software is provided on an “AS IS” basis, without warranty of any
+kind, including without limitation the warranties of merchantability,
+fitness for a particular purpose and non-infringement.  The entire
+risk as to the quality and performance of the Software is borne by
+you. Should the Software prove defective, you and not Licensor assume
+the entire cost of any service and repair.
+
+4. Limitation of Liability
+LICENSOR IS NOT RESPONSIBLE FOR ANY INDIRECT, SPECIAL, INCIDENTAL, OR
+CONSEQUENTIAL DAMAGES OF ANY CHARACTER INCLUDING, WITHOUT LIMITATION,
+DAMAGES FOR LOSS OF GOODWILL, WORK STOPPAGE, COMPUTER FAILURE OR
+MALFUNCTION, OR ANY AND ALL OTHER COMMERCIAL DAMAGES OR LOSSES.
+
+Copyright (C) 2011 4kdownload.com.
+All rights reserved.
+
+
+Qt Framework
+============
+
+This software uses Qt Framework under the GNU LGPL version 2.1
+<http://www.gnu.org/licenses/lgpl-2.1.html>
+
+Qt is a C++ toolkit for cross-platform application development.
+Qt provides single-source portability across MS Windows, Mac OS X,
+Linux, and all major commercial Unix variants. Qt is also available
+for embedded devices as Qt for Embedded Linux and Qt for Windows CE.
+Qt is available under three different licensing options designed to
+accommodate the needs of our various users.
+Qt licensed under our commercial license agreement is appropriate for
+development of proprietary/commercial software where you do not want
+to share any source code with third parties or otherwise cannot comply
+with the terms of the GNU LGPL version 2.1 or GNU GPL version 3.0.
+Qt licensed under the GNU LGPL version 2.1 is appropriate for the
+development of Qt applications (proprietary or open source) provided
+you can comply with the terms and conditions of the GNU LGPL version
+2.1.
+Qt licensed under the GNU General Public License version 3.0 is
+appropriate for the development of Qt applications where you wish to
+use such applications in combination with software subject to the
+terms of the GNU GPL version 3.0 or where you are otherwise willing to
+comply with the terms of the GNU GPL version 3.0.
+
+Please see qt.nokia.com/products/licensing for an overview of Qt
+licensing.
+
+Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+Qt is a Nokia product. See qt.nokia.com for more information.
+
+
+FFmpeg
+======
+
+This software uses libraries from the FFmpeg project under the GNU
+LGPL version 2.1 <http://www.gnu.org/licenses/lgpl-2.1.html>
+FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg
+project.
+<http://ffmpeg.org>
+
+
+LAME MP3 Encoder
+================
+
+This software uses libraries from the LAME MP3 Endcoder project under
+the GNU LGPL version 2.1. <http://www.gnu.org/licenses/lgpl-2.1.html>
+<http://lame.sourceforge.net>
+
+
+Fugue Icons
+===========
+
+The icons are licensed under a Creative Commons Attribution 3.0
+license. <http://creativecommons.org/licenses/by/3.0>
+
+Copyright (C) 2010 Yusuke Kamiyamane.
+All rights reserved.

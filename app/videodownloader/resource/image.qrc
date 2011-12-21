@@ -1,0 +1,45 @@
+<RCC>
+    <qresource prefix="/image">
+        <file alias="application-icon">application/icon.ico</file>
+        <file alias="item-remove">image/item-remove.png</file>
+        <file alias="item-size">image/item-size.png</file>
+        <file alias="item-time">image/item-time.png</file>
+        <file alias="remove">image/remove.png</file>
+        <file alias="information">image/information.png</file>
+        <file alias="paste-url">image/paste-url.png</file>
+        <file alias="item-download">image/item-download.png</file>
+        <file alias="item-done">image/item-done.png</file>
+        <file alias="item-error">image/item-error.png</file>
+        <file alias="item-paused">image/item-paused.png</file>
+        <file alias="item-link">image/item-link.png</file>
+        <file alias="thumbnail-default">image/thumbnail-default.png</file>
+        <file alias="progress">image/progress.gif</file>
+        <file alias="item-play">image/item-play.png</file>
+        <file alias="item-convert">image/item-convert.png</file>
+        <file alias="item-audio">image/item-audio.png</file>
+        <file alias="item-video">image/item-video.png</file>
+        <file alias="remove-all">image/remove-all.png</file>
+        <file alias="notification-tweet">image/notification-tweet.png</file>
+        <file alias="notification-+1">image/notification-+1.png</file>
+        <file alias="notification-like">image/notification-like.png</file>
+        <file alias="help">image/help.png</file>
+        <file alias="service-dailymotion">image/service-dailymotion.png</file>
+        <file alias="service-facebook">image/service-facebook.png</file>
+        <file alias="service-vimeo">image/service-vimeo.png</file>
+        <file alias="service-youtube">image/service-youtube.png</file>
+        <file alias="service-megavideo">image/service-megavideo.png</file>
+        <file alias="paste-dailymotion">image/paste-dailymotion.png</file>
+        <file alias="paste-facebook">image/paste-facebook.png</file>
+        <file alias="paste-megavideo">image/paste-megavideo.png</file>
+        <file alias="paste-vimeo">image/paste-vimeo.png</file>
+        <file alias="paste-youtube">image/paste-youtube.png</file>
+        <file alias="service-metacafe">image/service-metacafe.png</file>
+        <file alias="paste-metacafe">image/paste-metacafe.png</file>
+        <file>image/smart-mode-off.png</file>
+        <file alias="smart-mode-on">image/smart-mode-on.png</file>
+        <file alias="smart-mode-off">image/smart-mode-off-2.png</file>
+        <file alias="item-facebook">image/item-facebook.png</file>
+        <file alias="item-twitter">image/item-twitter.png</file>
+        <file alias="facebook">image/facebook.png</file>
+    </qresource>
+</RCC>

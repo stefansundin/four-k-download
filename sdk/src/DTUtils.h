@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <exception>
 #include <openmedia/DTCStdInt.h>
+#include <stdio.h>
 
 namespace openmedia { namespace utils {
 
@@ -33,7 +34,8 @@ class fixed_memory_buffer : boost::noncopyable
 {
 public:
     fixed_memory_buffer() : m_Buffer(NULL),
-        m_Size(0)
+        m_Size(0),
+        m_RetSize(0)
     {}
 
     uint8_t * get_buffer(size_t _SizeBytes)
@@ -47,17 +49,27 @@ public:
             }
             m_Size = _SizeBytes;
         }
+        m_RetSize = _SizeBytes;
         return m_Buffer;
     };
+
+    const uint8_t * buffer() const { return m_Buffer; }
+    uint8_t * buffer() { return m_Buffer; }
 
     ~fixed_memory_buffer()
     {
         free(m_Buffer);
     }
 
+    size_t size() const
+    {
+        return m_RetSize;
+    }
+
 private:
     uint8_t * m_Buffer;
     size_t m_Size;
+    size_t m_RetSize;
 
 };
 
@@ -81,14 +93,20 @@ inline errno_t dt_fopen(FILE ** _File, const char * _Filename, const char * _Mod
 inline errno_t dt_wopen(int * _FileHandle, const wchar_t * _Filename, int _OpenFlag, int _PermissionFlag)
 {
 #ifdef _MSC_VER
-    //return  _wsopen_s(_FileHandle, _Filename, _OpenFlag, _SH_DENYRW, _PermissionFlag);
+    
     if (NULL == _FileHandle)
         return EINVAL;
+#pragma warning(push)
+#pragma warning(disable:4996)
+
     *_FileHandle = _wopen(_Filename, _OpenFlag, _PermissionFlag);
+#pragma warning(pop)
+
     if (_FileHandle)
         return 0;
     else
         return errno;
+
 
 #else
     if (NULL == _FileHandle)

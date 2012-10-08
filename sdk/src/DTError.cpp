@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersCommon.h"
+// precompiled header end
 
 /// \file   DTError.cpp
 
@@ -27,10 +27,8 @@
 namespace openmedia {
 namespace errors {
 
-dt_error::dt_error()
-{
-    m_msg = "openmedia sdk error";
-}
+dt_error::dt_error(const char * msg): m_msg(msg)
+{}
 
 char const * dt_error::what() const throw()
 {

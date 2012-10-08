@@ -20,7 +20,7 @@
 using namespace View;
 using namespace ViewModel;
 using namespace ComponentModel;
-using namespace Bindings;
+using namespace Gui;
 using namespace Mvvm;
 
 
@@ -82,13 +82,13 @@ void SmartModeView::setViewModel(QObject* value)
 
         if (m_viewModel && m_factory)
         {
-            m_smartModeBinding.reset(new Binding(ui->smartModeBox, "checked", m_viewModel.data(), "smartMode", Binding::TwoWay));
-            m_settingsEnabledBinding.reset(new Binding(ui->settingsWidget, "enabled", m_viewModel.data(), "smartMode"));
-            m_qualityEnabledBinding1.reset(new Binding(ui->qualityBox, "enabled", m_viewModel.data(), "qualityEnabled"));
-            m_qualityEnabledBinding2.reset(new Binding(ui->qualityLabel, "enabled", m_viewModel.data(), "qualityEnabled"));
+            m_smartModeBinding.reset(new PropertyBinding(ui->smartModeBox, "checked", m_viewModel.data(), "smartMode", PropertyBinding::TwoWay));
+            m_settingsEnabledBinding.reset(new PropertyBinding(ui->settingsWidget, "enabled", m_viewModel.data(), "smartMode"));
+            m_qualityEnabledBinding1.reset(new PropertyBinding(ui->qualityBox, "enabled", m_viewModel.data(), "qualityEnabled"));
+            m_qualityEnabledBinding2.reset(new PropertyBinding(ui->qualityLabel, "enabled", m_viewModel.data(), "qualityEnabled"));
             m_formatBinding.reset(new ComboboxBinding(ui->formatBox, m_viewModel.data(), "formatList", "formatIndex"));
             m_qualityBinding.reset(new ComboboxBinding(ui->qualityBox, m_viewModel.data(), "qualityList", "qualityIndex"));
-            m_dirBinding.reset(new Binding(ui->directoryBox, "text", m_viewModel.data(), "dirName"));
+            m_dirBinding.reset(new PropertyBinding(ui->directoryBox, "text", m_viewModel.data(), "dirName"));
             m_dirButtonBinding.reset(new ButtonActionBinding(ui->directoryButton, m_viewModel.data()->dirAction()));
         }
     }

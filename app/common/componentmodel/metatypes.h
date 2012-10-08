@@ -14,12 +14,10 @@
 */
 
 
-#ifndef METATYPES_H
-#define METATYPES_H
+#ifndef COMPONENTMODEL_METATYPES_H
+#define COMPONENTMODEL_METATYPES_H
 
 #include <QMetaType>
-#include <QList>
-#include <QIcon>
 
 namespace ComponentModel
 {
@@ -38,6 +36,4 @@ static MetaTypeInit metaTypeInit;
 
 } // ComponentModel
 
-Q_DECLARE_METATYPE(QList<QIcon>)
-
-#endif // METATYPES_H
+#endif // COMPONENTMODEL_METATYPES_H

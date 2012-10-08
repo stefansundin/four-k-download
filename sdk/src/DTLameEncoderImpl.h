@@ -29,28 +29,13 @@
 
 #include <openmedia/DTAudioEncoder.h>
 #include <openmedia/DTAudioData.h>
+#include <openmedia/DTAudioDataTimed.h>
 #include <openmedia/DTAudioFormat.h>
 #include <openmedia/DTAudioBuffer.h>
 
 namespace openmedia {
 
 class lame_encoder_impl_internal;
-
-class audio_encoder_lame_impl : public audio_encoder::Impl
-{
-public:
-    audio_encoder_lame_impl(const audio_format * _AudioFormat, const audio_encoder_lame_utils::properties * _Properties);
-    virtual ~audio_encoder_lame_impl(); 
-
-public:
-    virtual media_packet_ptr        encode(const audio_data * _AudioData);  
-    virtual codec_extra_data_ptr    get_extra_data() const;
-
-private:
-    lame_encoder_impl_internal * m_Lame;
-    boost::shared_ptr<codec_extra_data_common> m_CodecExtraData;
-    
-};
 
 class audio_encoder_queue_lame_impl : public audio_encoder_queue::Impl
 {
@@ -59,7 +44,9 @@ public:
     virtual ~audio_encoder_queue_lame_impl(); 
 
 public:
-    virtual void                    send_audio(const audio_data * _AudioData);    
+    virtual void                    open(){};
+    virtual void                    send_audio(const audio_data * _AudioData);
+    virtual void                    send_audio(const audio_data_timed * audioDataTimed);    
     virtual media_packet_ptr        receive_packet();
     virtual codec_extra_data_ptr    get_extra_data() const;
 

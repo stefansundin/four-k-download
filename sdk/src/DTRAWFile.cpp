@@ -14,25 +14,31 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include <openmedia/DTError.h>
 #include <openmedia/DTString.h>
 #include "DTRAWFile.h"
 #include "DTMediaMuxerImpl.h"
+#include "DTFOpen.h"
 
 namespace openmedia {
 
 class raw_file_impl : public media_muxer::Impl
 {
 public:
-    raw_file_impl(FILE * f) : file_(f, &fclose)
+    raw_file_impl(FILEPtr f) : file_(f)
     {
         if (!f)
             BOOST_THROW_EXCEPTION( errors::create_file() );
     }
 
 public:
+    virtual void open() {}
+
     virtual void write_packet(media_packet_ptr _MediaPacket)
     {
         if (!file_)
@@ -47,25 +53,18 @@ public:
     }
 
 private:
-    boost::shared_ptr<FILE> file_;
+    FILEPtr file_;
     
 };
 
-raw_file::raw_file(const char * FileName) 
-: media_muxer( new raw_file_impl( fopen(FileName, "wb") ) )
+raw_file::raw_file(const char * FileNameUtf8) 
+: media_muxer( new raw_file_impl( dt_fopen(FileNameUtf8, "wb") ) )
 {
 }
 
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-raw_file::raw_file(const wchar_t * FileName) 
-: media_muxer( new raw_file_impl( _wfopen(FileName, L"wb") ) )
+raw_file::raw_file(const std::string& FileNameUtf8)
+: media_muxer( new raw_file_impl( dt_fopen(FileNameUtf8, "wb") ) )
 {
 }
-#else
-raw_file::raw_file(const wchar_t * FileName) 
-: media_muxer( new raw_file_impl( fopen( utf16_to_utf8( ::std::wstring(FileName) ).c_str(), "wb") ) )
-{
-}
-#endif
 
 }

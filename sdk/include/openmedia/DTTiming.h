@@ -42,33 +42,41 @@ public:
 
 public:
     media_data_timed();
-    media_data_timed(const MediaDataPtr & _MediaData, dt_duration_t _Duration, dt_float_t _TimeStamp);
+    media_data_timed(MediaDataPtr & _MediaData, double _Duration, dt_float_t _TimeStamp);
+    static boost::shared_ptr< media_data_timed<MediaData> > create(MediaDataPtr & _MediaData, double _Duration, dt_float_t _TimeStamp);
 
 public:
     MediaDataPtr    get_media_data() const;
     
-    dt_duration_t   get_duration() const;
+    double          get_duration() const;
     dt_float_t      get_time_stamp() const;
     
 private:
     MediaDataPtr    m_MediaDataPtr;
-    dt_duration_t   m_Duration;
+    double          m_Duration;
     dt_float_t      m_TimeStamp;
 
 };
 
 template <class MediaData>
+boost::shared_ptr< media_data_timed<MediaData> > media_data_timed<MediaData>::
+create(MediaDataPtr & _MediaData, double _Duration, dt_float_t _TimeStamp)
+{
+    return boost::shared_ptr< media_data_timed<MediaData> >( new media_data_timed<MediaData>(_MediaData, _Duration, _TimeStamp) );
+}
+
+template <class MediaData>
 media_data_timed<MediaData>::media_data_timed()
 :
 m_MediaDataPtr((MediaData*)NULL),
-m_Duration(0),
+m_Duration(0.0),
 m_TimeStamp(0)
 {
 };
 
 template <class MediaData>
-media_data_timed<MediaData>::media_data_timed(const typename media_data_timed<MediaData>::MediaDataPtr & _MediaData,
-                                                     dt_duration_t _Duration,
+media_data_timed<MediaData>::media_data_timed(typename media_data_timed<MediaData>::MediaDataPtr & _MediaData,
+                                                     double _Duration,
                                                      dt_float_t _TimeStamp
                                                      )
 :
@@ -85,7 +93,7 @@ typename media_data_timed<MediaData>::MediaDataPtr    media_data_timed<MediaData
 }
 
 template <class MediaData>
-dt_duration_t media_data_timed<MediaData>::get_duration() const
+double media_data_timed<MediaData>::get_duration() const
 {
     return m_Duration;
 }

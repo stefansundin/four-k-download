@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersDownload.h"
+// precompiled header end
 
 #define BOOST_THREAD_USE_LIB
 

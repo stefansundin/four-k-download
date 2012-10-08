@@ -15,6 +15,7 @@
 
 
 #include "viewmodel/smartmodeviewmodel.h"
+#include "viewmodel/smartmodeviewmodel.h"
 #include <QSettings>
 #include <QDesktopServices>
 #include "openmedia/DTMediaDownloader.h"
@@ -86,6 +87,7 @@ QStringList SmartModeViewModel::qualityList() const
     result.append(tr("480p"));
     result.append(tr("360p"));
     result.append(tr("240p"));
+    result.append(tr("QCIF"));
     return result;
 }
 
@@ -98,7 +100,7 @@ int SmartModeViewModel::qualityIndex() const
 
 void SmartModeViewModel::setQualityIndex(int value)
 {
-    if (value < 0 || value > 5)
+    if (value < 0 || value > 6)
         return;
 
     m_qualityIndex = value;
@@ -120,6 +122,7 @@ QStringList SmartModeViewModel::formatList() const
     result.append(tr("MP4"));
     result.append(tr("MKV"));
     result.append(tr("MP3"));
+    result.append(tr("3GP"));
     return result;
 }
 
@@ -165,6 +168,7 @@ void SmartModeViewModel::initialize()
         m_qualityIndex = 1;
         break;
 
+    case downloader::mediaQuality720P_1:
     case downloader::mediaQuality720P:
         m_qualityIndex = 2;
         break;
@@ -174,13 +178,19 @@ void SmartModeViewModel::initialize()
         m_qualityIndex = 3;
         break;
 
+    case downloader::mediaQuality360P_1:
     case downloader::mediaQuality360P:
         m_qualityIndex = 4;
         break;
 
+    case downloader::mediaQuality240P_1:
     case downloader::mediaQuality240P:
         m_qualityIndex = 5;
         break;
+        
+    case downloader::mediaQualityQCIF:
+        m_qualityIndex = 6;
+        break;        
     }
 
 
@@ -204,6 +214,10 @@ void SmartModeViewModel::initialize()
         case downloader::mediaContentVideoWebm:
             m_formatIndex = 2;
             break;
+            
+        case downloader::mediaContentVideo3GP:
+            m_formatIndex = 4;
+            break;            
         }
     }
 
@@ -244,6 +258,10 @@ void SmartModeViewModel::saveState()
     case 5:
         settings.setValue("Download/defaultMediaQuality", (int)downloader::mediaQuality240P);
         break;
+        
+    case 6:
+        settings.setValue("Download/defaultMediaQuality", (int)downloader::mediaQualityQCIF);
+        break;        
     }
 
 
@@ -268,6 +286,12 @@ void SmartModeViewModel::saveState()
         settings.setValue("Download/defaultMediaContent", (int)downloader::mediaContentVideoMP4);
         settings.setValue("Download/defaultDownloadType", (int)ExtractAudio);
         break;
+        
+    case 4:
+        settings.setValue("Download/defaultMediaContent", (int)downloader::mediaContentVideo3GP);
+        settings.setValue("Download/defaultDownloadType", (int)DownloadVideo);
+        break;
+    
     }
 
 

@@ -20,12 +20,12 @@
 #include <QVariant>
 #include <QSettings>
 #include <QTranslator>
-#include "mvvm/dialog.h"
-#include "view/mainview.h"
 #include <QLibraryInfo>
-#include "openmedia/DTMediaDownloader.h"
 #include "componentmodel/singleapplication.h"
 #include "componentmodel/platform.h"
+#include "mvvm/cxx/dialog.h"
+#include "view/mainview.h"
+#include "openmedia/DTMediaDownloader.h"
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     QApplication::setApplicationVersion(APP_VERSION);
     QApplication::setOrganizationName("4kdownload.com");
-    QApplication::setApplicationName("4k YouTube to MP3");
+    QApplication::setApplicationName("4K YouTube to MP3");
     QApplication::setWindowIcon(QIcon(":/image/application-icon"));
 
     QSettings settings;
@@ -88,15 +88,10 @@ int main(int argc, char *argv[])
     settings.setValue("web", "http://www.4kdownload.com?source=4k-youtube-to-mp3");
     settings.setValue("webHelp", "http://www.4kdownload.com/howto/howto-convert-youtube-to-mp3?source=4k-youtube-to-mp3");
     settings.setValue("webThanks", "http://www.4kdownload.com/thanks-for-installing?source=4k-youtube-to-mp3");
-    settings.setValue("webFacebook", "http://www.facebook.com/4kdownload?sk=app_190322544333196");
+    settings.setValue("webFacebook", "http://www.facebook.com/4kdownload");
     settings.setValue("socialUrl", "http://www.4kdownload.com/");
     settings.setValue("socialReferrer", "http://www.4kdownload.com/");
     settings.setValue("socialVia", "4kdownload");
-
-    downloader::service_script_info_list scripts;
-    scripts.push_back(downloader::service_script_info(downloader::mediaSiteMegavideo, 1, "http://www.4kdownload.com/files/script/services/megavideo-2.txt"));
-        
-    downloader::set_service_script_list(scripts);
 
     // Translate
 
@@ -123,7 +118,7 @@ int main(int argc, char *argv[])
 
     qtTranslator.load("qt_" + QLocale::system().name(), translationDir.absolutePath());
 
-    if (!appTranslator.load("audiodownloader_" + QLocale::system().name(), translationDir.absolutePath()))
+    if (!appTranslator.load("audiodownloader_" + QLocale::system().name().left(2), translationDir.absolutePath()))
         appTranslator.load("audiodownloader_en", translationDir.absolutePath());
 
     a.installTranslator(&qtTranslator);
@@ -139,8 +134,6 @@ int main(int argc, char *argv[])
 
     QWidget* view = qobject_cast<QWidget*>(factory->createView(mainViewModel.data()));
     view->show();
-
-    // Prevent multiple execution
 
     QObject::connect(&a, SIGNAL(messageAvailable(QString)), view, SLOT(notifyUser()));
 

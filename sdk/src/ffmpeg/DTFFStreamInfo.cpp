@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTFFStreamInfo.cpp
 
@@ -32,7 +32,16 @@
 
 namespace openmedia {
 
-ff_stream_info_impl::ff_stream_info_impl(const AVStream * _AVStream)
+namespace {
+
+int64_t convertDuration(int64_t duration, AVRational oldBase, AVRational newBase)
+{
+    return static_cast<int64_t>(1.0 * duration / oldBase.den * oldBase.num * newBase.den / newBase.num + 0.5);
+}
+
+}
+
+ff_stream_info_impl::ff_stream_info_impl(const AVFormatContext * avFormatContext, const AVStream * _AVStream)
 {
     DT_ASSERT(NULL != _AVStream);
     if (NULL == _AVStream)
@@ -44,7 +53,10 @@ ff_stream_info_impl::ff_stream_info_impl(const AVStream * _AVStream)
     m_first_dts = _AVStream->first_dts;
     m_time_base = FF2DTType(_AVStream->time_base);
     m_start_time = _AVStream->start_time;
-    m_duration = _AVStream->duration;
+
+    const AVRational tb = {1, AV_TIME_BASE};
+    m_duration = (_AVStream->duration != AV_NOPTS_VALUE) ? _AVStream->duration : convertDuration(avFormatContext->duration,  tb, _AVStream->time_base);;
+
     m_language = /*_AVStream->language*/""; // remove from ffmpeg 0.8
     m_frames_count = _AVStream->nb_frames;
     m_sample_aspect_ratio = FF2DTType(_AVStream->sample_aspect_ratio);

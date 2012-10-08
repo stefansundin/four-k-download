@@ -19,7 +19,7 @@
 
 #include <QWidget>
 #include "viewmodel/mediaitemviewmodel.h"
-#include "componentmodel/binding/binding.h"
+#include "componentmodel/propertybinding.h"
 
 
 namespace Ui
@@ -54,11 +54,11 @@ private:
     Ui::MediaItemView *ui;
     QWeakPointer<const Mvvm::Factory> m_factory;
     QWeakPointer<ViewModel::MediaItemViewModel> m_viewModel;
-    QScopedPointer<Bindings::Binding> m_thumbnailBinding;
-    QScopedPointer<Bindings::Binding> m_titleBinding;
-    QScopedPointer<Bindings::Binding> m_durationBinding;
-    QScopedPointer<Bindings::Binding> m_urlBinding;
-    QScopedPointer<Bindings::Binding> m_checkedBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_thumbnailBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_titleBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_durationBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_urlBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_checkedBinding;
 };
 
 } // View

@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #ifdef _WIN32
 #include "DTFFHeader.h"
@@ -87,6 +87,11 @@ static int wfile_open(URLContext *h, const char *filename, int flags)
     return 0;
 }
 
+static int wfile_open2(URLContext *h, const char *filename, int flags, AVDictionary **options)
+{
+    return wfile_open(h, filename, flags);
+}
+
 typedef int ( *file_read_f)(URLContext *, unsigned char *, int);
 
 typedef  int64_t (*file_seek_f)(URLContext *, int64_t, int);
@@ -142,21 +147,43 @@ static int wfile_close(URLContext *h)
     return _close(fd);
 }
 
+
+static int wfile_check(URLContext *h, int mask)
+{
+    struct _stat st;
+
+    std::string fileName = h->filename;
+    std::wstring wfileName = utf8_to_utf16(fileName);
+
+    int ret = _wstat(wfileName.c_str(), &st);
+    if (ret < 0)
+        return AVERROR(errno);
+
+    ret |= st.st_mode&_S_IREAD ? mask&AVIO_FLAG_READ  : 0;
+    ret |= st.st_mode&_S_IWRITE ? mask&AVIO_FLAG_WRITE : 0;
+
+    return ret;
+}
+
 void ReplaceFFMPEGFileProtocol()
 {
-    URLProtocol * protocol = av_protocol_next(NULL);
+    URLProtocol * protocol = NULL;
+    avio_enum_protocols((void**)&protocol, 0);
     while (protocol && std::string(protocol->name) != "file")
-        protocol = av_protocol_next(protocol);
+        avio_enum_protocols((void**)&protocol, 0);
 
     if (protocol)
     {
         protocol->url_open = &wfile_open;
+        protocol->url_open2 = &wfile_open2;
 
         protocol->url_read = &wfile_read;
         protocol->url_seek = &wfile_seek;
         protocol->url_write = &wfile_write;
         protocol->url_get_file_handle = &wfile_get_handle;
         protocol->url_close = &wfile_close;
+        protocol->url_check = &wfile_check;
+        protocol->priv_data_size = 0;
     }
 };
 

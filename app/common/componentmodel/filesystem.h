@@ -14,23 +14,30 @@
 */
 
 
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
+#ifndef COMPONENTMODEL_FILESYSTEM_H
+#define COMPONENTMODEL_FILESYSTEM_H
 
+#include <QObject>
 #include <QString>
 
 namespace ComponentModel
 {
 
-class FileSystem
+class FileSystem : public QObject
 {
+    Q_OBJECT
+
 public:
-    static QString generateFileName(const QString& ext = "");
-    static QString generateFilePath(const QString& directory, const QString& filename, const QString& ext = "");
-    static QString generateUniqueFilePath(const QString& directory, const QString& filename, const QString& ext = "");
-    static QString filterInvalidSymbols(const QString& filename);
+    Q_INVOKABLE static QString changeFilePathExt(const QString& filepath, const QString& ext = "");
+    Q_INVOKABLE static QString generateFileName(const QString& ext = "");
+    Q_INVOKABLE static QString generateFilePath(const QString& directory, const QString& filename, const QString& ext = "");
+    Q_INVOKABLE static QString generateUniqueFilePath(const QString& directory, const QString& filename, const QString& ext = "");
+    Q_INVOKABLE static QString filterInvalidSymbols(const QString& filename);
+
+    Q_INVOKABLE static void showFile(const QString& filename);
+    Q_INVOKABLE static void openFile(const QString& filename);
 };
 
 } // ComponentModel
 
-#endif // FILESYSTEM_H
+#endif // COMPONENTMODEL_FILESYSTEM_H

@@ -38,6 +38,11 @@ namespace openmedia {
 class audio_format;
 typedef boost::shared_ptr<audio_format> audio_format_ptr;
 
+class media_settings;
+typedef boost::shared_ptr<media_settings> media_settings_ptr;
+
+class audio_decoder_info;
+
 /// \class  audio_format
 class _OPENMEDIASDK_API audio_format: interface_base
 {
@@ -49,6 +54,9 @@ public:
     public:
         invalid_format();    
     };
+
+public:
+    static const char *optSampleRate, *optSampleFormat, *optChannelsCount, *optChannelLayout;
 
 public:
 	int					get_sample_rate() const;
@@ -63,9 +71,13 @@ public:
     virtual             ~audio_format();
 
 public:
+    static audio_format_ptr create(media_settings_ptr settings);
+    static media_settings_ptr serialize(const audio_format * audioFormat);
+
     static audio_format_ptr create(int _SampleRate, dt_sample_format_t _SampleFormat, int _ChannelsCount);
     static audio_format_ptr create(int _SampleRate, dt_sample_format_t _SampleFormat, int _ChannelsCount, dt_channel_layout_t _ChannelLayout);
     static audio_format_ptr create(const audio_format * _AudioFormat);
+    static audio_format_ptr create(const audio_decoder_info * audioDecoderInfo);
     static size_t size_bytes(const audio_format * _AudioFormat, size_t _SamplesCount);
 
 protected:

@@ -55,6 +55,7 @@ public:
     media_packet_ptr    duplicate() const;
     media_packet_ptr    clone() const;
     dt_rational_t       get_time_base() const;
+    dt_rational_t       get_frame_rate() const;
 
     virtual             ~media_packet();
 
@@ -74,7 +75,6 @@ class _OPENMEDIASDK_API media_packet_utils
 public:
     static media_packet_ptr create_null_packet();
     static media_packet_ptr create_empty_packet();
-
     static bool is_null_packet(const media_packet_ptr & _MediaPacket);
 };
 

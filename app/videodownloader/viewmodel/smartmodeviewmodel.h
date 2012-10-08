@@ -19,7 +19,7 @@
 
 #include <QObject>
 #include <QAction>
-#include "mvvm/dialog.h"
+#include "mvvm/cxx/dialog.h"
 #include "componentmodel/notifyobject.h"
 #include "viewmodel/mediaitemviewmodel.h"
 #include "viewmodel/mediadetailsviewmodel.h"

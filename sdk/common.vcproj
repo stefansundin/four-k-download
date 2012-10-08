@@ -47,7 +47,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersCommon.h"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -113,7 +113,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersCommon.h"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -151,50 +151,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="script"
-			>
-			<File
-				RelativePath=".\src\DTScript.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\include\openmedia\DTScript.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DTScriptCreate.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DTScriptImpl.h"
-				>
-			</File>
-			<Filter
-				Name="Python"
-				>
-				<File
-					RelativePath=".\src\DTPythonScript.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTPythonScript.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="QtScript"
-				>
-				<File
-					RelativePath=".\src\DTQtScript.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTQtScript.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
 		<File
 			RelativePath=".\src\DTAllocator.h"
 			>
@@ -206,9 +162,31 @@
 		<File
 			RelativePath=".\src\DTCommon.cpp"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\include\openmedia\DTCommon.h"
+			>
+		</File>
+		<File
+			RelativePath=".\include\openmedia\utils\DTConcurrentQueue.h"
 			>
 		</File>
 		<File
@@ -226,13 +204,57 @@
 		<File
 			RelativePath=".\src\DTError.cpp"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\include\openmedia\DTError.h"
 			>
 		</File>
 		<File
-			RelativePath=".\src\DTHeaders.cpp"
+			RelativePath=".\src\DTFOpen.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\src\DTFOpen.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTHeadersCommon.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -240,7 +262,6 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -253,7 +274,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\include\openmedia\DTHeaders.h"
+			RelativePath=".\src\DTHeadersCommon.h"
 			>
 		</File>
 		<File
@@ -267,6 +288,24 @@
 		<File
 			RelativePath=".\src\DTString.cpp"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="2"
+					PrecompiledHeaderThrough="DTHeadersCommon.h"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\include\openmedia\DTString.h"
@@ -278,6 +317,30 @@
 		</File>
 		<File
 			RelativePath=".\src\DTUtils.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\fake_stream.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="0"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="0"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\src\fake_stream.h"
 			>
 		</File>
 	</Files>

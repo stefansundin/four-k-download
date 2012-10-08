@@ -34,7 +34,6 @@
 #include <openmedia/DTDecoder.h>
 #include <openmedia/DTDecoderInfo.h>
 #include <openmedia/DTAdditionalSettings.h>
-#include <openmedia/DTVideoDataTimed.h>
 
 namespace openmedia {
 
@@ -43,6 +42,10 @@ typedef boost::shared_ptr<media_packet> media_packet_ptr;
 
 class video_data;
 typedef boost::shared_ptr<video_data> video_data_ptr;
+
+template <class MediaData> class media_data_timed;
+typedef media_data_timed<video_data> video_data_timed;
+typedef boost::shared_ptr<video_data_timed> video_data_timed_ptr;
 
 class video_decoder_additional_info;
 typedef boost::shared_ptr<video_decoder_additional_info> video_decoder_additional_info_ptr;

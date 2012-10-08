@@ -19,11 +19,13 @@
 
 #include <QObject>
 #include <QAction>
-#include "mvvm/dialog.h"
-#include "componentmodel/notifyobject.h"
 #include "viewmodel/downloadlistviewmodel.h"
+#include "mvvm/cxx/dialog.h"
+#include "componentmodel/notifyobject.h"
 #include "componentmodel/notifyselection.h"
-#include "componentmodel/binding/binding.h"
+#include "componentmodel/propertybinding.h"
+#include "componentmodel/objectlessor.h"
+#include "multimedia/audioplayer.h"
 #include "openmedia/DTMediaDownloader.h"
 
 namespace ViewModel
@@ -58,8 +60,12 @@ public:
 
     Q_INVOKABLE bool canClose();
 
+public slots:
+    void showMessage(QString message) const;
+    void showUpdate(QString message, bool& needUpdate) const;
+
 signals:
-    void downloadComplited(const ComponentModel::SignalArgs& args);
+    void downloadCompleted();
 
 protected:
     void save();
@@ -77,15 +83,19 @@ protected slots:
     void resumeItems();
     void openFacebook();
 
-    void propertyChanged(const ComponentModel::PropertyChangedSignalArgs& args);
-    void listChanged(const ComponentModel::ListChangedSignalArgs& args);
-    void selectionChanged(const ComponentModel::SelectionChangedSignalArgs& args);
-    void itemParsed(openmedia::downloader::url_parser_result_ptr result);
+    void onListChanged(const ComponentModel::ListChangedSignalArgs& args);
+    void onSelectionChanged(const ComponentModel::SelectionChangedSignalArgs& args);
+    void onItemPropertyChanged(const ComponentModel::PropertyChangedSignalArgs& args);
+    void onItemParsed(openmedia::downloader::url_parser_result_ptr result);
+    void onItemDownloadCompleted();
+    void onItemPlayerCompleted();
 
     void updatePasteAction();
 
 private:
     QWeakPointer<const Mvvm::Dialog> m_dialog;
+    QScopedPointer<Multimedia::AudioPlayer> m_player;
+    QSharedPointer<ComponentModel::ObjectLessor> m_playerLessor;
     DownloadListViewModel m_list;
     ComponentModel::NotifySelection m_selection;
     QAction m_pasteAction;

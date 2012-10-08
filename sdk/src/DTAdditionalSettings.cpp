@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAdditionalSettings.cpp
 
@@ -72,7 +72,7 @@ const std::string & additional_settings::Impl::find(const std::string & Name) co
             return i->second;
 
     BOOST_THROW_EXCEPTION(invalid_setting());
-    return InvalidResult;
+    DT_IF_DISABLE_EXCEPTIONS(return InvalidResult);
 }
 
 ///

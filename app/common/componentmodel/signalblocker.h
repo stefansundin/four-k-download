@@ -14,8 +14,8 @@
 */
 
 
-#ifndef SIGNALBLOCKER_H
-#define SIGNALBLOCKER_H
+#ifndef COMPONENTMODEL_SIGNALBLOCKER_H
+#define COMPONENTMODEL_SIGNALBLOCKER_H
 
 #include <QObject>
 #include <QWeakPointer>
@@ -26,13 +26,15 @@ namespace ComponentModel
 class SignalBlocker
 {
 public:
-    SignalBlocker(QObject* object);
+    explicit SignalBlocker(QObject* object);
     virtual ~SignalBlocker();
 
 private:
     QWeakPointer<QObject> m_object;
+
+    Q_DISABLE_COPY(SignalBlocker)
 };
 
 } // ComponentModel
 
-#endif // SIGNALBLOCKER_H
+#endif // COMPONENTMODEL_SIGNALBLOCKER_H

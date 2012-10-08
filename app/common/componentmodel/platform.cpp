@@ -87,6 +87,52 @@ bool Platform::isFedora()
 }
 
 
+Platform::WindowsVersion Platform::windowsVersion()
+{
+#if defined(Q_OS_WIN)
+    switch (QSysInfo::windowsVersion())
+    {
+    case QSysInfo::WV_WINDOWS7:
+        return Windows7;
+        
+    case QSysInfo::WV_VISTA:
+        return WindowsVista;
+        
+    case QSysInfo::WV_XP:
+        return WindowsXP;
+        
+    default:
+        break;
+    }
+#endif
+
+    return UnknownWindowsVersion;
+}
+
+
+Platform::MacVersion Platform::macVersion()
+{
+#if defined(Q_OS_MAC)
+    switch (QSysInfo::MacintoshVersion)
+    {
+    case QSysInfo::MV_10_7:
+        return Mac10_7;
+        
+    case QSysInfo::MV_10_6:
+        return Mac10_6;
+        
+    case QSysInfo::MV_10_5:
+        return Mac10_5;
+        
+    default:
+        break;
+    }
+#endif
+
+    return UnknownMacVersion;
+}
+
+
 Platform::Architecture Platform::architecture()
 {
     switch (sizeof(ptrdiff_t))

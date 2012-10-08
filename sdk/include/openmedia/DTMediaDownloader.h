@@ -88,10 +88,14 @@ enum media_quality_type_t
     mediaQualityUnknown,
     mediaQualityOriginal,
     mediaQuality1080P,
+    mediaQuality720P_1,
     mediaQuality720P,
     mediaQuality480P,
+    mediaQuality360P_1,
     mediaQuality360P,
-    mediaQuality240P
+    mediaQuality240P_1,
+    mediaQuality240P,
+    mediaQualityQCIF    
 };
 
 int get_media_similarity(media_quality_type_t Quality1, 
@@ -110,10 +114,15 @@ typedef boost::shared_ptr<media_url_handle> media_url_handle_ptr;
 class media_info_handle;
 typedef boost::shared_ptr<media_info_handle> media_info_handle_ptr;
 
+std::string get_media_url(media_url_handle * UrlHandle);
+
 /// \class  media_download_info
 class media_download_info
 {
 public:
+    media_download_info()
+    {}
+
     media_download_info(
         media_url_handle_ptr MediaUrlHandle,
         media_info_handle_ptr MediaInfoHandle
@@ -127,7 +136,7 @@ public:
     media_info_handle_ptr   get_media_info_handle() const { return media_info_handle_; }
    
     media_content_type_t    content_type() const; 
-    boost::uint64_t       content_size() const;
+    boost::uint64_t         content_size() const;
 
     int                     width() const;
     int                     height() const;
@@ -209,13 +218,18 @@ public:
     std::wstring            title() const;
     std::string             title_utf8() const;
     BytesArrayPtr           thumbnail() const;
-    boost::uint32_t       duration() const;
+    boost::uint32_t         duration() const;
     std::string             url() const;
-    
+   
     size_t                      size() const;
     const media_download_info & media(size_t Index) const;
     int                         find(media_quality_type_t Quality, media_content_type_t Content) const;
     bool                        initialized() const;
+
+    size_t                  subtitles_count();
+    std::string             subtitle_id_at(size_t index);
+    std::string             subtitle_lang_at(size_t index);
+    void                    subtitle_save(size_t index, const std::string & fileNameUtf8);
 
 public:
     enum InitializedResult

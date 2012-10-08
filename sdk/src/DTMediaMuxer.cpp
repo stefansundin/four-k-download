@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTMediaMuxer.cpp
 
@@ -27,9 +27,19 @@
 
 namespace openmedia {
 
+void media_muxer::open()
+{
+    return impl()->open();
+}
+
 void media_muxer::write_packet(media_packet_ptr _MediaPacket)
 {
     return impl()->write_packet(_MediaPacket);
+}
+
+void media_muxer::write_packet(media_packet_ptr _MediaPacket, int stream)
+{
+    return impl()->write_packet(_MediaPacket, stream);
 }
 
 void media_muxer::close()

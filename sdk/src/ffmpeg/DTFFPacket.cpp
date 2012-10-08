@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTFFPacket.cpp
 
@@ -38,6 +41,7 @@ class ff_media_packet_impl : public media_packet::Impl
 {
 public:
     ff_media_packet_impl(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase);
+    ff_media_packet_impl(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase, dt_rational_t frameRate);
     
 public:
     virtual dt_ts_t             get_pts() const;
@@ -51,12 +55,14 @@ public:
     virtual dt_filesize_t       get_byte_pos() const;
     virtual bool                is_valid() const;
     virtual dt_rational_t       get_time_base() const;
+    virtual dt_rational_t       get_frame_rate() const;
 
 private:
     AVPacketPtr     m_AVPacket;
     bool            m_Valid;
     dt_media_type_t m_MediaType;
     dt_rational_t   m_TimeBase;
+    dt_rational_t   m_FrameRate;
 
 private:
 #if defined(DT_VALIDATE_PACKET) && (DT_VALIDATE_PACKET == 1)
@@ -66,6 +72,22 @@ private:
 };
 
 // ff_media_packet_impl impl
+
+inline ff_media_packet_impl::
+ff_media_packet_impl(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase, dt_rational_t frameRate):
+m_AVPacket(_AVPacket),
+m_Valid(true),
+m_MediaType(_MediaType),
+m_TimeBase(_TimeBase),
+m_FrameRate(frameRate)
+{
+#if defined(DT_VALIDATE_PACKET) && (DT_VALIDATE_PACKET == 1)
+    md5_state_t md5State;
+    md5_init(&md5State);
+    md5_append(&md5State, _AVPacket->data, _AVPacket->size);
+    md5_finish(&md5State, m_MD5);
+#endif // defined(DT_VALIDATE_PACKET) && (DT_VALIDATE_PACKET == 1)
+}
 
 inline ff_media_packet_impl::ff_media_packet_impl(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase) :
 m_AVPacket(_AVPacket),
@@ -161,18 +183,34 @@ inline dt_rational_t ff_media_packet_impl::get_time_base() const
     return m_TimeBase;
 }
 
+inline dt_rational_t ff_media_packet_impl::get_frame_rate() const
+{
+    return m_FrameRate;
+}
+
 // ff_media_packet impl
+
+namespace 
+{
+}
 
 ff_media_packet::ff_media_packet(AVPacketPtr _AVPacket): media_packet(new ff_media_packet_impl(_AVPacket, DT_AVMEDIA_TYPE_UNKNOWN, dt_rational_t()))
 {
 }
 
-ff_media_packet::ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType): media_packet(new ff_media_packet_impl(_AVPacket, _MediaType, dt_rational_t()))
+ff_media_packet::ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType):
+media_packet(new ff_media_packet_impl(_AVPacket, _MediaType, dt_rational_t()))
 {
 }
 
 ff_media_packet::ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase)
 : media_packet(new ff_media_packet_impl(_AVPacket, _MediaType, _TimeBase))
+{
+}
+
+ff_media_packet::
+ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase, dt_rational_t frameRate) :
+media_packet(new ff_media_packet_impl(_AVPacket, _MediaType, _TimeBase, frameRate))
 {
 }
 

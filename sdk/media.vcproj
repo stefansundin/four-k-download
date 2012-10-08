@@ -47,7 +47,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersMedia.h"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -108,12 +108,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)3rdparty/urdl/include&quot;;&quot;$(SolutionDir)../ffmpeg/include&quot;;&quot;$(ProjectDir)include/msvc&quot;;&quot;$(SolutionDir)3rdparty/lame/include&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)include&quot;;&quot;$(SolutionDir)3rdparty/urdl/include&quot;;&quot;$(SolutionDir)../ffmpeg/include&quot;;&quot;$(ProjectDir)include/msvc&quot;;&quot;$(SolutionDir)3rdparty/lame/include&quot;;&quot;$(SolutionDir)../lame/include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;URDL_DISABLE_SSL;_WIN32_WINNT=0x0501;__STDC_CONSTANT_MACROS;DT_CONFIG_HAVE_UTF16_OPEN=1;DT_HAVE_QT_SCRIPT_DISABLED"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersMedia.h"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -154,6 +154,22 @@
 		<Filter
 			Name="Audio"
 			>
+			<File
+				RelativePath=".\src\DTAudioFilter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\audiofilters\DTAudioFilterAmpilfy.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTAudioFilterImpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTAudioFilters.h"
+				>
+			</File>
 			<Filter
 				Name="Audio Buffer"
 				>
@@ -213,19 +229,11 @@
 					Name="ffmpeg"
 					>
 					<File
-						RelativePath=".\src\ffmpeg\DTFFResampleConvert.cpp"
+						RelativePath=".\src\ffmpeg\DTFFSWResample.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ffmpeg\DTFFResampleConvert.h"
-						>
-					</File>
-					<File
-						RelativePath=".\src\ffmpeg\DTFFSampleFmtConvert.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\src\ffmpeg\DTFFSampleFmtConvert.h"
+						RelativePath=".\src\ffmpeg\DTFFSWResample.h"
 						>
 					</File>
 				</Filter>
@@ -410,6 +418,10 @@
 		<Filter
 			Name="Encoder"
 			>
+			<File
+				RelativePath=".\src\DTVideoEncoderQueueImpl.cpp"
+				>
+			</File>
 			<Filter
 				Name="Audio"
 				>
@@ -422,7 +434,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\DTAudioEncoderCreate.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\include\openmedia\DTAudioEncoderDirect.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\DTAudioEncoderFactory.h"
 					>
 				</File>
 				<File
@@ -447,6 +467,34 @@
 				</File>
 				<File
 					RelativePath=".\src\DTAudioEncoderSettingsImpl.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Video"
+				>
+				<File
+					RelativePath=".\include\openmedia\DTVideoEncoder.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\DTVideoEncoderCreate.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\DTVideoEncoderFactory.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\DTVideoEncoderQueue.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\include\openmedia\DTVideoEncoderQueue.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\DTVideoEncoderQueueImpl.h"
 					>
 				</File>
 			</Filter>
@@ -586,18 +634,6 @@
 				RelativePath=".\src\DTMediaMuxerImpl.h"
 				>
 			</File>
-			<Filter
-				Name="ffmpeg"
-				>
-				<File
-					RelativePath=".\src\ffmpeg\DTFFMediaMuxer.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\ffmpeg\DTFFMediaMuxer.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Packet"
@@ -772,6 +808,18 @@
 			</Filter>
 		</Filter>
 		<Filter
+			Name="PPMFile"
+			>
+			<File
+				RelativePath=".\src\DTPPMFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTPPMFile.h"
+				>
+			</File>
+		</Filter>
+		<Filter
 			Name="PictureConvert"
 			>
 			<File
@@ -810,6 +858,82 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="MediaHandle"
+			>
+			<File
+				RelativePath=".\src\DTMediaHandle.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTMediaHandle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTMediaHandleImpl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="MediaFile"
+			>
+			<File
+				RelativePath=".\src\DTMediaFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTMediaFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTMediaFileInfoImpl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTMediaFileInfoImpl.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="MediaSource"
+			>
+			<File
+				RelativePath=".\include\openmedia\DTAudioSource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTMediaSource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTVideoSource.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="AV Source"
+			>
+			<File
+				RelativePath=".\src\DTAVSource.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTAVSource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTAVSourceFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTAVSourceFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\DTAVSourceImpl.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\src\DTAdditionalSettings.cpp"
@@ -868,7 +992,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\src\DTHeaders.cpp"
+			RelativePath=".\src\DTEncoderFactory.h"
+			>
+		</File>
+		<File
+			RelativePath=".\include\openmedia\DTEncoderInfo.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTHeadersMedia.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -876,7 +1008,7 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+					PrecompiledHeaderThrough="DTHeadersMedia.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -885,11 +1017,20 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"
+					PrecompiledHeaderThrough="DTHeadersMedia.h"
 				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\include\openmedia\DTHeaders.h"
+			RelativePath=".\src\DTHeadersMedia.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTMediaSettings.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\include\openmedia\DTMediaSettings.h"
 			>
 		</File>
 		<File
@@ -914,6 +1055,18 @@
 		</File>
 		<File
 			RelativePath=".\src\DTRAWFile.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTRegisterElements.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\include\openmedia\DTRegisterElements.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTSampleFormatTypes.cpp"
 			>
 		</File>
 		<File

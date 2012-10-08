@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersCommon.h"
+// precompiled header end
 
 #include <openmedia/DTCommon.h>
 

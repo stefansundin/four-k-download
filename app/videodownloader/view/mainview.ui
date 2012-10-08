@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>4k Video Downloader</string>
+   <string>4K Video Downloader</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resource/image.qrc">

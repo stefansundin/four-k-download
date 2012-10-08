@@ -25,7 +25,7 @@
 using namespace View;
 using namespace ViewModel;
 using namespace ComponentModel;
-using namespace Bindings;
+using namespace Gui;
 using namespace Mvvm;
 
 
@@ -40,8 +40,12 @@ DownloadSettingsView::DownloadSettingsView(const Factory* factory, QWidget *pare
     ui->setupUi(this);
 
     QFont font = ui->parsingLabel->font();
+#if defined(Q_OS_WIN)
+    QFontInfo fontInfo(font);
+    font.setFamily("Segoe UI");
+    font.setPixelSize(fontInfo.pixelSize() + 1);
+#endif
     font.setBold(true);
-    font.setPointSize(font.pointSize() + 2);
     ui->parsingLabel->setFont(font);
 
     QColor color = ui->delimiterLine->palette().color(QPalette::Window).darker(112);
@@ -53,6 +57,7 @@ DownloadSettingsView::DownloadSettingsView(const Factory* factory, QWidget *pare
     ui->delimiterLine->setStyleSheet(stylesheet);
     ui->delimiterLine_2->setStyleSheet(stylesheet);
     ui->videoLine->setStyleSheet(stylesheet);
+    ui->subtitlesLine->setStyleSheet(stylesheet);
     ui->audioLine->setStyleSheet(stylesheet);
     ui->saveLine->setStyleSheet(stylesheet);
     ui->delimiterLine_2->setVisible(false);
@@ -71,6 +76,8 @@ DownloadSettingsView::DownloadSettingsView(const Factory* factory, QWidget *pare
     ui->qualityWidget->setVisible(false);
     ui->extractTitleWidget->setVisible(false);
     ui->extractWidget->setVisible(false);
+    ui->subtitlesTitleWidget->setVisible(false);
+    ui->subtitlesWidget->setVisible(false);
     ui->saveTitleWidget->setVisible(false);
     ui->saveWidget->setVisible(false);
 
@@ -108,6 +115,10 @@ void DownloadSettingsView::setViewModel(QObject* value)
         {
             m_menu.clear();
 
+            m_subtitlesEnabled1Binding.reset();
+            m_subtitlesEnabled2Binding.reset();
+            m_subtitlesDownloadBinding.reset();
+            m_subtitlesBinding.reset();
             m_fileBinding.reset();
             m_fileActionBinding.reset();
 
@@ -125,7 +136,11 @@ void DownloadSettingsView::setViewModel(QObject* value)
             list.append(m_viewModel.data()->uncheckAllAction());
             m_menu.addActions(list);
 
-            m_fileBinding.reset(new Binding(ui->saveEdit, "text", m_viewModel.data(), "outputPath"));
+            m_subtitlesEnabled1Binding.reset(new PropertyBinding(ui->subtitlesTitleWidget, "enabled", m_viewModel.data(), "subtitlesEnabled"));
+            m_subtitlesEnabled2Binding.reset(new PropertyBinding(ui->subtitlesWidget, "enabled", m_viewModel.data(), "subtitlesEnabled"));
+            m_subtitlesDownloadBinding.reset(new PropertyBinding(ui->subtitlesCheckBox, "checked", m_viewModel.data(), "subtitlesDownload", PropertyBinding::TwoWay));
+            m_subtitlesBinding.reset(new ComboboxBinding(ui->subtitlesComboBox, m_viewModel.data(), "subtitlesList", "subtitlesIndex"));
+            m_fileBinding.reset(new PropertyBinding(ui->saveEdit, "text", m_viewModel.data(), "outputPath"));
             m_fileActionBinding.reset(new ButtonActionBinding(ui->saveButton, m_viewModel.data()->outputPathAction()));
 
             QObject::connect(m_viewModel.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
@@ -171,6 +186,10 @@ void DownloadSettingsView::propertyChanged(const ComponentModel::PropertyChanged
                                            hasExtractAudio(m_viewModel.data()->detailsList()));
         ui->extractWidget->setVisible(state == DownloadSettingsViewModel::Done &&
                                       hasExtractAudio(m_viewModel.data()->detailsList()));
+        ui->subtitlesTitleWidget->setVisible(state == DownloadSettingsViewModel::Done &&
+                                             m_viewModel.data()->subtitlesList().count() > 0);
+        ui->subtitlesWidget->setVisible(state == DownloadSettingsViewModel::Done &&
+                                        m_viewModel.data()->subtitlesList().count() > 0);
         ui->saveTitleWidget->setVisible(state == DownloadSettingsViewModel::Done);
         ui->saveWidget->setVisible(state == DownloadSettingsViewModel::Done);
 

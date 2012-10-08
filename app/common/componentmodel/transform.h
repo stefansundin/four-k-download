@@ -14,9 +14,10 @@
 */
 
 
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
+#ifndef COMPONENTMODEL_TRANSFORM_H
+#define COMPONENTMODEL_TRANSFORM_H
 
+#include <QObject>
 #include <QString>
 #include <QTime>
 #include <QPixmap>
@@ -24,15 +25,17 @@
 namespace ComponentModel
 {
 
-class Transform
+class Transform : public QObject
 {
+    Q_OBJECT
+
 public:
-    static QString timeToString(qint64 time, const QString& format = "hh:mm:ss.zzz");
-    static QString storageSizeToString(qint64 size, const QString& format = "");
-    static QPixmap base64ToPixmap(const QString& base64);
-    static QString pixmapToBase64(const QPixmap& pixmap);
+    Q_INVOKABLE static QString timeToString(qint64 time, const QString& format = "hh:mm:ss.zzz");
+    Q_INVOKABLE static QString storageSizeToString(qint64 size, const QString& format = "");
+    Q_INVOKABLE static QPixmap base64ToPixmap(const QString& base64);
+    Q_INVOKABLE static QString pixmapToBase64(const QPixmap& pixmap);
 };
 
 } // ComponentModel
 
-#endif // TRANSFORM_H
+#endif // COMPONENTMODEL_TRANSFORM_H

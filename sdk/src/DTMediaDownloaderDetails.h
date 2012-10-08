@@ -24,8 +24,12 @@
 #include <openmedia/DTMediaDownloader.h>
 #include <vector>
 #include <boost/foreach.hpp>
+#include "DTDownloaderUtils.h"
 
 namespace openmedia { namespace downloader {
+
+class subtitles;
+typedef boost::shared_ptr<subtitles> subtitles_ptr;
 
 media_content_type_t parse_media_content_type(const std::string & MediaContentStr);
 
@@ -108,8 +112,13 @@ class media_download_list::Impl
 {
 public:
     
-    Impl(const std::wstring & Title, const std::string & TitleUtf8, BytesArrayPtr Thumbnail, boost::uint32_t Duration, const std::string & Url) :
-      title_(Title), title_utf8_(TitleUtf8), thumbnail_(Thumbnail), duration_(Duration), url_(Url)
+    Impl(const std::wstring & Title,
+        const std::string & TitleUtf8,
+        BytesArrayPtr Thumbnail,
+        boost::uint32_t Duration,
+        const std::string & Url,
+        subtitles_ptr _subs = subtitles_ptr()) :
+      title_(Title), title_utf8_(TitleUtf8), thumbnail_(Thumbnail), duration_(Duration), url_(Url), subs_(_subs)
       {}
 
     size_t size() const 
@@ -162,10 +171,15 @@ public:
     std::wstring            title() const { return title_; }
     std::string             title_utf8() const { return title_utf8_; }
     BytesArrayPtr           thumbnail() const { return thumbnail_; }
-    boost::uint32_t       duration() const { return duration_; }
+    boost::uint32_t         duration() const { return duration_; }
     std::string             url() const 
     { 
         return url_;
+    }
+
+    subtitles_ptr subs() const
+    {
+        return subs_;
     }
 
 private:
@@ -176,8 +190,42 @@ private:
     BytesArrayPtr thumbnail_;
     boost::uint32_t duration_;    
     std::string url_;
+    subtitles_ptr subs_;
     
 };
+
+inline std::pair<bool, media_download_info> parse_video(const std::string & url, 
+                                const std::string & cookies,
+                                media_quality_type_t quality,
+                                media_video_type_t video,
+                                media_audio_type_t audio)
+{
+    std::string headers;
+    download_page_header_ref(url, headers, cookies, "", "");
+    std::vector<HttpHeader> paresed_headers;
+    parse_http_headers(headers, paresed_headers); 
+    
+    std::string media_type;
+    boost::uint64_t content_size;
+
+    if (is_media_content(paresed_headers, media_type, content_size))
+    {
+        media_url_handle_ptr urlH =
+            media_url_handle_ptr( new media_url_handle(url, media_type, content_size, cookies, "") );
+        media_content_type_t media_type_ = ::openmedia::downloader::parse_media_content_type(media_type);
+
+        media_info_handle_ptr mediaH = media_info_handle_ptr( 
+            new media_info_handle(
+            0, 
+            0, 
+            quality,
+            media_type_,
+            video, 
+            audio) );    
+        return std::pair<bool, media_download_info>(true, media_download_info(urlH, mediaH));
+    }
+    return std::pair<bool, media_download_info>(false, media_download_info());
+}
 
 } }
 

@@ -55,18 +55,22 @@ class MediaDownloadItem
 {
 public:
     MediaDownloadItem();
-    MediaDownloadItem(MediaDownloadType downloadType, openmedia::downloader::media_download_list_ptr mediaList, int mediaIndex, QString outputPath, bool needGenerate = false);
+    MediaDownloadItem(MediaDownloadType downloadType, openmedia::downloader::media_download_list_ptr mediaList, int mediaIndex,
+                      int subtitlesIndex, QString outputPath, bool needGenerate = false);
 
     MediaDownloadType downloadType() const;
     openmedia::downloader::media_download_list_ptr mediaList() const;
     openmedia::downloader::media_download_info media() const;
     int mediaIndex() const;
-    QString fileName() const;
+    int subtitlesIndex() const;
+    QString mediaFileName() const;
+    QString subtitlesFileName() const;
 
 private:
     MediaDownloadType m_downloadType;
     openmedia::downloader::media_download_list_ptr m_mediaList;
     int m_mediaIndex;
+    int m_subtitlesIndex;
     QString m_outputPath;
     bool m_needGenerate;
 };

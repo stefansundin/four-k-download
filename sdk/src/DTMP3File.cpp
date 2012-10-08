@@ -14,13 +14,17 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTMP3File.cpp
 
 #include <openmedia/DTMP3File.h>
 #include <openmedia/DTString.h>
 #include "DTMediaMuxerImpl.h"
+#include "DTFOpen.h"
 
 #include <openmedia/DTError.h>
 #include <openmedia/DTCodecExtraData.h>
@@ -32,20 +36,6 @@
 
 namespace openmedia {
 
-namespace {
-    class file_close_op
-    {
-    public:
-        void operator()(FILE * _File)
-        {
-            if (_File)
-            {
-                fclose(_File);
-            }
-        }
-    };
-}
-
 class media_muxer_mp3file_impl : public media_muxer::Impl
 {
 public:
@@ -55,15 +45,8 @@ public:
         const codec_extra_data_ptr _CodecExtraData
         );
 
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    media_muxer_mp3file_impl(
-        const wchar_t * _FileName,
-        const audio_format * _AudioFormat,
-        codec_extra_data_ptr _CodecExtraData
-        );
-#endif
-
 public:
+    virtual void open() {};
     virtual void write_packet(media_packet_ptr _MediaPacket);
     virtual void close();
 
@@ -74,7 +57,6 @@ private:
     const audio_format * _AudioFormat,
     codec_extra_data_ptr _CodecExtraData);
 
-    void create_file(const wchar_t * _FileName);
     void create_file(const char * _FileName);
     void write_to_mp3(void * buf, size_t Size);
 
@@ -94,22 +76,8 @@ private:
 
 void media_muxer_mp3file_impl::write_to_mp3(void * buf, size_t Size)
 {
-#if 0
-    ofstream_.write((const char *)buf, Size);
-#else
     fwrite((const void*)buf, Size, 1, outputFile_.get());
-#endif
 }
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-media_muxer_mp3file::media_muxer_mp3file(
-    const wchar_t * _FileName,
-    const audio_format * _AudioFormat,
-    codec_extra_data_ptr _CodecExtraData
-    ) : media_muxer( new media_muxer_mp3file_impl(_FileName, _AudioFormat, _CodecExtraData) )
-{
-}
-#endif
 
 media_muxer_mp3file::media_muxer_mp3file(
     const char * _FileName,
@@ -147,30 +115,18 @@ void media_muxer_mp3file_impl::open_impl(Char * _FileName,
 
 }
 
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-void media_muxer_mp3file_impl::create_file(const wchar_t * _FileName)
-{
-    FILE * f = _wfopen(_FileName, L"wb");
-    if (!f)
-    {
-        BOOST_THROW_EXCEPTION( errors::create_file() );
-        return;
-    }
-
-    outputFile_ = boost::shared_ptr<FILE>(f, file_close_op());
-}
-#endif
-
 void media_muxer_mp3file_impl::create_file(const char * _FileName)
 {
-    FILE * f = fopen(_FileName, "wb");
+
+    FILEPtr f = dt_fopen(_FileName, "wb");
+
     if (!f)
     {
         BOOST_THROW_EXCEPTION( errors::create_file() );
         return;
     }
 
-    outputFile_ = boost::shared_ptr<FILE>(f, file_close_op());
+    outputFile_ = f;
 }
 
 
@@ -183,17 +139,6 @@ media_muxer_mp3file_impl::media_muxer_mp3file_impl(
 {
     open_impl(_FileName, _AudioFormat, _CodecExtraData);
 }
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-media_muxer_mp3file_impl::media_muxer_mp3file_impl(
-    const wchar_t * _FileName,
-    const audio_format * _AudioFormat,
-    codec_extra_data_ptr _CodecExtraData
-    ) : m_id3v2_EndPos(0)
-{
-    open_impl(_FileName, _AudioFormat, _CodecExtraData);
-}
-#endif
 
 void media_muxer_mp3file_impl::write_packet(media_packet_ptr _MediaPacket)
 {

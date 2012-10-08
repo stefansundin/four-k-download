@@ -21,9 +21,10 @@
 #include <QMovie>
 #include <QMenu>
 #include "viewmodel/downloadsettingsviewmodel.h"
-#include "componentmodel/binding/binding.h"
-#include "gui/binding/buttonactionbinding.h"
-#include "mvvm/factory.h"
+#include "componentmodel/propertybinding.h"
+#include "gui/cxx/buttonactionbinding.h"
+#include "gui/cxx/comboboxbinding.h"
+#include "mvvm/cxx/factory.h"
 
 namespace Ui
 {
@@ -59,8 +60,12 @@ private:
     QWeakPointer<const Mvvm::Factory> m_factory;
     QWeakPointer<ViewModel::DownloadSettingsViewModel> m_viewModel;
     QMenu m_menu;
-    QScopedPointer<Bindings::Binding> m_fileBinding;
-    QScopedPointer<Bindings::ButtonActionBinding> m_fileActionBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_subtitlesEnabled1Binding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_subtitlesEnabled2Binding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_subtitlesDownloadBinding;
+    QScopedPointer<Gui::ComboboxBinding> m_subtitlesBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_fileBinding;
+    QScopedPointer<Gui::ButtonActionBinding> m_fileActionBinding;
 };
 
 } // View

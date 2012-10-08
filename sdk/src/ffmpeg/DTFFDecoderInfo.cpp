@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTFFDecoderInfo.cpp
 
@@ -462,7 +462,7 @@ decoder_info_ptr create_ff_decoder_info(AVCodecContext * _Codec)
     if (NULL == _Codec)
     {
         BOOST_THROW_EXCEPTION(errors::invalid_pointer());
-        return decoder_info_ptr((decoder_info*)NULL);
+        DT_IF_DISABLE_EXCEPTIONS(return decoder_info_ptr());
     }
 
     decoder_info_ptr decoderInfo;

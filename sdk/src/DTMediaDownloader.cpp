@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersVideoDownload.h"
+// precompiled header end
 
 #include <string>
 #include <vector>
@@ -31,19 +34,20 @@
 #include <openmedia/DTMediaSite.h>
 #include <openmedia/DTHttpDownloader.h>
 #include <openmedia/DTAssert.h>
+#include <openmedia/DTError.h>
 
 #include "DTMediaDownloaderDetails.h"
 #include "DTDownloaderYoutube.h"
-#include "DTDownloaderXnxx.h"
+#include "videodownload/DTDownloaderRaiTv.h"
 #include "DTDownloaderVimeo.h"
 #include "DTDownloaderDailymotion.h"
 #include "DTDownloaderFacebook.h"
-#include "DTDownloaderMegavideo.h"
 #include "DTDownloaderMetacafe.h"
 
 #include "DTMediaDownloaderImpl.h"
 
 #include "DTLog.h"
+#include "videodownload/DTSubtitle.h"
 
 namespace openmedia { namespace downloader {
 
@@ -198,6 +202,44 @@ void media_download_list::on_initialize_(OnInitialized onInitialized, url_parser
     }
 }
 
+size_t media_download_list::subtitles_count()
+{
+    if (impl_->subs())
+        return impl_->subs()->count();
+    else
+        return 0;
+}
+
+std::string media_download_list::subtitle_id_at(size_t index)
+{
+    if (impl_->subs())
+        return impl_->subs()->id_at(index);
+    else
+    {
+        BOOST_THROW_EXCEPTION(errors::invalid_operation());
+    }
+}
+
+std::string media_download_list::subtitle_lang_at(size_t index)
+{
+    if (impl_->subs())
+        return impl_->subs()->lang_at(index);
+    else
+    {
+        BOOST_THROW_EXCEPTION(errors::invalid_operation());
+    }
+}
+
+void media_download_list::subtitle_save(size_t index, const std::string & fileNameUtf8)
+{
+    if (impl_->subs())
+        return impl_->subs()->save(index, fileNameUtf8);
+    else
+    {
+        BOOST_THROW_EXCEPTION(errors::invalid_operation());
+    }
+}
+
 //
 
 bool compare_media_download_info(const media_download_info & i1, const media_download_info & i2)
@@ -306,8 +348,8 @@ url_parser_result_ptr url_parser::parse_url(const std::string & Url, url_parser:
         }
             break;
 
-        case mediaSiteXnxx:
-            result =  downloader::xnxx::parse_url(Url);
+        case mediaSiteRaiTv:
+            result = downloader::raitv::parse_url(Url);
             break;
 
         case mediaSiteVimeo:
@@ -320,10 +362,6 @@ url_parser_result_ptr url_parser::parse_url(const std::string & Url, url_parser:
 
         case mediaSiteFacebook:
             result =  downloader::facebook::parse_url(Url);
-            break;
-
-        case mediaSiteMegavideo:
-            result =  downloader::megavideo::parse_url(Url);
             break;
 
         case mediaSiteMetacafe:
@@ -424,6 +462,7 @@ public:
 
     ~media_downloader_Impl()
     {
+        DT_LOG(trace) << "destroy media_downloader::Impl\n";
     }
 
     media_downloader::command_result_t pause() 
@@ -471,6 +510,8 @@ namespace {
         media_url_handle_ptr MediaUrl, media_info_handle_ptr MediaInfo, const String & OutputFilename, media_downloader::DownloadStateNotify StateNotify, media_downloader::DownloadProgressNotify ProgressNotify
         )
     {
+        //std::cout << "\n" << MediaUrl->url() << "\n";
+        DT_LOG(trace) << "Content Size: " << MediaUrl->content_size() << "\n";
         if (MediaInfo->duration() > 0 && mediaSiteYoutube == media_site_utils::validate_url(MediaUrl->url()))
         {
             const size_t bytesPerSec = static_cast<size_t>(MediaUrl->content_size() / (1.0 * MediaInfo->duration() / 1000.0));
@@ -517,23 +558,27 @@ media_downloader::media_downloader(media_url_handle_ptr MediaUrl, media_info_han
 
 media_downloader::~media_downloader()
 {
+    DT_LOG(trace) << "destroy media downloader" << "\n";
     delete impl_;
 }
 
 media_downloader::command_result_t media_downloader::pause() 
 { 
+    DT_LOG(debug) << "media_downloader::pause";
     DT_ASSERT(NULL != impl_);
     return impl_->pause(); 
 }
 
 media_downloader::command_result_t media_downloader::resume() 
 {
+    DT_LOG(debug) << "media_downloader::resume";
     DT_ASSERT(NULL != impl_);
     return impl_->resume(); 
 }
 
 media_downloader::command_result_t media_downloader::cancel() 
 { 
+    DT_LOG(debug) << "media_downloader::cancel";
     DT_ASSERT(NULL != impl_);
     return impl_->cancel(); 
 }
@@ -574,5 +619,9 @@ int get_media_similarity(media_quality_type_t Quality1,
         return 25 - (std::abs)(Quality1 - Quality2);
 }
 
+std::string get_media_url(media_url_handle * UrlHandle)
+{
+    return UrlHandle ? UrlHandle->url() : "";
+}
 
 } }

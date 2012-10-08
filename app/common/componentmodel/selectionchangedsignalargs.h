@@ -14,10 +14,11 @@
 */
 
 
-#ifndef SELECTIONCHANGEDSIGNALARGS_H
-#define SELECTIONCHANGEDSIGNALARGS_H
+#ifndef COMPONENTMODEL_SELECTIONCHANGEDSIGNALARGS_H
+#define COMPONENTMODEL_SELECTIONCHANGEDSIGNALARGS_H
 
 #include "componentmodel/signalargs.h"
+#include "componentmodel/metatypes.h"
 
 namespace ComponentModel
 {
@@ -39,4 +40,4 @@ private:
 
 Q_DECLARE_METATYPE(ComponentModel::SelectionChangedSignalArgs)
 
-#endif // SELECTIONCHANGEDSIGNALARGS_H
+#endif // COMPONENTMODEL_SELECTIONCHANGEDSIGNALARGS_H

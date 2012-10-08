@@ -14,8 +14,8 @@
 */
 
 
-#ifndef PROGRESS_H
-#define PROGRESS_H
+#ifndef COMPONENTMODEL_PROGRESS_H
+#define COMPONENTMODEL_PROGRESS_H
 
 #include <QObject>
 #include <QElapsedTimer>
@@ -37,9 +37,9 @@ class Progress : public QObject
 public:
     Progress(qint64 beginValue, qint64 endValue, int updateInterval = 2000, qint64 calcInterval = 0, QObject* parent = 0);
 
-    bool start();
-    bool stop();
-    void reset();
+    Q_INVOKABLE bool start();
+    Q_INVOKABLE bool stop();
+    Q_INVOKABLE void reset();
 
     qint64 beginValue() const;
     qint64 endValue() const;
@@ -72,4 +72,4 @@ private:
 
 } // ComponentModel
 
-#endif // PROGRESS_H
+#endif // COMPONENTMODEL_PROGRESS_H

@@ -18,7 +18,7 @@
 #define MEDIADETAILSVIEWMODEL_H
 
 #include <QObject>
-#include "mvvm/dialog.h"
+#include "mvvm/cxx/dialog.h"
 #include "componentmodel/notifyobject.h"
 #include "viewmodel/mediadownload.h"
 

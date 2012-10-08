@@ -27,6 +27,7 @@
 #include "../DTStreamInfoImpl.h"
 
 struct AVStream;
+struct AVFormatContext;
 
 namespace openmedia {
 
@@ -100,7 +101,7 @@ private:
     }
 
 public:
-    ff_stream_info_impl(const AVStream * _AVStream);
+    ff_stream_info_impl(const AVFormatContext * avFormatContext, const AVStream * _AVStream);
 
 private:
     int                 m_index;
@@ -123,13 +124,13 @@ private:
 class ff_stream_info: public stream_info
 {
 public:
-    ff_stream_info(const AVStream * _AVStream): stream_info( new ff_stream_info_impl(_AVStream) )
+    ff_stream_info(const AVFormatContext * avFormatContext, const AVStream * _AVStream): stream_info( new ff_stream_info_impl(avFormatContext, _AVStream) )
     {
     }
     
-    static stream_info_ptr create(const AVStream * _AVStream)
+    static stream_info_ptr create(const AVFormatContext * avFormatContext, const AVStream * _AVStream)
     {
-        return stream_info_ptr(new ff_stream_info(_AVStream));
+        return stream_info_ptr(new ff_stream_info(avFormatContext, _AVStream));
     }
 
 };

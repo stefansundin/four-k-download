@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTPacket.cpp
 
@@ -100,6 +100,11 @@ media_packet_ptr media_packet::clone() const
 dt_rational_t media_packet::get_time_base() const
 {
     return impl()->get_time_base();
+}
+
+dt_rational_t media_packet::get_frame_rate() const
+{
+    return impl()->get_frame_rate();
 }
 
 } // namespace openmedia 

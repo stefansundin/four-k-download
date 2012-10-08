@@ -37,7 +37,7 @@ AVCodecContextPtr dt_create_codec_context();
 AVCodecContextPtr dt_create_codec_context(AVCodecContext * _AVCodecContext);
 void dt_open_ff_decoder(AVCodecContext * _AVCodecContext, dt_codec_id_t _CodecID);
 
-void AVCodecContextAdditionalSettings(AVCodecContext * _CodecContext, const additional_settings * _AdditionalSettings);
+//void AVCodecContextAdditionalSettings(AVCodecContext * _CodecContext, const additional_settings * _AdditionalSettings);
 
 bool get_ff_codec_name_by_id(dt_codec_id_t _CodecId, std::string & _Name, std::string & _LongName);
 

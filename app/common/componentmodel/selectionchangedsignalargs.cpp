@@ -24,7 +24,6 @@ SelectionChangedSignalArgs::SelectionChangedSignalArgs(QObject* sender, int curr
         m_currentIndex(currentIndex),
         m_previousIndex(previousIndex)
 {    
-    qRegisterMetaType<SelectionChangedSignalArgs>();
 }
 
 

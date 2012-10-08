@@ -18,6 +18,8 @@
 #define _DT_LOG_1_INCLUDED_
 
 #include <openmedia/DTConfig.h>
+#include <ostream>
+#include "fake_stream.h"
 
 #if 0
 
@@ -26,14 +28,7 @@
 
 #else
 
-class empty_log 
-{
-public:
-    template <class T>
-    empty_log & operator << (const T &) { return *this; }
-};
-
-#define DT_LOG(A) empty_log()
+#define DT_LOG(A) fake_stream
 
 #endif
 

@@ -15,23 +15,30 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include "DTFFPictureConvert.h"
 #include "DTFFPictureConvertImpl.h"
 
 namespace openmedia {
 
-swscale_picture_convert::swscale_picture_convert(int _InputWidth, int _InputHeight, dt_pixel_format_t _InputPixelFormat,
-        int _OutputWidth, int _OutputHeight, dt_pixel_format_t _OutputPixelFormat,
-        int _Flags) : 
-picture_convert( 
-                new swscale_picture_convert_impl(
-                            _InputWidth, _InputHeight, _InputPixelFormat,
-                            _OutputWidth, _OutputHeight, _OutputPixelFormat,_Flags)
-                )
+swscale_picture_convert::swscale_picture_convert(int inWidth,
+    int inHeight,
+    dt_pixel_format_t inPixFormat,
+    int outWidth,
+    int outHeight,
+    dt_pixel_format_t outPixelFormat,
+    int flags) : picture_convert( 
+    new swscale_picture_convert_impl(inWidth,
+    inHeight,
+    inPixFormat,
+    outWidth,
+    outHeight,
+    outPixelFormat,
+    flags)
+    )
 {
 }
 

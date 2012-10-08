@@ -35,36 +35,6 @@
 
 namespace openmedia {
 
-#define DECLARE_DT_SETTING(A) _OPENMEDIASDK_API extern const char * A
-#define IMPL_DT_SETTING(A) const char * A = #A
-
-namespace settings {
-namespace decoder {
-
-
-// ffmpeg -er
-DECLARE_DT_SETTING(DT_FF_ER);
-
-// ffmpeg -er compliant careful
-DECLARE_DT_SETTING(DT_FF_ER_CAREFUL);
-
-// ffmpeg -er compliant
-DECLARE_DT_SETTING(DT_FF_ER_COMPLIANT);
-
-// ffmpeg -er aggressive
-DECLARE_DT_SETTING(DT_FF_ER_AGGRESSIVE);
-
-// ffmpeg -er very_aggressive
-DECLARE_DT_SETTING(DT_FF_ER_VERY_AGGRESSIVE);
-
-
-/////////////////////////////////////////////////
-
-
-
-}
-}
-
 /// \class  additional_settings
 class _OPENMEDIASDK_API additional_settings: interface_base
 {

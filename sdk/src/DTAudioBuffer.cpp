@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioBuffer.cpp
 
@@ -24,14 +27,14 @@
 
 namespace openmedia {
 
-void audio_buffer::push_back(const audio_data * _AudioData)
+void audio_buffer::push_back(const audio_data * audioData)
 {
-    return impl()->push_back(_AudioData);
+    return impl()->push_back(audioData);
 }
 
-audio_data_ptr audio_buffer::pop_front(int _SamplesCount)
+audio_data_ptr audio_buffer::pop_front(int samplesCount)
 {
-    return impl()->pop_front(_SamplesCount);
+    return impl()->pop_front(samplesCount);
 }
 
 void audio_buffer::push_back_raw(const uint8_t * _Data, size_t _DataSize)
@@ -59,13 +62,13 @@ audio_buffer::audio_buffer(audio_buffer::Impl * _Impl): m_pImpl(_Impl)
     DT_STRONG_ASSERT(NULL != _Impl);
 }
 
-audio_buffer_ptr audio_buffer::create(AudioBufferType _BufferType, const audio_format * _AudioFormat)
+audio_buffer_ptr audio_buffer::create(AudioBufferType bufferType, const audio_format * audioFormat)
 {
     audio_buffer * audioBuffer = NULL;
-    switch (_BufferType)
+    switch (bufferType)
     {
     case audio_buffer_SameFormat:
-        audioBuffer = new audio_buffer_same_format(_AudioFormat);
+        audioBuffer = new audio_buffer_same_format(audioFormat);
         break;
     default:
         DT_ASSERT(false);

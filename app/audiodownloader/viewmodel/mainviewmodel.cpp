@@ -26,14 +26,16 @@
 
 using namespace ViewModel;
 using namespace Mvvm;
-using namespace Bindings;
 using namespace ComponentModel;
+using namespace Multimedia;
 using namespace openmedia;
 
 
 MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
     NotifyObject(parent),
     m_dialog(dialog),
+    m_player(new AudioPlayer()),
+    m_playerLessor(new ObjectLessor(m_player.data())),
     m_list(this),
     m_selection(&m_list, this),
     m_pasteAction(this),
@@ -60,7 +62,7 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
 
     m_informationAction.setEnabled(true);
     m_informationAction.setText(tr("Help"));
-    m_informationAction.setToolTip(tr("Open online help"));
+    m_informationAction.setToolTip(tr("Show online help"));
     m_informationAction.setIcon(QIcon(":/image/help"));
     QObject::connect(&m_informationAction, SIGNAL(triggered()), this, SLOT(information()));
 
@@ -73,7 +75,7 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
 
     m_clearAction.setEnabled(false);
     m_clearAction.setText(tr("Remove all"));
-    m_clearAction.setToolTip(tr("Remove all downloads form list"));
+    m_clearAction.setToolTip(tr("Remove all downloads from list"));
     QObject::connect(&m_clearAction, SIGNAL(triggered()), this, SLOT(clearItems()));
 
     m_pauseAllAction.setEnabled(false);
@@ -87,15 +89,15 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
     QObject::connect(&m_resumeAllAction, SIGNAL(triggered()), this, SLOT(resumeItems()));
 
     m_facebookAction.setEnabled(true);
-    m_facebookAction.setText(tr("Facebook"));
-    m_facebookAction.setToolTip(tr("Open 4kdownload Facebook page"));
+    m_facebookAction.setText(tr("Like"));
+    m_facebookAction.setToolTip(tr("Show 4K Download Facebook page"));
     m_facebookAction.setIcon(QIcon(":/image/facebook"));
     QObject::connect(&m_facebookAction, SIGNAL(triggered()), this, SLOT(openFacebook()));
 
     QObject::connect(&m_list, SIGNAL(listChanged(ComponentModel::ListChangedSignalArgs)),
-                     this, SLOT(listChanged(ComponentModel::ListChangedSignalArgs)));
+                     this, SLOT(onListChanged(ComponentModel::ListChangedSignalArgs)));
     QObject::connect(&m_selection, SIGNAL(selectionChanged(ComponentModel::SelectionChangedSignalArgs)),
-                     this, SLOT(selectionChanged(ComponentModel::SelectionChangedSignalArgs)));
+                     this, SLOT(onSelectionChanged(ComponentModel::SelectionChangedSignalArgs)));
 
     restore();
 
@@ -117,25 +119,22 @@ void MainViewModel::save()
     QSettings settings;
     QString filename = settings.value("Download/downloadedItems").toString();
 
-    if (filename.isEmpty())
-    {
-        QDir directory(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-        QDir().mkpath(directory.absolutePath());
-        filename = QUuid::createUuid().toString();
-        filename = filename.remove("{", Qt::CaseInsensitive);
-        filename = filename.remove("}", Qt::CaseInsensitive);
-        filename = directory.filePath(filename + ".xml");
-    }
-
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::WriteOnly))
-        return;
-
-
     try
     {
+        if (filename.isEmpty())
+        {
+            QDir directory(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+            QDir().mkpath(directory.absolutePath());
+            filename = QUuid::createUuid().toString();
+            filename = filename.remove("{", Qt::CaseInsensitive);
+            filename = filename.remove("}", Qt::CaseInsensitive);
+            filename = directory.filePath(filename + ".xml");
+        }
+
+        QFile file(filename);
+        if (!file.open(QIODevice::WriteOnly))
+            return;
+
         QDomDocument doc;
         QDomElement root = doc.createElement("Items");
         doc.appendChild(root);
@@ -144,7 +143,9 @@ void MainViewModel::save()
         {
             QSharedPointer<DownloadItemViewModel> item = m_list.at(i).staticCast<DownloadItemViewModel>();
 
-            if (item->state() == DownloadItemViewModel::Done)
+            if (item->state() == DownloadItemViewModel::DoneState || 
+                item->state() == DownloadItemViewModel::PlayerPlayState || 
+                item->state() == DownloadItemViewModel::PlayerPauseState)
             {
                 QDomElement element;
                 if (item->serialize(doc, element))
@@ -161,9 +162,6 @@ void MainViewModel::save()
     catch(...)
     {
     }
-
-
-    file.close();
 }
 
 
@@ -172,18 +170,15 @@ void MainViewModel::restore()
     QSettings settings;
     QString filename = settings.value("Download/downloadedItems").toString();
 
-    if (filename.isEmpty())
-        return;
-
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return;
-
-
     try
     {
+        if (filename.isEmpty())
+            return;
+
+        QFile file(filename);
+        if (!file.open(QIODevice::ReadOnly))
+            return;
+
         QDomDocument doc;
         if (!doc.setContent(&file))
             return;
@@ -192,21 +187,19 @@ void MainViewModel::restore()
 
         for (QDomElement e = root.lastChildElement(); !e.isNull(); e = e.previousSiblingElement())
         {
-            QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data()));
+            QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), m_playerLessor));
 
             if (!item->deserialize(doc, e))
                 continue;
 
-            QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)), this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
+            QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
+                             this, SLOT(onItemPropertyChanged(ComponentModel::PropertyChangedSignalArgs)));
             m_list.insert(0, item);
         }
     }
     catch(...)
     {
     }
-
-
-    file.close();
 }
 
 
@@ -278,7 +271,7 @@ bool MainViewModel::canClose()
     {
         QSharedPointer<DownloadItemViewModel> item = m_list.at(i).staticCast<DownloadItemViewModel>();
         DownloadItemViewModel::State state = item->state();
-        if (state == DownloadItemViewModel::Download || state == DownloadItemViewModel::Convert || state == DownloadItemViewModel::Pause)
+        if (state == DownloadItemViewModel::DownloadState || state == DownloadItemViewModel::ConvertState || state == DownloadItemViewModel::PauseState)
         {
             allDone = false;
             break;
@@ -300,6 +293,27 @@ bool MainViewModel::canClose()
 }
 
 
+void MainViewModel::showMessage(QString message) const
+{
+    QList<Mvvm::Dialog::MessageButton> buttons;
+    buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+    m_dialog.data()->showMessageDialog(message, QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+}
+
+
+void MainViewModel::showUpdate(QString message, bool& needUpdate) const
+{
+    QList<Mvvm::Dialog::MessageButton> buttons;
+    buttons << Mvvm::Dialog::MessageButton(tr("Open Site"), QMessageBox::AcceptRole);
+    buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+    int result = m_dialog.data()->showMessageDialog(message, QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+
+    needUpdate = (result == 0);
+}
+
+
 void MainViewModel::paste()
 {
     QClipboard* clipboard = QApplication::clipboard();
@@ -311,26 +325,31 @@ void MainViewModel::paste()
 
         downloader::media_site_type_t type = downloader::media_site_utils::validate_url(url.toStdString());
 
-        if (type == downloader::mediaSiteUnknown)
+        switch (type)
         {
-            QList<Mvvm::Dialog::MessageButton> buttons;
-            buttons << Mvvm::Dialog::MessageButton(tr("Post"), QMessageBox::AcceptRole);
-            buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
-
-            int result = m_dialog.data()->showMessageDialog(tr("Sorry this site is unsupported. Please post a request to add this site in supported list."),
-                                               QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
-
-            if (result == 0)
+        case downloader::mediaSiteNull:
             {
-                QSettings settings;
-                QString mail(settings.value("mailSupport").toString() + "?subject=Site unsupported&body=%1");
-                QString web = settings.value("web").toString();
+                QList<Mvvm::Dialog::MessageButton> buttons;
+                buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
 
-                if (!QDesktopServices::openUrl(QUrl(mail.arg(url))))
-                    QDesktopServices::openUrl(QUrl(web));
+                m_dialog.data()->showMessageDialog(tr("Copy video link from your browser address bar and then click \"Paste URL\" here."),
+                                               QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
             }
-
             return;
+
+        case downloader::mediaSiteUnknown:
+            {
+                QList<Mvvm::Dialog::MessageButton> buttons;
+                buttons << Mvvm::Dialog::MessageButton(tr("Post"), QMessageBox::AcceptRole);
+                buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+                int result = m_dialog.data()->showMessageDialog(tr("Sorry this site is unsupported. Please post a request to add this site in supported list."),
+                                                   QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+            }
+            return;
+
+        default:
+            break;
         }
 
         // Check playlist
@@ -355,11 +374,15 @@ void MainViewModel::paste()
 
         // Start download
 
-        QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), url, isPlaylist));
+        QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), url, isPlaylist, m_playerLessor));
         QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
-                         this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
+                         this, SLOT(onItemPropertyChanged(ComponentModel::PropertyChangedSignalArgs)));
         QObject::connect(item.data(), SIGNAL(parsed(openmedia::downloader::url_parser_result_ptr)),
-                         this, SLOT(itemParsed(openmedia::downloader::url_parser_result_ptr)));
+                         this, SLOT(onItemParsed(openmedia::downloader::url_parser_result_ptr)));
+        QObject::connect(item.data(), SIGNAL(downloadCompleted()),
+                         this, SLOT(onItemDownloadCompleted()));
+        QObject::connect(item.data(), SIGNAL(playerCompleted()),
+                         this, SLOT(onItemPlayerCompleted()));
         m_list.insert(0, item);
     }
     catch (...)
@@ -495,14 +518,46 @@ void MainViewModel::updateActions(int index)
 }
 
 
-void MainViewModel::propertyChanged(const ComponentModel::PropertyChangedSignalArgs& args)
+void MainViewModel::onItemPropertyChanged(const ComponentModel::PropertyChangedSignalArgs& args)
 {
+}
+
+
+void MainViewModel::onListChanged(const ListChangedSignalArgs& args)
+{
+    Q_UNUSED(args)
+    updateActions(m_selection.currentIndex());
+}
+
+
+void MainViewModel::onSelectionChanged(const SelectionChangedSignalArgs& args)
+{
+    updateActions(args.currentIndex());
+}
+
+
+void MainViewModel::onItemParsed(openmedia::downloader::url_parser_result_ptr result)
+{
+    for (unsigned int i = 1; i < result->size(); ++i)
+    {
+        QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), result->at(i), m_playerLessor));
+        QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
+                         this, SLOT(onItemPropertyChanged(ComponentModel::PropertyChangedSignalArgs)));
+        m_list.insert(i, item);
+    }
+}
+
+
+void MainViewModel::onItemDownloadCompleted()
+{
+    save();
+
     for (int i = 0; i < m_list.count(); ++i)
     {
         switch (m_list.at(i).staticCast<DownloadItemViewModel>()->state())
         {
-        case DownloadItemViewModel::Download:
-        case DownloadItemViewModel::Convert:
+        case DownloadItemViewModel::DownloadState:
+        case DownloadItemViewModel::ConvertState:
             return;
 
         default:
@@ -510,31 +565,27 @@ void MainViewModel::propertyChanged(const ComponentModel::PropertyChangedSignalA
         }
     }
 
-    emit downloadComplited(SignalArgs(this));
+    emit downloadCompleted();
 }
 
 
-void MainViewModel::listChanged(const ListChangedSignalArgs& args)
+void MainViewModel::onItemPlayerCompleted()
 {
-    Q_UNUSED(args)
-    updateActions(m_selection.currentIndex());
-}
-
-
-void MainViewModel::selectionChanged(const SelectionChangedSignalArgs& args)
-{
-    updateActions(args.currentIndex());
-}
-
-
-void MainViewModel::itemParsed(openmedia::downloader::url_parser_result_ptr result)
-{
-    for (unsigned int i = 1; i < result->size(); ++i)
+    if (DownloadItemViewModel* item = qobject_cast<DownloadItemViewModel*>(sender()))
     {
-        QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), result->at(i)));
-        QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
-                         this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
-        m_list.insert(i, item);
+        int index = m_list.indexOf(item);
+        if (index != -1)
+        {
+            for (int i = index + 1; i < m_list.count(); ++i)
+            {
+                DownloadItemViewModel* item = qobject_cast<DownloadItemViewModel*>(m_list.at(i).data());
+                if (item->togglePlayAction()->isEnabled())
+                {
+                    item->togglePlay();
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -562,10 +613,6 @@ void MainViewModel::updatePasteAction()
 
         case downloader::mediaSiteFacebook:
             image = ":/image/paste-facebook";
-            break;
-
-        case downloader::mediaSiteMegavideo:
-            image = ":/image/paste-megavideo";
             break;
 
         case downloader::mediaSiteVimeo:

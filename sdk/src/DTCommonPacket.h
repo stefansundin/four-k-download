@@ -52,6 +52,7 @@ public:
     virtual void set_byte_pos(dt_filesize_t _BytePos) = 0;
     virtual void set_media_type(dt_media_type_t _MediaType) = 0;
     virtual void set_time_base(dt_rational_t _TimeBase) = 0;
+    virtual void set_frame_rate(dt_rational_t frameRate) = 0;
 
 protected:
     ~media_packet_properties(){};
@@ -123,6 +124,7 @@ public:
         virtual void set_byte_pos(dt_filesize_t _BytePos);
         virtual void set_media_type(dt_media_type_t _MediaType);
         virtual void set_time_base(dt_rational_t _TimeBase);
+        virtual void set_frame_rate(dt_rational_t frameRate);
 
     private:
         common_media_packet2_impl * m_owner;
@@ -151,6 +153,7 @@ public:
     virtual dt_media_type_t     get_media_type() const;
     virtual bool                is_valid() const;
     virtual dt_rational_t       get_time_base() const;
+    virtual dt_rational_t       get_frame_rate() const;
     
 private:
     dt_ts_t         m_pts;
@@ -164,6 +167,7 @@ private:
     dt_media_type_t m_media_type;
     bool            m_is_valid;   
     dt_rational_t   m_time_base;
+    dt_rational_t   m_frame_rate;
 
     typedef uint8_t * (*AllocBufferT)(size_t);
     typedef void (*FreeBufferT)(uint8_t **);
@@ -214,6 +218,11 @@ inline void common_media_packet2_impl::setter::set_media_type(dt_media_type_t _M
 inline void common_media_packet2_impl::setter::set_time_base(dt_rational_t _TimeBase)
 {
     m_owner->m_time_base = _TimeBase;
+}
+
+inline void common_media_packet2_impl::setter::set_frame_rate(dt_rational_t frameRate)
+{
+    m_owner->m_frame_rate = frameRate;
 }
 
 template <class MemoryAllocator>
@@ -285,6 +294,11 @@ inline dt_media_type_t common_media_packet2_impl::get_media_type() const
 inline dt_rational_t common_media_packet2_impl::get_time_base() const
 {
     return m_time_base;
+}
+
+inline dt_rational_t common_media_packet2_impl::get_frame_rate() const
+{
+    return m_frame_rate;
 }
 
 inline bool common_media_packet2_impl::is_valid() const

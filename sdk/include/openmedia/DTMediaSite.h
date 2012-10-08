@@ -32,13 +32,11 @@ enum media_site_type_t
     mediaSiteNull = 0,
     mediaSiteUnknown = 1,
     mediaSiteYoutube = 2,
-    mediaSiteXnxx = 3,
     mediaSiteVimeo = 4,
     mediaSiteDailymotion = 5,
     mediaSiteFacebook = 6,
-    mediaSiteMegavideo = 7,
-    mediaSiteMetacafe = 8
-
+    mediaSiteMetacafe = 8,
+    mediaSiteRaiTv = 10
 };
 
 class media_site_utils

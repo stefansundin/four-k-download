@@ -31,14 +31,3 @@ RCC_DIR = $$OUTPUT_DIR/build/$$SUBDIRPART/$$TARGET/rcc
 UI_DIR  = $$OUTPUT_DIR/build/$$SUBDIRPART/$$TARGET/ui
 
 LIBS += -L$$OUTPUT_DIR/lib
-
-win32 {
-    INCLUDEPATH += $$BOOST_PATH/include \
-                   $$FFMPEG_PATH/include \
-                   $$LAME_PATH/include
-
-    LIBS += -L$$BOOST_PATH/lib \
-            -L$$FFMPEG_PATH/lib \
-            -L$$LAME_PATH/lib
-
-} 

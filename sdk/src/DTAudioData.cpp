@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioData.cpp
 
@@ -88,6 +91,16 @@ int audio_data::get_bits_per_sample() const
 const uint8_t * audio_data::get_data_at(int _ChannelNum, int _SampleNum) const
 {
     return impl()->get_data_at(_ChannelNum, _SampleNum);
+}
+
+uint8_t * audio_data::lock_data()
+{
+    return impl()->lock_data();
+}
+
+void audio_data::unlock_data()
+{
+    return impl()->unlock_data();
 }
 
 } // namespace openmedia 

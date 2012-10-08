@@ -16,11 +16,12 @@
 
 #include "view/mediaitemview.h"
 #include "ui_mediaitemview.h"
-#include "gui/binding/elidedtextconverter.h"
+#include "gui/cxx/elidedtextconverter.h"
 
 using namespace View;
 using namespace ViewModel;
-using namespace Bindings;
+using namespace ComponentModel;
+using namespace Gui;
 
 
 MediaItemView::MediaItemView(const Mvvm::Factory* factory, QWidget *parent) :
@@ -31,8 +32,12 @@ MediaItemView::MediaItemView(const Mvvm::Factory* factory, QWidget *parent) :
     ui->setupUi(this);
 
     QFont font = ui->titleLabel->font();
+#if defined(Q_OS_WIN)
+    QFontInfo fontInfo(font);
+    font.setFamily("Segoe UI");
+    font.setPixelSize(fontInfo.pixelSize() + 1);
+#endif
     font.setBold(true);
-    font.setPointSize(font.pointSize() + 2);
     ui->titleLabel->setFont(font);
 
     ui->durationIconLabel->setVisible(false);
@@ -81,11 +86,11 @@ void MediaItemView::setViewModel(QObject* value)
 
         if (m_viewModel)
         {
-            m_thumbnailBinding.reset(new Binding(ui->thumbnailLabel, "pixmap", m_viewModel.data(), "thumbnail"));
-            m_titleBinding.reset(new Binding(ui->titleLabel, "text", m_viewModel.data(), "title"));
-            m_durationBinding.reset(new Binding(ui->durationLabel, "text", m_viewModel.data(), "duration"));
-            m_urlBinding.reset(new Binding(ui->urlLabel, "text", m_viewModel.data(), "url"));
-            m_checkedBinding.reset(new Binding(ui->checkedBox, "checked", m_viewModel.data(), "isChecked", Binding::TwoWay));
+            m_thumbnailBinding.reset(new PropertyBinding(ui->thumbnailLabel, "pixmap", m_viewModel.data(), "thumbnail"));
+            m_titleBinding.reset(new PropertyBinding(ui->titleLabel, "text", m_viewModel.data(), "title"));
+            m_durationBinding.reset(new PropertyBinding(ui->durationLabel, "text", m_viewModel.data(), "duration"));
+            m_urlBinding.reset(new PropertyBinding(ui->urlLabel, "text", m_viewModel.data(), "url"));
+            m_checkedBinding.reset(new PropertyBinding(ui->checkedBox, "checked", m_viewModel.data(), "isChecked", PropertyBinding::TwoWay));
 
             QObject::connect(m_viewModel.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
                              this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
@@ -122,8 +127,8 @@ void MediaItemView::updateState()
 
     MediaItemViewModel::State state = m_viewModel.data()->state();
 
-    ui->durationIconLabel->setVisible(state == MediaItemViewModel::Done);
-    ui->durationLabel->setVisible(state == MediaItemViewModel::Done);
+    ui->durationIconLabel->setVisible(state == MediaItemViewModel::Done && m_viewModel.data()->duration().isEmpty() == false);
+    ui->durationLabel->setVisible(state == MediaItemViewModel::Done && m_viewModel.data()->duration().isEmpty() == false);
     ui->urlIconLabel->setVisible(state == MediaItemViewModel::Done);
     ui->urlLabel->setVisible(state == MediaItemViewModel::Done);
     ui->parsingIconLabel->setVisible(state == MediaItemViewModel::Parsing);

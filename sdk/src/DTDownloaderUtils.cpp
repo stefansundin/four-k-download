@@ -14,11 +14,17 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+/// \file   DTDownloaderUtils.cpp
 
+#include "DTHeadersDownload.h"
 #include "DTDownloaderUtils.h"
-#include <openmedia/DTString.h>
 
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+
+#include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -27,71 +33,68 @@
 #include <urdl/istream.hpp>
 #include <urdl/http.hpp>
 
-#include <iostream>
-#include <string>
-#include <algorithm>
+#include <openmedia/DTString.h>
+
+using namespace std;
+using namespace boost;
 
 namespace openmedia { namespace downloader {
 
-const ::std::string userAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)";
+const string userAgent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)";
 
-void parse_http_headers(const std::string &HttpHeaderString, std::vector<HttpHeader> &Result)
+void parse_http_headers(const string &HttpHeaderString, vector<HttpHeader> &Result)
 {
-    std::vector<HttpHeader> resultVal;
-    boost::regex re("^([^:]+):\\s+(.+?)$", boost::regex_constants::match_not_dot_newline);
+    vector<HttpHeader> resultVal;
+    regex re("^([^:]+):\\s+(.+?)$", regex_constants::match_not_dot_newline);
     int index[] = {1,2};
-    boost::sregex_token_iterator i(HttpHeaderString.begin(), HttpHeaderString.end(), re, index);
-    boost::sregex_token_iterator j;
+    sregex_token_iterator i(HttpHeaderString.begin(), HttpHeaderString.end(), re, index);
+    sregex_token_iterator j;
     while(i != j)
     {
-        const std::string name = (*i++).str();
-        const std::string value = (*i++).str();
+        const string name = (*i++).str();
+        const string value = (*i++).str();
         resultVal.push_back( HttpHeader( name, value) );
     }
     Result.swap(resultVal);
 }
 
-bool is_media_content(const std::vector<HttpHeader> &HttpHeadersArray, std::string & MediaType, boost::uint64_t & ContentSize)
+bool is_media_content(const vector<HttpHeader> &HttpHeadersArray, string & MediaType, uint64_t & ContentSize)
 {
-    ContentSize = (std::numeric_limits<boost::uint64_t>::max)();
+    ContentSize = (numeric_limits<uint64_t>::max)();
     MediaType = "";
 
     for (size_t i = 0; i < HttpHeadersArray.size(); ++i)
     {
-        if ("Content-Type" == HttpHeadersArray[i].Name)
+        if ("Content-Type" == HttpHeadersArray[i].Name &&
+            algorithm::contains(HttpHeadersArray[i].Value, "video"))
         {
-            if (boost::algorithm::contains(HttpHeadersArray[i].Value, "video"))
-            {
-                MediaType = HttpHeadersArray[i].Value;
-            }
+            MediaType = HttpHeadersArray[i].Value;
         }
 
         if ("Content-Length" == HttpHeadersArray[i].Name)
-        {
-            ContentSize = boost::lexical_cast<boost::uint64_t>(HttpHeadersArray[i].Value); 
-        }
+            ContentSize = lexical_cast<uint64_t>(HttpHeadersArray[i].Value); 
     }
     return MediaType.length() > 0;    
 }
 
-std::string extract_cookie(const std::string & CookieContent)
+string extract_cookie(const string & CookieContent)
 {
-    boost::regex re("\\s*([^=]+)\\s*=\\s*([^;]*);");
+    regex re("\\s*([^=]+)\\s*=\\s*([^;]*);");
     int index[] = {1,2};
-    boost::sregex_token_iterator i(CookieContent.begin(), CookieContent.end(), re, index);
-    boost::sregex_token_iterator j;
+    sregex_token_iterator i(CookieContent.begin(), CookieContent.end(), re, index);
+    sregex_token_iterator j;
     if (i != j)
     {
-        const std::string name = (*i++).str();
-        const std::string value = (*i++).str();
+        const string name = (*i++).str();
+        const string value = (*i++).str();
         return name + "=" + value;
     }
     return "";
 }
 
-std::string use_cookies(const std::vector<HttpHeader> &HttpHeadersArray)
+string use_cookies(const vector<HttpHeader> &HttpHeadersArray)
 {
-    std::string cookies = "";
+    string cookies = "";
     bool first = true;
     for (size_t i = 0; i < HttpHeadersArray.size(); ++i)
     {
@@ -105,23 +108,23 @@ std::string use_cookies(const std::vector<HttpHeader> &HttpHeadersArray)
     return cookies;
 }
 
-bool extract_content_range(std::string RangeStr, HttpContentRange & Range)
+bool extract_content_range(string RangeStr, HttpContentRange & Range)
 {
-    boost::regex re("\\s*bytes\\s*([\\d]+)-([\\d]+)/([\\d]+)");
+    regex re("\\s*bytes\\s*([\\d]+)-([\\d]+)/([\\d]+)");
 
     int index[] = {1,2,3};
-    boost::sregex_token_iterator i(RangeStr.begin(), RangeStr.end(), re, index);
-    boost::sregex_token_iterator j;
+    sregex_token_iterator i(RangeStr.begin(), RangeStr.end(), re, index);
+    sregex_token_iterator j;
     if (i != j)
     {
-        const std::string start = (*i++).str();
-        const std::string end = (*i++).str();
-        const std::string size = (*i++).str();
+        const string start = (*i++).str();
+        const string end = (*i++).str();
+        const string size = (*i++).str();
         try 
         {
-            const size_t startVal = boost::lexical_cast<size_t>(start);
-            const size_t endVal = boost::lexical_cast<size_t>(end);
-            const size_t sizeVal = boost::lexical_cast<size_t>(size);
+            const size_t startVal = lexical_cast<size_t>(start);
+            const size_t endVal = lexical_cast<size_t>(end);
+            const size_t sizeVal = lexical_cast<size_t>(size);
             Range = HttpContentRange(startVal, endVal, sizeVal);
             return true;
         }
@@ -133,14 +136,12 @@ bool extract_content_range(std::string RangeStr, HttpContentRange & Range)
     return false;
 }
 
-bool get_content_range(const std::vector<HttpHeader> &HttpHeadersArray, HttpContentRange & Range)
+bool get_content_range(const vector<HttpHeader> &HttpHeadersArray, HttpContentRange & Range)
 {
     for (size_t i = 0; i < HttpHeadersArray.size(); ++i)
     {
         if ("Content-Range" == HttpHeadersArray[i].Name)
-        {
             return extract_content_range(HttpHeadersArray[i].Value, Range);
-        }
     }
     return false;
 }
@@ -150,33 +151,35 @@ bool get_content_range(const std::vector<HttpHeader> &HttpHeadersArray, HttpCont
 #pragma warning(disable: 4996)
 #endif
 
-std::string url_encode(const std::string & url)
+string url_encode(const string & url)
 {
     char encode_buf[4];
-    std::string result;
+    string result;
 
     encode_buf[0] = '%';
     result.reserve(url.size());
-
 
     for (size_t pos = 0; pos < url.size(); ++pos) 
     {
         switch(url[pos]) 
         {
-            default:
-                if (url[pos] >= 32 && url[pos] < 127) 
-                {
-                    result += url[pos];
-                    break;
-                }
-
-            case '$': case '&': case '+': case ',': case '/': case ':':
-            case ';': case '=': case '?': case '@': case '"': case '<':
-            case '>': case '#': case '%': case '{': case '}': case '|':
-            case '\\': case '^': case '~': case '[': case ']': case '`':
-                sprintf(encode_buf+1, "%02X", url[pos]);
-                result += encode_buf;
+        default:
+            if (url[pos] >= 32 && url[pos] < 127) 
+            {
+                // character does not need to be escaped
+                result += url[pos];
                 break;
+            }
+            // else pass through to next case
+
+        case '$': case '&': case '+': case ',': case '/': case ':':
+        case ';': case '=': case '?': case '@': case '"': case '<':
+        case '>': case '#': case '%': case '{': case '}': case '|':
+        case '\\': case '^': case '~': case '[': case ']': case '`': case ' ':
+            // the character needs to be encoded
+            sprintf(encode_buf+1, "%02X", url[pos]);
+            result += encode_buf;
+            break;
         }
     }
     return result;
@@ -186,19 +189,21 @@ std::string url_encode(const std::string & url)
 #pragma warning(pop)
 #endif
 
-std::string url_decode(const std::string & str)
+string url_decode(const string & str)
 {
     char decode_buf[3];
-    std::string result;
+    string result;
     result.reserve(str.size());
 
     for (size_t pos = 0; pos < str.size(); ++pos) 
     {
         switch(str[pos]) {
             case '+':
+                // convert to space character
                 result += ' ';
                 break;
             case '%':
+                // decode hexidecimal value
                 if (pos + 2 < str.size()) 
                 {
                     decode_buf[0] = str[++pos];
@@ -207,6 +212,7 @@ std::string url_decode(const std::string & str)
                     result += static_cast<char>( strtol(decode_buf, 0, 16) );
                 } else
                 {
+                    // recover from error by not decoding character
                     result += '%';
                 }
                 break;
@@ -219,9 +225,51 @@ std::string url_decode(const std::string & str)
     return result;
 } 
 
-bool download_page(const std::string & url, std::string & headers, std::string & content, const std::string & cookies, const std::string & connectionType)
+bool download_page(const std::string & url,
+                   std::string & headers,
+                   std::string & content,
+
+                   const std::vector<HttpHeader> & additionalHeaders)
 {
-    std::stringstream outStrm;
+    stringstream outStrm;
+
+    urdl::istream is;
+//    is.set_option(urdl::http::connection_type(connectionType));
+    is.set_option(urdl::http::user_agent(userAgent));
+
+    urdl::http::additional_headers additional_headers;
+
+    BOOST_FOREACH(const HttpHeader & h, additionalHeaders)
+    {
+        additional_headers.get().push_back(
+            urdl::http::additional_headers::header(h.Name, h.Value)
+            );
+    }
+    
+    if (!additionalHeaders.empty())
+    {
+        is.set_option(additional_headers);
+    }
+
+    is.open(url);
+
+    if (!is)
+    {
+        return false;
+    }
+
+    headers = is.headers();
+
+    outStrm << is.rdbuf();
+    content = outStrm.str();
+
+    return true;    
+}
+
+bool download_page(const string & url,
+                   string & headers, string & content, const string & cookies, const string & connectionType)
+{
+    stringstream outStrm;
 
     urdl::istream is;
     is.set_option(urdl::http::connection_type(connectionType));
@@ -242,8 +290,8 @@ bool download_page(const std::string & url, std::string & headers, std::string &
 
     if (!is)
     {
-        std::cerr << "[openmedia::downloader::download_page] unable to open URL: ";
-        std::cerr << is.error().message() << std::endl;
+        //cerr << "[openmedia::downloader::download_page] unable to open URL: ";
+        //cerr << is.error().message() << endl;
         return false;
     }
 
@@ -255,12 +303,12 @@ bool download_page(const std::string & url, std::string & headers, std::string &
     return true;
 }
 
-bool download_bytes(const std::string & url, std::string & headers, 
-                    std::string & content, 
-                    const std::string & cookies, 
-                    const std::string & connectionType, size_t Bytes)
+bool download_bytes(const string & url, string & headers, 
+                    string & content, 
+                    const string & cookies, 
+                    const string & connectionType, size_t Bytes)
 {
-    std::stringstream outStrm;
+    stringstream outStrm;
 
     urdl::istream is;
     is.set_option(urdl::http::connection_type(connectionType));
@@ -281,8 +329,8 @@ bool download_bytes(const std::string & url, std::string & headers,
 
     if (!is)
     {
-        std::cerr << "[openmedia::downloader::download_bytes] unable to open URL: ";
-        std::cerr << is.error().message() << std::endl;
+        //cerr << "[openmedia::downloader::download_bytes] unable to open URL: ";
+        //cerr << is.error().message() << endl;
         return false;
     }
 
@@ -293,7 +341,7 @@ bool download_bytes(const std::string & url, std::string & headers,
     {
         size_t writed;
         char buffer[1024] = "";
-        size_t readed = (std::min)( sizeof(buffer), (size_t)(Bytes - bytesWrited) ); 
+        size_t readed = (min)( sizeof(buffer), (size_t)(Bytes - bytesWrited) ); 
         is.read(buffer, readed);
         outStrm.write(buffer, writed = is.gcount());
         bytesWrited += writed;
@@ -305,115 +353,133 @@ bool download_bytes(const std::string & url, std::string & headers,
     return true;
 }
 
-bool download_page_header(const std::string & url, std::string & headers, const std::string & cookies, const std::string & connectionType)
+bool download_page_header(const string & url, string & headers, const string & cookies, const string & connectionType)
 {
     return download_page_header_ref(url, headers, cookies, "", connectionType);
 }
 
-bool download_page_header_ref(const std::string & url, std::string & headers, const std::string & cookies, const std::string & Referer, const std::string & connectionType)
+bool download_page_header(const std::string & url,
+                          std::string & headers,
+                          const std::string & cookies,
+                          const std::string & connectionType,
+                          const std::vector<HttpHeader> & additionalHeaders)
 {
     urdl::istream is;
     is.set_option(urdl::http::request_method("HEAD"));
     is.set_option(urdl::http::connection_type(connectionType));
     is.set_option(urdl::http::user_agent(userAgent));
 
-    urdl::http::additional_headers additionalHeaders;
+    urdl::http::additional_headers additional_headers;
     
     if (cookies.length())
     {
-        additionalHeaders.get().push_back(
+        additional_headers.get().push_back(
             urdl::http::additional_headers::header("Cookie", cookies)
             );
     }
 
-    if (Referer.length())
+    BOOST_FOREACH(const HttpHeader & h, additionalHeaders)
     {
-        additionalHeaders.get().push_back(
-            urdl::http::additional_headers::header("Referer", Referer)
-            );
+        if (!h.Value.empty())
+        {
+            additional_headers.get().push_back(
+                urdl::http::additional_headers::header(h.Name, h.Value)
+                );
+        }
     }
 
-    if (additionalHeaders.get().size())
+    if (additional_headers.get().size())
     {
-        is.set_option(additionalHeaders);
+        is.set_option(additional_headers);
     }
     
     is.open(url);
 
     if (!is)
     {
-        std::cerr << "[openmedia::downloader::download_page_header_ref] unable to open URL: ";
-        std::cerr << is.error().message() << std::endl;
+        //cerr << "[openmedia::downloader::download_page_header_ref] unable to open URL: ";
+        //cerr << is.error().message() << endl;
         return false;
     }
 
     headers = is.headers();
-    return true;
+    return true;    
 }
 
-void replace_xml_esc(std::string & Str)
+bool download_page_header_ref(const string & url, string & headers, const string & cookies, const string & Referer, const string & connectionType)
+{
+    std::vector<HttpHeader> additional_headers;
+    additional_headers.push_back(HttpHeader("Referer",Referer));
+    return download_page_header(url, headers, cookies, connectionType, additional_headers);    
+}
+
+void replace_xml_esc(string & Str)
 {
     // &amp; (&), &lt; (<), &gt; (>), &apos; ('), &quot; (")    
-    boost::algorithm::replace_all(Str, "&amp;", "&" );
-    boost::algorithm::replace_all(Str, "&lt;", "<" );
-    boost::algorithm::replace_all(Str, "&gt;", ">" );
-    boost::algorithm::replace_all(Str, "&apos;", "'" );
-    boost::algorithm::replace_all(Str, "&quot;", "\"" );
+    algorithm::replace_all(Str, "&amp;",    "&" );
+    algorithm::replace_all(Str, "&lt;",     "<" );
+    algorithm::replace_all(Str, "&gt;",     ">" );
+    algorithm::replace_all(Str, "&apos;",   "'" );
+    algorithm::replace_all(Str, "&quot;",   "\"" );
 }
 
 struct replace_fmt 
 {
-    std::string operator () (boost::smatch const & what)
+    string operator () (smatch const & what)
     {
-        try {
-            std::string s = std::string("0x") + what[1].str();
+        try 
+        {
+            string s = string("0x") + what[1].str();
             unsigned int x;   
-            std::stringstream ss;
-            ss << std::hex << s;
+            stringstream ss;
+            ss << hex << s;
             ss >> x;
-            std::wstring str = std::wstring(L"") + wchar_t(x);
+            wstring str = wstring(L"") + wchar_t(x);
             return  utf16_to_utf8(str);
-            //return std::wstring("") + (wchar_t)(boost::lexical_cast<int>(s ));
+            //return wstring("") + (wchar_t)(lexical_cast<int>(s ));
         } catch(...)
         {
-            return std::string("X");
+            return string("X");
         }
     }
 };
 
 struct replace_fmt_6 
 {
-    std::string operator () (boost::smatch const & what)
+    string operator () (smatch const & what)
     {
         try {
-            std::string s = std::string("0x") + what[1].str();
+            string s = string("0x") + what[1].str();
             unsigned int x;   
-            std::stringstream ss;
-            ss << std::hex << s;
+            stringstream ss;
+            ss << hex << s;
             ss >> x;
-            std::wstring str = std::wstring(L"") + wchar_t(x - 9472);
+            wstring str = wstring(L"") + wchar_t(x - 9472);
             return  utf16_to_utf8(str);
-            //return std::wstring("") + (wchar_t)(boost::lexical_cast<int>(s ));
-        } catch(...)
+        }
+        catch(...)
         {
-            return std::string("X");
+            return string("X");
         }
     }
 };
 
-std::string replace_u_codes(const std::string & input)
+string replace_u_codes(const string & input)
 {
-    return boost::regex_replace(input, boost::regex( std::string("\\\\u([0-9a-zA-Z]+)") ), 
-        replace_fmt(), boost::match_default | boost::format_all );
-    //return input;
+    return regex_replace(input, regex( string("\\\\u([0-9a-zA-Z]+)") ), 
+        replace_fmt(), match_default | format_all );
 }
 
-std::string replace_u_codes_6(const std::string & input)
+string replace_u_codes_6(const string & input)
 {
-    return boost::regex_replace(input, boost::regex( std::string("\\\\u([0-9a-zA-Z]{6})") ), 
-        replace_fmt_6(), boost::match_default | boost::format_all );
-    //return input;
+    return regex_replace(input, regex( string("\\\\u([0-9a-zA-Z]{6})") ), 
+        replace_fmt_6(), match_default | format_all );
 }
 
+string replace_u_codes_4(const string & input)
+{
+    return regex_replace(input, regex( string("\\\\u([0-9a-zA-Z]{4})") ), 
+        replace_fmt(), match_default | format_all );
+}
 
 } } //namespace openmedia::downloader

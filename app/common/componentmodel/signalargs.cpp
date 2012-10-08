@@ -22,7 +22,6 @@ using namespace ComponentModel;
 SignalArgs::SignalArgs(QObject* sender) :
         m_sender(sender)
 {
-    qRegisterMetaType<SignalArgs>();
 }
 
 

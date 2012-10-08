@@ -17,6 +17,8 @@
 #include "viewmodel/mediadownload.h"
 #include "componentmodel/transform.h"
 #include "componentmodel/filesystem.h"
+#include <QFileInfo>
+#include <QDir>
 
 using namespace ViewModel;
 using namespace ComponentModel;
@@ -40,7 +42,9 @@ QString MediaDownloadDetails::summary(MediaDownloadType downloadType, openmedia:
         case downloader::mediaQuality1080P:
             result = QObject::tr("High Definition");
             break;
-
+            
+            
+        case downloader::mediaQuality720P_1:
         case downloader::mediaQuality720P:
             result = QObject::tr("High Definition");
             break;
@@ -49,13 +53,19 @@ QString MediaDownloadDetails::summary(MediaDownloadType downloadType, openmedia:
             result = QObject::tr("High Quality");
             break;
 
+        case downloader::mediaQuality360P_1:
         case downloader::mediaQuality360P:
             result = QObject::tr("Normal Quality");
             break;
 
+        case downloader::mediaQuality240P_1:
         case downloader::mediaQuality240P:
             result = QObject::tr("Normal Quality");
             break;
+            
+        case downloader::mediaQualityQCIF:
+            result = QObject::tr("Low Resolution");
+            break;            
 
         default:
             result = QObject::tr("Unknown");
@@ -95,6 +105,7 @@ QString MediaDownloadDetails::quality(MediaDownloadType downloadType, openmedia:
             result = "1080p";
             break;
 
+        case downloader::mediaQuality720P_1:
         case downloader::mediaQuality720P:
             result = "720p";
             break;
@@ -103,13 +114,19 @@ QString MediaDownloadDetails::quality(MediaDownloadType downloadType, openmedia:
             result = "480p";
             break;
 
+        case downloader::mediaQuality360P_1:
         case downloader::mediaQuality360P:
             result = "360p";
             break;
 
+        case downloader::mediaQuality240P_1:            
         case downloader::mediaQuality240P:
             result = "240p";
             break;
+            
+        case downloader::mediaQualityQCIF:
+            result = "QCIF";
+            break;            
 
         default:
             result = QObject::tr("Unknown");
@@ -152,6 +169,10 @@ QString MediaDownloadDetails::format(MediaDownloadType downloadType, openmedia::
         case downloader::mediaContentVideoWebm:
             result = "MKV";
             break;
+            
+        case downloader::mediaContentVideo3GP:
+            result = "3GP";
+            break;            
 
         default:
             result = QObject::tr("Unknown");
@@ -193,6 +214,10 @@ QString MediaDownloadDetails::codecs(MediaDownloadType downloadType, openmedia::
 
         case downloader::mediaContentVideoWebm:
             result += "MKV";
+            break;
+            
+        case downloader::mediaContentVideo3GP:
+            result += "3GP";
             break;
 
         default:
@@ -286,6 +311,10 @@ QString MediaDownloadDetails::fileExt(MediaDownloadType downloadType, openmedia:
         case downloader::mediaContentVideoWebm:
             result = ".mkv";
             break;
+            
+        case downloader::mediaContentVideo3GP:
+            result = ".3gp";
+            break;            
 
         default:
             result = ".flv";
@@ -364,15 +393,17 @@ QString MediaDownloadDetails::fileSize(MediaDownloadType downloadType, const ope
 MediaDownloadItem::MediaDownloadItem() :
     m_downloadType(ViewModel::DownloadVideo),
     m_mediaIndex(-1),
+    m_subtitlesIndex(-1),
     m_needGenerate(false)
 {
 }
 
 MediaDownloadItem::MediaDownloadItem(MediaDownloadType downloadType, openmedia::downloader::media_download_list_ptr mediaList,
-                                     int mediaIndex, QString outputPath, bool needGenerate) :
+                                     int mediaIndex, int subtitlesIndex, QString outputPath, bool needGenerate) :
     m_downloadType(downloadType),
     m_mediaList(mediaList),
     m_mediaIndex(mediaIndex),
+    m_subtitlesIndex(subtitlesIndex),
     m_outputPath(outputPath),
     m_needGenerate(needGenerate)
 {
@@ -406,7 +437,13 @@ int MediaDownloadItem::mediaIndex() const
 }
 
 
-QString MediaDownloadItem::fileName() const
+int MediaDownloadItem::subtitlesIndex() const
+{
+    return m_subtitlesIndex;
+}
+
+
+QString MediaDownloadItem::mediaFileName() const
 {
     if (m_needGenerate)
     {
@@ -416,4 +453,10 @@ QString MediaDownloadItem::fileName() const
     }
 
     return m_outputPath;
+}
+
+
+QString MediaDownloadItem::subtitlesFileName() const
+{
+    return FileSystem::changeFilePathExt(mediaFileName(), ".srt");
 }

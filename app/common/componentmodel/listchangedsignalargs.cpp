@@ -29,7 +29,6 @@ ListChangedSignalArgs::ListChangedSignalArgs(QObject* sender, ListChangedSignalA
     m_items(items),
     m_oldItems(oldItems)
 {
-    qRegisterMetaType<ListChangedSignalArgs>();
 }
 
 

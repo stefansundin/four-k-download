@@ -15,16 +15,15 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioConvert.cpp
 
 #include <openmedia/DTAudioConvert.h>
 #include "DTAudioBufferImpl.h"
-#include "ffmpeg/DTFFSampleFmtConvert.h"
-#include "ffmpeg/DTFFResampleConvert.h"
+#include "ffmpeg/DTFFSWResample.h"
 
 namespace openmedia {
 
@@ -39,14 +38,19 @@ audio_data_ptr audio_convert::convert(const audio_data * _AudioData)
     return impl()->pop_front(availSamplesCount);
 }
 
-audio_convert_ptr audio_convert_utils::create_sample_fmt_convert(const audio_format * _OutputAudioFormat)
-{
-    return audio_convert_ptr( new ff_sample_fmt_converter(_OutputAudioFormat) );
-}
+//audio_convert_ptr audio_convert_utils::create_sample_fmt_convert(const audio_format * _OutputAudioFormat)
+//{
+//    return audio_convert_ptr( new ff_sample_fmt_converter(_OutputAudioFormat) );
+//}
+//
+//audio_convert_ptr audio_convert_utils::create_resample_convert(const audio_format * _OutputAudioFormat, int _InputSampleRate, int _OutputSampleRate)
+//{
+//    return audio_convert_ptr( new ff_resample_converter(_OutputAudioFormat, _InputSampleRate, _OutputSampleRate) );
+//}
 
-audio_convert_ptr audio_convert_utils::create_resample_convert(const audio_format * _OutputAudioFormat, int _InputSampleRate, int _OutputSampleRate)
+audio_convert_ptr audio_convert_utils::create_resample_convert(const audio_format * _OutputAudioFormat, const audio_format * _InputAudioFormat)
 {
-    return audio_convert_ptr( new ff_resample_converter(_OutputAudioFormat, _InputSampleRate, _OutputSampleRate) );
+    return audio_convert_ptr( new ff_swresample(_InputAudioFormat, _OutputAudioFormat) );
 }
 
 }

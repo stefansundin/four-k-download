@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersDownload.h"
+// precompiled header end
 
 #include <iostream>
 
@@ -61,11 +61,13 @@ public:
         firstOpen_(true),
         lastRead_(false)
     {
+        DT_LOG(trace) << "[downloader_instance_multi::downloader_instance_multi] construct\n";
     }
 
     void start(const urdl::url& url, const std::string & Cookies, boost::int64_t startByte, boost::int64_t endByte, const std::wstring& file);
     virtual ~downloader_instance_multi()
     {
+        DT_LOG(trace) << "[downloader_instance_multi::~downloader_instance_multi] destruct\n";
     }
 
 private:
@@ -117,25 +119,12 @@ public:
     virtual http_downloader::command_result_t cancel();
 
 private:
-    //boost::asio::io_service io_service_; 
-
-    http_downloader::DownloadStateNotify state_notify_;
-    http_downloader::DownloadProgressNotify progress_notify_;
-
-    std::string url_;
-    std::string cookies_;
-    std::wstring filename_;
-    
-    //boost::thread thread_; ///< main thread
-
     enum State
     {
         stateNull = 0,
         stateDownload = 1,
         statePaused = 2
     };
-
-    State state_;
 
     enum Command
     {
@@ -144,12 +133,17 @@ private:
         commandResume,
         commandCancel                    
     };
+ 
+    std::string url_;
+    std::string cookies_;
+    std::wstring filename_; 
+
+    http_downloader::DownloadStateNotify state_notify_;
+    http_downloader::DownloadProgressNotify progress_notify_;
 
     Command command_;
-
+    State state_;
     boost::mutex stateGuard_;
-
-private:
     size_t partSizeBytes_;
     boost::weak_ptr<downloader_instance_multi> instance_weak_;
 
@@ -213,7 +207,9 @@ void downloader_instance_multi::start(const urdl::url& url, const std::string & 
         + "-" + (endByte > 0 ? boost::lexical_cast<std::string>(endByte) : "");
         
     additionalHeaders.get().push_back( urdl::http::additional_headers::header("Range", bytesRequest) );
-   
+
+    DT_LOG(trace) << "range " << bytesRequest << "\n";
+    
     read_stream_.set_option(additionalHeaders);
     
     read_stream_.async_open(url,
@@ -222,6 +218,7 @@ void downloader_instance_multi::start(const urdl::url& url, const std::string & 
 
 void downloader_instance_multi::handle_open(const boost::system::error_code& ec)
 {
+    DT_LOG(trace) << "handle_open" << ec.value() << "\n";
 
     if (lastRead_)
     {
@@ -286,11 +283,14 @@ void downloader_instance_multi::handle_open(const boost::system::error_code& ec)
 
 void downloader_instance_multi::handle_read2(bool Paused, const boost::system::error_code& ec, std::size_t length)
 {
+    DT_LOG(trace) << "handle_read: " << ec.value() << "\n";
+
     if (Paused)
     {
         boost::mutex::scoped_lock lock(owner()->stateGuard_);
         if ( owner()->command() == http_downloader_multi::commandCancel)
         {
+            DT_LOG(trace) << "cancel" << "\n";
             owner()->resetCommand();
             outputFile_.reset();
             owner()->stateNotify(http_downloader::stateCancel);
@@ -298,6 +298,7 @@ void downloader_instance_multi::handle_read2(bool Paused, const boost::system::e
         } 
         else if ( owner()->command() == http_downloader_multi::commandResume )
         {
+            DT_LOG(trace) << "leave paused" << "\n";
             owner()->state( http_downloader_multi::stateDownload );
             owner()->resetCommand();
             owner()->stateNotify(http_downloader::stateResume);
@@ -318,12 +319,15 @@ void downloader_instance_multi::handle_read2(bool Paused, const boost::system::e
 
     if (!ec)
     {
-    
+        DT_LOG(trace) << "NORMAL: " << length << "\n";
+        
         if (outputFile_)
             fwrite((const void*)buffer_, length, 1, outputFile_.get());
 
         readed_bytes_ += length;
+        DT_LOG(trace) << "[send progressNotify] ...\n";
         owner()->progressNotify(readed_bytes_);
+        DT_LOG(trace) << "[send progressNotify] ok \n";
 
         {
             boost::mutex::scoped_lock lock(owner()->stateGuard_);
@@ -336,6 +340,8 @@ void downloader_instance_multi::handle_read2(bool Paused, const boost::system::e
                         owner()->state( http_downloader_multi::statePaused );
                         owner()->resetCommand();
                         owner()->stateNotify(http_downloader::statePause);
+
+                        DT_LOG(trace) << "state paused" << "\n";
                         read_stream_.get_io_service().post(  
                             boost::bind(&downloader_instance_multi::handle_read2, shared_from_this(), true, boost::system::error_code() , 0) 
                             );
@@ -345,6 +351,7 @@ void downloader_instance_multi::handle_read2(bool Paused, const boost::system::e
 
                 case http_downloader_multi::commandCancel:
                     {
+                        DT_LOG(trace) << "cancel" << "\n";
                         owner()->resetCommand();
                         outputFile_.reset();
                         owner()->stateNotify(http_downloader::stateCancel);
@@ -374,6 +381,8 @@ void downloader_instance_multi::handle_read2(bool Paused, const boost::system::e
             const boost::int64_t startPos = readed_bytes_;
             const size_t partSizeBytes = owner()->partSizeBytes();
             const boost::int64_t endPos = readed_bytes_ + partSizeBytes;
+
+            DT_LOG(trace) << "PART: s" << startPos << " e: " << endPos << " sz: " << partSizeBytes << "\n";
             this->start(url_, cookies_, startPos, endPos, L"");
         }
         else
@@ -426,14 +435,19 @@ partSizeBytes_(PartSizeBytes)
 
 http_downloader_multi::~http_downloader_multi()
 {
+    DT_LOG(trace) << "[http_downloader_multi::~http_downloader_multi] enter" << "\n";
     this->cancel();
+    //thread_.join();   
+    DT_LOG(trace) << "[http_downloader_multi::~http_downloader_multi] leave" << "\n";
 }
 
 http_downloader::command_result_t http_downloader_multi::pause()
 {
     boost::mutex::scoped_lock lock(stateGuard_);
+    DT_LOG(trace) << "[http_downloader_multi::pause]: try to put paused..." << "\n";
     if (state() != statePaused)
     {
+        DT_LOG(trace) << "[http_downloader_multi::pause]: put commandPause" << "\n";
         command(commandPause);
     }
     return http_downloader::resultOk;
@@ -442,8 +456,10 @@ http_downloader::command_result_t http_downloader_multi::pause()
 http_downloader::command_result_t http_downloader_multi::resume()
 {
     boost::mutex::scoped_lock lock(stateGuard_);
+    DT_LOG(trace) << "try to put resume" << "\n";
     if (state() != stateDownload)
     {
+        DT_LOG(trace) << "put commandResume" << "\n";
         command(commandResume);
     }
     return http_downloader::resultOk;
@@ -454,6 +470,7 @@ http_downloader::command_result_t http_downloader_multi::cancel()
 {
     {
         boost::mutex::scoped_lock lock(stateGuard_);
+        DT_LOG(trace) << "put commandCancel" << "\n";
         command(commandCancel);
     }
 
@@ -461,7 +478,10 @@ http_downloader::command_result_t http_downloader_multi::cancel()
     {
         boost::this_thread::sleep( boost::posix_time::milliseconds(100) );
     }
+//  io_service_.stop();
+//  thread_->join();
     return http_downloader::resultOk;
+
 }
 
 std::auto_ptr<http_downloader_instance> create_http_downloader_impl_multi(const std::string & Url,

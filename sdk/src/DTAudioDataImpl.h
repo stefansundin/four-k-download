@@ -43,6 +43,8 @@ public:
 	virtual dt_channel_layout_t get_channel_layout() const = 0;
     virtual int                 get_channels_count() const = 0;
     virtual int                 get_bits_per_sample() const = 0;
+    virtual uint8_t *           lock_data() = 0;
+    virtual void                unlock_data() = 0;
 
 };
 

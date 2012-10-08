@@ -14,7 +14,9 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+/// \file   DTDownloaderYoutube.cpp
+
+#include "DTHeadersVideoDownload.h"
 
 #include "DTDownloaderYoutube.h"
 #include "DTDownloaderYoutubeDetails.h"
@@ -36,6 +38,10 @@
 #include <vector>
 #include <iostream>
 
+#include "videodownload/DTSubtitleYoutube.h"
+
+using namespace std;
+
 namespace openmedia { namespace downloader { namespace youtube {
 
 const char * keepAliveParam = "";
@@ -46,11 +52,12 @@ media_download_list::BytesArrayPtr download_thumbnail_impl(const std::string & T
     {
         try 
         {
-            std::string headers__, content__;
-            if (download_page(ThumbnailUrl, headers__, content__, "", ""))
+            std::string headers, content;
+            if (download_page(ThumbnailUrl, headers, content, "", ""))
             {
-                media_download_list::BytesArrayPtr thumbnail = media_download_list::BytesArrayPtr( new media_download_list::BytesArray( content__.size() ) );
-                ::std::copy( content__.begin(), content__.end(), thumbnail->begin() );
+                media_download_list::BytesArrayPtr thumbnail 
+                    = media_download_list::BytesArrayPtr( new media_download_list::BytesArray(content.size()) );
+                std::copy( content.begin(), content.end(), thumbnail->begin() );
                 return thumbnail;
             };
         }
@@ -61,151 +68,162 @@ media_download_list::BytesArrayPtr download_thumbnail_impl(const std::string & T
     return media_download_list::BytesArrayPtr();
 }
 
-media_download_list::BytesArrayPtr extract_thumbnail(const std::string & content)
+media_download_list::BytesArrayPtr extract_thumbnail(const string & content)
 {
     return download_thumbnail_impl( extract_youtube_thumbnail_url(content) );
 }
 
-boost::shared_ptr<media_download_list::Impl> parse_url_impl1(const std::string & Url)
+void parse_formats_list(
+    const std::vector<string> &urls,
+    const std::vector<int> &ids,
+    const std::string& cookies, 
+    int duration,
+    std::vector<media_download_info> & resultMediaInfoList)
 {
-    std::string main_headers, main_content, info_headers, info_content;
-    //std::string normalizedUrl = normalize_youtube_url(Url);
-    if (!download_page(Url, main_headers, main_content, "", keepAliveParam))
-        throw url_parser::exception();
-
-    std::vector<HttpHeader> parsedHeaders;
-    parse_http_headers(main_headers, parsedHeaders); 
-
-    const std::string cookies = use_cookies(parsedHeaders);
-
-    std::string title ="Unknown";
-    extract_youtube_title(main_content, title);
-    const std::wstring titleW = ::openmedia::utf8_to_utf16(title);
-
-    const std::string token = get_youtube_token(main_content);
-    const std::string video_id = get_youtube_video_id(main_content);
-    const boost::uint32_t duration = 1000 * get_youtube_duration(main_content);
-    const std::string eurl = "http://www.youtube.com/watch?v=" + video_id;
-    media_download_list::BytesArrayPtr thumbnail = extract_thumbnail(main_content);
-
-    
-    const std::string get_video_info = "http://www.youtube.com/get_video_info?video_id=" + url_encode(video_id) +
-        "&el=$el" +
-//        "&ps=default" +
-//        "&eurl=" + url_encode(eurl)+
-//        "&hl=en_US" +
-        "&t=" + url_encode(token);
-
-#if 0
-    std::cout << "get_video_info url: " << get_video_info << "\n";
-#endif
-
-    if (!download_page(get_video_info, info_headers, info_content, cookies, ""))
-        throw url_parser::exception();
-
-    //const std::string info_content_decoded = url_decode(info_content);
-
-    std::vector<std::string> urls;
-    std::vector<int> ids;
-
-    std::string decoded_info_content = url_decode(info_content);
-    split_youtube_video_info(info_content, urls, ids);
-
-    std::vector< media_download_info > mediaInfoList;
-
-    ::std::set< boost::uint64_t > contentSizesSet;
-       
+    std::set<boost::uint64_t> content_size_set;
 
     for (size_t i = 0; i < urls.size(); ++i)
     {
-        const std::string url = url_decode(urls[i]);
+        string url = url_decode(urls[i]);
 
-#if 0
-        std::cout << "\n\nURL: " << url << "\n";
-#endif
-        const size_t probeBytes = 8000;
-        std::string mediaHeaders;
-        std::string simpleContent;
 
-        download_page_header(url, mediaHeaders, cookies, "");
-        
-        //download_bytes(url, mediaHeaders, simpleContent, cookies, "", probeBytes);
+        std::string media_headers;
+        if (!download_page_header(url, media_headers, cookies, ""))
+            continue;       
 
-        std::vector<HttpHeader> parsedMediaHeaders;
-        parse_http_headers(mediaHeaders, parsedMediaHeaders); 
-        
-        std::string mediaType;
-        boost::uint64_t contentSize;
-        if (is_media_content(parsedMediaHeaders, mediaType, contentSize))
+        std::vector<HttpHeader> parsed_headers;
+        parse_http_headers(media_headers, parsed_headers); 
+
+        std::string media_type_str;
+        boost::uint64_t content_size;
+        if (is_media_content(parsed_headers, media_type_str, content_size))
         {
-            if (!contentSizesSet.count(contentSize))
+            if (!content_size_set.count(content_size))
             {
+                media_url_handle_ptr urlHandle =
+                    media_url_handle_ptr( new media_url_handle(url, media_type_str, content_size, cookies, "") );
 
-                media_url_handle_ptr urlHandle = media_url_handle_ptr( new media_url_handle(url, mediaType, contentSize, cookies, "") );
-
-                const media_content_type_t mediaType_ = ::openmedia::downloader::parse_media_content_type(mediaType);
-
-                int width = 0, height = 0;
-                if (::openmedia::downloader::mediaContentVideoFlv == mediaType_)
-                {
-                    flv_video_size(simpleContent, width, height);
-                } 
-                else if (::openmedia::downloader::mediaContentVideoMP4 == mediaType_)
-                {
-                    mp4_video_size(simpleContent, width, height);                
-                } 
-                else if (::openmedia::downloader::mediaContentVideoWebm == mediaType_)
-                {
-                    webm_video_size(simpleContent, width, height);                
-                }
+                const media_content_type_t media_type = parse_media_content_type(media_type_str);
 
                 media_quality_type_t media_quality_type;
-                media_content_type_t mediaType2_;
+                media_content_type_t media_type_2_;
                 media_video_type_t media_video_codec_type;
                 media_audio_type_t media_audio_codec_type;
 
                 youtube_format_map(ids[i], 
                     media_quality_type, 
-                    mediaType2_,
+                    media_type_2_,
                     media_video_codec_type, 
                     media_audio_codec_type); 
 
                 media_info_handle_ptr mediaInfoHandle 
                     = media_info_handle_ptr( 
                     new media_info_handle(
-                    width, 
-                    height, 
+                    0, 0, 
                     media_quality_type,
-                    mediaType_,
+                    media_type,
                     media_video_codec_type,
                     media_audio_codec_type,
                     duration) );
 
-                mediaInfoList.push_back( media_download_info(urlHandle, mediaInfoHandle) );
-                contentSizesSet.insert(contentSize);
+                resultMediaInfoList.push_back( media_download_info(urlHandle, mediaInfoHandle) );
+                content_size_set.insert(content_size);
             }
         }
     }
 
-    ::std::sort(mediaInfoList.begin(), mediaInfoList.end(), &compare_media_download_info);
+    std::sort(resultMediaInfoList.begin(), resultMediaInfoList.end(), &compare_media_download_info);
+}
 
-    boost::shared_ptr<media_download_list::Impl> media_download_list_impl( new media_download_list::Impl(titleW, title, thumbnail, duration, Url) );
-    media_download_list_impl->get_array().swap(mediaInfoList);
+boost::shared_ptr<media_download_list::Impl> parse_url_impl1(const std::string & Url)
+{
+    std::string video_id, token;
+
+    {
+        std::string headers, content;
+        if (!download_page(Url, headers, content, "", ""))
+            throw url_parser::exception();
+        
+        video_id = get_youtube_video_id(content);
+        token = get_youtube_token(content);
+    }
+
+    std::string cookies;
+    std::string info_content;
+
+    {
+        //const string video_info_url = "http://www.youtube.com/get_video_info?video_id=" + url_encode(video_id) +
+        //    "&hl=en&gl=US&ptk=vevo&el=detailpage";  
+
+        const string video_info_url = "http://www.youtube.com/get_video_info?video_id=" + url_encode(video_id) +
+            "&el=$el" +
+            //        "&ps=default" +
+            //        "&eurl=" + url_encode(eurl)+
+            //        "&hl=en_US" +
+            "&t=" + url_encode(token);
+
+        std::string headers, &content = info_content;
+        if (!download_page(video_info_url, headers, content, "", ""))
+            throw url_parser::exception();
+        vector<HttpHeader> parsed_headers;
+        parse_http_headers(headers, parsed_headers); 
+        cookies = use_cookies(parsed_headers);
+    }
+
+    std::string title = "Unknown";
+    std::wstring titleW;
+    boost::uint32_t duration = 0;
+    media_download_list::BytesArrayPtr thumbnail;
+    subtitles_ptr subs;
+
+    {
+        std::string headers, content;
+        if (!download_page(Url, headers, content, cookies, ""))
+            throw url_parser::exception();
+
+        vector<HttpHeader> parsed_headers;
+        parse_http_headers(headers, parsed_headers);     
+        std::string new_cookies = use_cookies(parsed_headers);    
+        if (!new_cookies.empty())
+            cookies += "; " + new_cookies;
+
+        extract_youtube_title(content, title);
+        titleW = ::openmedia::utf8_to_utf16(title);
+        
+        duration = 1000 * get_youtube_duration(content);                
+        thumbnail = extract_thumbnail(content);
+
+        std::string transcribed_url = get_transcribed_subtitles(content);
+        subs = subtitles_youtube::create(video_id, transcribed_url);
+    }    
+
+    std::vector<string> urls;
+    std::vector<int> ids;
+    split_youtube_video_info(info_content, urls, ids);
+
+    std::vector<media_download_info> media_info_list;
+    parse_formats_list(urls, ids, cookies, duration, media_info_list);
     
+    boost::shared_ptr<media_download_list::Impl> media_download_list_impl(
+        new media_download_list::Impl(titleW, title, thumbnail, duration, Url, subs) 
+        );
+
+    media_download_list_impl->get_array().swap(media_info_list);
+
     return media_download_list_impl;
 }
 
 boost::shared_ptr<media_download_list::Impl> parse_url_impl2(const std::string & Url)
 {
-    std::string main_headers, main_content;
+    std::string headres, content;
     
-    if (!download_page(Url, main_headers, main_content, "", keepAliveParam))
+    if (!download_page(Url, headres, content, "", ""))
         throw url_parser::exception();
 
     std::string value;
-    if (search_watch_url(main_content, value) )
+    if (search_watch_url(content, value) )
     {
-        const std::string newUrl = std::string("http://www.youtube.com/watch?v=") + value;
+        const string newUrl = string("http://www.youtube.com/watch?v=") + value;
         return parse_url_impl1(newUrl);        
     }
     else
@@ -219,22 +237,29 @@ bool is_embedded(const std::string & Url)
 
 boost::shared_ptr<media_download_list::Impl> parse_url_embedded(const std::string & Url)
 {
-    std::string main_headers, main_content;
-    if (!download_page(Url, main_headers, main_content, "", ""))
+    std::string headers, content;
+    if (!download_page(Url, headers, content, "", ""))
         throw url_parser::exception();
 
     std::vector<HttpHeader> parsedHeaders;
-    parse_http_headers(main_headers, parsedHeaders); 
+    parse_http_headers(headers, parsedHeaders); 
     const std::string cookies = use_cookies(parsedHeaders);
 
     std::string title = "Unknown";
-    get_youtube_property(main_content, "title", title);
+    get_youtube_property(content, "title", title);
     const std::wstring titleW = ::openmedia::utf8_to_utf16(title);
-    const boost::uint32_t duration = 1000 * get_youtube_duration(main_content);
-    media_download_list::BytesArrayPtr thumbnail = extract_thumbnail(main_content);
-    const std::string video_id = get_youtube_video_id(main_content);
+    
+    const boost::uint32_t duration = 1000 * get_youtube_duration(content);    
 
-    const std::string get_video_info = "http://www.youtube.com/get_video_info?video_id=" + url_encode(video_id) +
+    media_download_list::BytesArrayPtr thumbnail = extract_thumbnail(content);
+    const std::string video_id = get_youtube_video_id(content);
+    
+    const std::string transcribed_url = get_transcribed_subtitles(content);
+    subtitles_ptr subs = subtitles_youtube::create(video_id, transcribed_url);
+
+    const std::string get_video_info = 
+        "http://www.youtube.com/get_video_info?video_id=" + 
+        url_encode(video_id) +
         "&hl=en_US" +
         "&eurl=unknown"+
         "&el=embedded";
@@ -243,117 +268,44 @@ boost::shared_ptr<media_download_list::Impl> parse_url_embedded(const std::strin
     if (!download_page(get_video_info, info_headers, info_content, cookies, ""))
         throw url_parser::exception();
 
-    //const std::string info_content_decoded = url_decode(info_content);
-    std::vector<std::string> urls;
+    std::vector<string> urls;
     std::vector<int> ids;
     split_youtube_video_info(info_content, urls, ids);
 
     ////////////////////////////////
 
-    std::vector< media_download_info > mediaInfoList;
-    ::std::set< boost::uint64_t > contentSizesSet;
+    std::vector<media_download_info> media_info_list;
+    parse_formats_list(urls, ids, cookies, duration, media_info_list);
 
-    for (size_t i = 0; i < urls.size(); ++i)
-    {
-        const std::string url = url_decode(urls[i]);
-
-#if 0
-        std::cout << "\n\nURL: " << url << "\n";
-#endif
-        std::string mediaHeaders;
-        std::string simpleContent;
-
-        download_page_header(url, mediaHeaders, cookies, "");
-        //download_bytes(url, mediaHeaders, simpleContent, cookies, "", probeBytes);
-
-        std::vector<HttpHeader> parsedMediaHeaders;
-        parse_http_headers(mediaHeaders, parsedMediaHeaders); 
-        
-        std::string mediaType;
-        boost::uint64_t contentSize;
-        if (is_media_content(parsedMediaHeaders, mediaType, contentSize))
-        {
-            if (!contentSizesSet.count(contentSize))
-            {
-
-                media_url_handle_ptr urlHandle = media_url_handle_ptr( new media_url_handle(url, mediaType, contentSize, cookies, "") );
-
-                const media_content_type_t mediaType_ = ::openmedia::downloader::parse_media_content_type(mediaType);
-
-                int width = 0, height = 0;
-                if (::openmedia::downloader::mediaContentVideoFlv == mediaType_)
-                {
-                    flv_video_size(simpleContent, width, height);
-                } 
-                else if (::openmedia::downloader::mediaContentVideoMP4 == mediaType_)
-                {
-                    mp4_video_size(simpleContent, width, height);                
-                } 
-                else if (::openmedia::downloader::mediaContentVideoWebm == mediaType_)
-                {
-                    webm_video_size(simpleContent, width, height);                
-                }
-
-                media_quality_type_t media_quality_type;
-                media_content_type_t mediaType2_;
-                media_video_type_t media_video_codec_type;
-                media_audio_type_t media_audio_codec_type;
-
-                youtube_format_map(ids[i],
-                    media_quality_type,
-                    mediaType2_,
-                    media_video_codec_type,
-                    media_audio_codec_type);
-
-                media_info_handle_ptr mediaInfoHandle
-                    = media_info_handle_ptr(
-                    new media_info_handle(
-                    width,
-                    height,
-                    media_quality_type,
-                    mediaType_,
-                    media_video_codec_type,
-                    media_audio_codec_type,
-                    duration) );
-
-                mediaInfoList.push_back( media_download_info(urlHandle, mediaInfoHandle) );
-                contentSizesSet.insert(contentSize);
-            }
-        }
-    }
-
-    ::std::sort(mediaInfoList.begin(), mediaInfoList.end(), &compare_media_download_info);
-
-    boost::shared_ptr<media_download_list::Impl> media_download_list_impl( new media_download_list::Impl(titleW, title, thumbnail, duration, Url) );
-    media_download_list_impl->get_array().swap(mediaInfoList);
+    boost::shared_ptr<media_download_list::Impl> media_download_list_impl( 
+        new media_download_list::Impl(titleW, title, thumbnail, duration, Url, subs) );
+    media_download_list_impl->get_array().swap(media_info_list);
     
     return media_download_list_impl;
 }
 
-boost::shared_ptr<media_download_list::Impl> parse_url_impl3(const std::string & Url)
+boost::shared_ptr<media_download_list::Impl> parse_url_impl3(const string & Url)
 {
-    std::string main_headers, main_content;
-    if (!download_page(Url, main_headers, main_content, "", keepAliveParam))
+    std::string headers, content;
+    if (!download_page(Url, headers, content, "", keepAliveParam))
         throw url_parser::exception();
 
     std::string value;
-    if (search_watch_url(main_content, value) )
+    if (search_watch_url(content, value) )
     {
-        const std::string newUrl = std::string("http://www.youtube.com/embed/") + value;
+        const string newUrl = string("http://www.youtube.com/embed/") + value;
         return parse_url_embedded(newUrl);        
     }
     else
         throw url_parser::exception();
 }
 
-bool pre_parse_playlist(const std::string & Url, std::vector<media_download_list_ptr> & ArrayOfVideos);
+bool pre_parse_playlist(const string & Url, vector<media_download_list_ptr> & ArrayOfVideos);
 
-boost::shared_ptr<media_download_list::Impl> parse_url_get_impl(const std::string & Url)
+boost::shared_ptr<media_download_list::Impl> parse_url_get_impl(const string & Url)
 {
     if (is_embedded(Url))
-    {
         return parse_url_embedded(Url);
-    }
 
     boost::shared_ptr<media_download_list::Impl> resultList;
     bool res = true;
@@ -370,9 +322,11 @@ boost::shared_ptr<media_download_list::Impl> parse_url_get_impl(const std::strin
         return resultList;
 
     res = true;
-    try {
+    try 
+    {
         resultList = parse_url_impl2(Url);
-    }catch(...)
+    }
+    catch(...)
     {
         res = false;
     }
@@ -383,61 +337,64 @@ boost::shared_ptr<media_download_list::Impl> parse_url_get_impl(const std::strin
     return parse_url_impl3(Url);
 }
 
-media_download_list_ptr parse_url(const std::string & Url)
+media_download_list_ptr parse_url(const string & Url)
 {
     return media_download_list_ptr( new media_download_list(parse_url_get_impl(Url) ) );
 }
 
-std::vector<media_download_list_ptr> parse_url_playlist(const std::string & Url)
+vector<media_download_list_ptr> parse_url_playlist(const string & Url)
 {
-    std::vector<media_download_list_ptr> result;
+    vector<media_download_list_ptr> result;
     pre_parse_playlist(Url, result);
     return result;
 }
 
-
-media_download_list_ptr pre_parse_url(const std::string & Url)
+media_download_list_ptr pre_parse_url(const string & Url)
 {
-    std::string main_headers, main_content;
+    string headers, content;
 
-    if (!download_page(Url, main_headers, main_content, "", ""))
+    if (!download_page(Url, headers, content, "", ""))
         throw url_parser::exception();
 
-    std::vector<HttpHeader> parsedHeaders;
-    parse_http_headers(main_headers, parsedHeaders); 
+    vector<HttpHeader> parsedHeaders;
+    parse_http_headers(headers, parsedHeaders); 
     const std::string cookies = use_cookies(parsedHeaders);
 
     std::string title = "Unknown";
-    extract_youtube_title(main_content, title);
+    extract_youtube_title(content, title);
     const std::wstring titleW = ::openmedia::utf8_to_utf16(title);
-    const boost::uint32_t duration = 1000 * get_youtube_duration(main_content);
+    const boost::uint32_t duration = 1000 * get_youtube_duration(content);
+    
+    const string video_id = get_youtube_video_id(content);
+    
+    const std::string transcribed_url = get_transcribed_subtitles(content);
+    subtitles_ptr subs = subtitles_youtube::create(video_id, transcribed_url);
 
-    media_download_list::BytesArrayPtr thumbnail = extract_thumbnail(main_content);
+    media_download_list::BytesArrayPtr thumbnail = extract_thumbnail(content);
 
     boost::shared_ptr<media_download_list::Impl> 
-        media_download_list_impl( new media_download_list::Impl(titleW, title, thumbnail, duration, Url) );
+        media_download_list_impl( new media_download_list::Impl(titleW, title, thumbnail, duration, Url, subs) );
     
     return media_download_list_ptr( new media_download_list(media_download_list_impl) );
 }
 
-bool pre_parse_playlist(const std::string & Url, std::vector<media_download_list_ptr> & ArrayOfVideos)
+bool pre_parse_playlist(const string & Url, vector<media_download_list_ptr> & ArrayOfVideos)
 {
     ArrayOfVideos.clear();
 
     std::vector<media_download_list_ptr> result; 
 
-    std::string main_headers, main_content;
-    if (!download_page(Url, main_headers, main_content, "", ""))
+    std::string headers, content;
+    if (!download_page(Url, headers, content, "", ""))
         throw url_parser::exception();
 
-    std::vector< std::string > urlsArray;
-    if (!parse_playlist_ids(main_content, urlsArray))
+    std::vector<std::string> urlsArray;
+    if (!parse_playlist_ids(content, urlsArray))
     {
-        std::cerr << "[openmedia::downloader::youtube::pre_parse_playlist] : parse_playlist_ids failed\n";
         return false;
     }
 
-    std::vector< youtube_desc > descArray;
+    std::vector<youtube_desc> descArray;
     if (receive_youtube_info(userAgent, urlsArray, descArray))
     {
         BOOST_FOREACH( const youtube_desc & desc, descArray)
@@ -448,7 +405,8 @@ bool pre_parse_playlist(const std::string & Url, std::vector<media_download_list
                 desc.title_utf8(),
                 media_download_list::BytesArrayPtr(), 
                 0.0, 
-                std::string("http://www.youtube.com/watch?v=") + desc.id()
+                string("http://www.youtube.com/watch?v=") + desc.id(),
+                subtitles_youtube::create(desc.id(), "")
                 )
                 );
             result.push_back( media_download_list_ptr(new media_download_list(media_download_list_impl, false) ) );
@@ -456,7 +414,6 @@ bool pre_parse_playlist(const std::string & Url, std::vector<media_download_list
     }
     else
     {
-        std::cerr << "[openmedia::downloader::youtube::pre_parse_playlist] : receive_youtube_info failed\n";
     }
 
     ArrayOfVideos.swap(result);

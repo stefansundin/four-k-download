@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioEncoder.cpp
 
@@ -50,16 +50,18 @@ codec_extra_data_ptr audio_encoder::get_extra_data() const
     return impl()->get_extra_data();
 }
 
-audio_encoder_ptr audio_encoder_utils::create_lame_mp3_encoder(const audio_format * _InputAudioFormat, const char * Artist, const char * Title)
+/*
+audio_encoder_ptr audio_encoder_creator::create_lame_mp3_encoder(const audio_format * _InputAudioFormat, const char * Artist, const char * Title, int Bitrate)
 {
-    audio_encoder_lame_utils::properties_ptr prop = audio_encoder_lame_utils::create_properties(Artist, Title);
+    audio_encoder_lame_utils::properties_ptr prop = audio_encoder_lame_utils::create_properties(Artist, Title, Bitrate);
     return audio_encoder_ptr( new audio_encoder_lame(_InputAudioFormat, prop.get()) );
 }
 
-audio_encoder_ptr audio_encoder_utils::create_lame_mp3_encoder(const audio_format * _InputAudioFormat)
+audio_encoder_ptr audio_encoder_creator::create_lame_mp3_encoder(const audio_format * _InputAudioFormat)
 {
     audio_encoder_lame_utils::properties_ptr prop = audio_encoder_lame_utils::create_properties();
     return audio_encoder_ptr( new audio_encoder_lame(_InputAudioFormat, prop.get()) );
 }
+*/
 
 } // namespace openmedia

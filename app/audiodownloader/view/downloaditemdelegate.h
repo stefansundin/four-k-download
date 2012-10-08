@@ -27,7 +27,7 @@ class DownloadItemDelegate : public QItemDelegate
     Q_OBJECT
 
 public:
-    Q_INVOKABLE DownloadItemDelegate(QObject* parent = 0);
+    Q_INVOKABLE explicit DownloadItemDelegate(QObject* parent = 0);
 
     virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
     virtual QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const;

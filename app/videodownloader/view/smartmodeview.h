@@ -19,10 +19,10 @@
 
 #include <QDialog>
 #include "viewmodel/smartmodeviewmodel.h"
-#include "componentmodel/binding/binding.h"
-#include "gui/binding/buttonactionbinding.h"
-#include "gui/binding/comboboxbinding.h"
-#include "mvvm/factory.h"
+#include "componentmodel/propertybinding.h"
+#include "gui/cxx/buttonactionbinding.h"
+#include "gui/cxx/comboboxbinding.h"
+#include "mvvm/cxx/factory.h"
 
 namespace Ui
 {
@@ -51,14 +51,14 @@ private:
     Ui::SmartModeView *ui;
     QWeakPointer<const Mvvm::Factory> m_factory;
     QWeakPointer<ViewModel::SmartModeViewModel> m_viewModel;
-    QScopedPointer<Bindings::Binding> m_smartModeBinding;
-    QScopedPointer<Bindings::Binding> m_settingsEnabledBinding;
-    QScopedPointer<Bindings::Binding> m_qualityEnabledBinding1;
-    QScopedPointer<Bindings::Binding> m_qualityEnabledBinding2;
-    QScopedPointer<Bindings::ComboboxBinding> m_formatBinding;
-    QScopedPointer<Bindings::ComboboxBinding> m_qualityBinding;
-    QScopedPointer<Bindings::Binding> m_dirBinding;
-    QScopedPointer<Bindings::ButtonActionBinding> m_dirButtonBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_smartModeBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_settingsEnabledBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_qualityEnabledBinding1;
+    QScopedPointer<ComponentModel::PropertyBinding> m_qualityEnabledBinding2;
+    QScopedPointer<Gui::ComboboxBinding> m_formatBinding;
+    QScopedPointer<Gui::ComboboxBinding> m_qualityBinding;
+    QScopedPointer<ComponentModel::PropertyBinding> m_dirBinding;
+    QScopedPointer<Gui::ButtonActionBinding> m_dirButtonBinding;
 };
 
 } // View

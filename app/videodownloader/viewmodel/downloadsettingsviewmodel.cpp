@@ -17,7 +17,7 @@
 #include "viewmodel/downloadsettingsviewmodel.h"
 #include "componentmodel/transform.h"
 #include "componentmodel/filesystem.h"
-#include "gui/thumbnail.h"
+#include "gui/cxx/thumbnail.h"
 #include <QCoreApplication>
 #include <QPointer>
 #include <QSettings>
@@ -29,6 +29,9 @@ using namespace ComponentModel;
 using namespace Gui;
 using namespace openmedia;
 
+
+namespace
+{
 
 const QEvent::Type ParseResultEventType = QEvent::Type(QEvent::User + 4);
 
@@ -77,13 +80,16 @@ private:
     QPointer<QObject> m_item;
 };
 
+} // Anonimous
 
 
 DownloadSettingsViewModel::DownloadSettingsViewModel(const Mvvm::Dialog* dialog, QString url, bool isPlaylist, QObject* parent) :
     ComponentModel::NotifyObject(parent),
     m_dialog(dialog),
     m_detailsIndex(-1),
-    m_isSmartMode(false),
+    m_subtitlesIndex(-1),
+    m_subtitlesDownload(false),
+    m_smartMode(false),
     m_outputDirName(""),
     m_outputFileName(""),
     m_outputPathAction(this),
@@ -127,7 +133,11 @@ void DownloadSettingsViewModel::initialize()
     QSettings settings;
     QString path = QDesktopServices::storageLocation(QDesktopServices::MoviesLocation);
     m_outputDirName = settings.value("Download/outputDirName", path).toString();
-    m_isSmartMode = settings.value("Download/smartMode", false).toBool();
+    m_smartMode = settings.value("Download/smartMode", false).toBool();
+
+    QDir d;
+    if (!d.exists(m_outputDirName))
+        m_outputDirName = path;
 }
 
 
@@ -145,11 +155,19 @@ void DownloadSettingsViewModel::saveDefaults()
 {
     QSettings settings;
 
-    if (detailsIndex() != -1 && !m_isSmartMode)
+    if (detailsIndex() != -1 && !m_smartMode)
     {
         settings.setValue("Download/defaultMediaQuality", (int)m_detailsList[detailsIndex()]->mediaQuality());
         settings.setValue("Download/defaultMediaContent", (int)m_detailsList[detailsIndex()]->mediaContent());
         settings.setValue("Download/defaultDownloadType", (int)m_detailsList[detailsIndex()]->downloadType());
+    }
+
+    if (isSubtitlesEnabled())
+    {
+        settings.setValue("Download/defaultSubtitlesDownload", isSubtitlesDownload());
+
+        if (isSubtitlesDownload() && subtitlesIndex() != -1)
+            settings.setValue("Download/defaultSubtitles", m_subtitlesList[subtitlesIndex()]);
     }
 }
 
@@ -157,6 +175,7 @@ void DownloadSettingsViewModel::saveDefaults()
 void DownloadSettingsViewModel::restoreDefaults()
 {
     QSettings settings;
+
     downloader::media_quality_type_t quality = (downloader::media_quality_type_t)settings.value("Download/defaultMediaQuality", (int)downloader::mediaQuality480P).toInt();
     downloader::media_content_type_t content = (downloader::media_content_type_t)settings.value("Download/defaultMediaContent", (int)downloader::mediaContentVideoFlv).toInt();
     MediaDownloadType type = (MediaDownloadType)settings.value("Download/defaultDownloadType", (int)DownloadVideo).toInt();
@@ -180,6 +199,24 @@ void DownloadSettingsViewModel::restoreDefaults()
     }
 
     setDetailsIndex(index);
+
+
+    if (m_mediaList.count() == 1) // Clip
+    {
+        QString subtitles = settings.value("Download/defaultSubtitles", "English").toString();
+        for (int i = 0; i < m_subtitlesList.count(); ++i)
+        {
+            if (subtitles == m_subtitlesList[i])
+            {
+                setSubtitlesIndex(i);
+                setSubtitlesDownload(settings.value("Download/defaultSubtitlesDownload", false).toBool());
+                break;
+            }
+        }
+
+        if (subtitlesIndex() == -1)
+            setSubtitlesIndex(0);
+    }
 }
 
 
@@ -191,6 +228,10 @@ MediaDownloadList DownloadSettingsViewModel::downloadList() const
     {
         QSharedPointer<MediaDetailsViewModel> details = m_detailsList[detailsIndex()];
 
+        int stIndex = -1;
+        if (isSubtitlesEnabled() && isSubtitlesDownload())
+            stIndex = subtitlesIndex();
+
         for (int i = 0; i < m_mediaList.count(); ++i)
         {
             if (!m_mediaList[i]->isChecked() || m_mediaList[i]->state() != MediaItemViewModel::Done)
@@ -198,8 +239,8 @@ MediaDownloadList DownloadSettingsViewModel::downloadList() const
 
             int mediaIndex = m_sdkResult->at(i)->find(details->mediaQuality(), details->mediaContent());
             if (mediaIndex != -1)
-                result.append(MediaDownloadItem(details->downloadType(), m_sdkResult->at(i), mediaIndex, outputPath(),
-                                                m_mediaList.count() > 1 || m_isSmartMode /*generate if playlist ot smart mode*/));
+                result.append(MediaDownloadItem(details->downloadType(), m_sdkResult->at(i), mediaIndex, stIndex, outputPath(),
+                                                m_mediaList.count() > 1 || m_smartMode /*generate if playlist ot smart mode*/));
         }
     }
 
@@ -235,14 +276,65 @@ void DownloadSettingsViewModel::setDetailsIndex(int value)
         m_detailsIndex = value;
 
         emitPropertyChanged("detailsIndex", detailsIndex());
+        emitPropertyChanged("subtitlesEnabled", isSubtitlesEnabled());
         emitPropertyChanged("outputPath", outputPath());
     }
 }
 
 
+QStringList DownloadSettingsViewModel::subtitlesList() const
+{
+    return m_subtitlesList;
+}
+
+
+int DownloadSettingsViewModel::subtitlesIndex() const
+{
+    return m_subtitlesIndex;
+}
+
+
+void DownloadSettingsViewModel::setSubtitlesIndex(int value)
+{
+    if (m_subtitlesIndex != value)
+    {
+        if (value >= m_subtitlesList.count())
+            value = m_subtitlesList.count() - 1;
+
+        m_subtitlesIndex = value;
+
+        emitPropertyChanged("subtitlesIndex", subtitlesIndex());
+    }
+}
+
+
+bool DownloadSettingsViewModel::isSubtitlesDownload() const
+{
+    return m_subtitlesDownload;
+}
+
+
+void DownloadSettingsViewModel::setSubtitlesDownload(bool value)
+{
+    if (m_subtitlesDownload != value)
+    {
+        m_subtitlesDownload = value;
+
+        emitPropertyChanged("subtitlesDownload", isSubtitlesDownload());
+    }
+}
+
+
+bool DownloadSettingsViewModel::isSubtitlesEnabled() const
+{
+    return  !m_smartMode && m_mediaList.count() == 1 && m_subtitlesList.count() > 0 && detailsIndex() != -1 &&
+            m_detailsList[detailsIndex()]->downloadType() == ViewModel::DownloadVideo;
+}
+
+
 QString DownloadSettingsViewModel::outputPath() const
 {
-    if (m_mediaList.count() == 1 && !m_isSmartMode)
+    if (m_mediaList.count() == 1 && !m_smartMode)
     {
         // Clip
 
@@ -266,7 +358,7 @@ void DownloadSettingsViewModel::setOutputPath(QString value)
     if (value.isEmpty())
         return;
 
-    if (m_mediaList.count() == 1 && !m_isSmartMode)
+    if (m_mediaList.count() == 1 && !m_smartMode)
     {
         // Clip
         QFileInfo info(value);
@@ -310,6 +402,14 @@ DownloadSettingsViewModel::State DownloadSettingsViewModel::state() const
 
 bool DownloadSettingsViewModel::canClose()
 {
+    QString defaultDir = QDesktopServices::storageLocation(QDesktopServices::MoviesLocation);
+
+    QDir d;
+    if (!d.exists(m_outputDirName))
+        if (!d.mkpath(m_outputDirName))
+            m_outputDirName = defaultDir;
+
+
     QFileInfo info(outputPath());
 
     if (info.exists() && info.isFile())
@@ -396,6 +496,11 @@ void DownloadSettingsViewModel::retreived()
                 break;
             }
         }
+
+        for (unsigned int i = 0; i < m_sdkResult->at(0)->subtitles_count(); ++i)
+        {
+            m_subtitlesList.append(QString::fromStdString(m_sdkResult->at(0)->subtitle_lang_at(i)));
+        }
     }
     else
     {
@@ -436,12 +541,13 @@ void DownloadSettingsViewModel::retreived()
         }
     }
 
-    m_outputFileName = (m_mediaList.count() == 1 && !m_isSmartMode) ?
+    m_outputFileName = (m_mediaList.count() == 1 && !m_smartMode) ?
                 FileSystem::filterInvalidSymbols(QString::fromStdWString(m_sdkResult->at(0)->title())) :
                 "";
     m_outputPathAction.setEnabled(true);
 
     emitPropertyChanged("detailsList");
+    emitPropertyChanged("subtitlesList");
 
     restoreDefaults();
 
@@ -474,7 +580,7 @@ void DownloadSettingsViewModel::browse()
 
     QString selected = outputPath();
 
-    if (m_mediaList.count() == 1 && !m_isSmartMode)
+    if (m_mediaList.count() == 1 && !m_smartMode)
     {
         // Clip
         QString filters = (detailsIndex() != -1 && m_detailsList[detailsIndex()]->downloadType() == ViewModel::ExtractAudio) ?

@@ -25,12 +25,12 @@
 #include <QMenu>
 #include <QMap>
 #include "viewmodel/mainviewmodel.h"
-#include "gui/binding/buttonactionbinding.h"
-#include "gui/binding/labelactionbinding.h"
-#include "gui/component/hoverlistview.h"
+#include "gui/cxx/buttonactionbinding.h"
+#include "gui/cxx/labelactionbinding.h"
+#include "gui/cxx/component/hoverlistview.h"
 #include "view/downloadlistmodel.h"
 #include "view/selectionmodel.h"
-#include "mvvm/factory.h"
+#include "mvvm/cxx/factory.h"
 
 namespace Ui
 {
@@ -71,7 +71,7 @@ protected slots:
     void selectActive();
     void listChanged(const ComponentModel::ListChangedSignalArgs& args);
     void selectionChanged(const ComponentModel::SelectionChangedSignalArgs& args);
-    void downloadComplited(const ComponentModel::SignalArgs& args);
+    void downloadCompleted();
     void pasteLinkActivated(const QString& url);
     void linkActivated(const QString& url);
     void contextMenuRequest(const QPoint&);
@@ -84,6 +84,8 @@ protected:
     void closeEvent(QCloseEvent* event);
     void resizeEvent(QResizeEvent* event);
 
+    bool eventFilter(QObject *object, QEvent *event);
+
 private:
     Ui::MainView *ui;
     QWeakPointer<const Mvvm::Factory> m_factory;
@@ -92,8 +94,8 @@ private:
     SelectionModel m_selection;
     QModelIndex m_activeIndex;
     QMenu m_menu;
-    QScopedPointer<Bindings::ButtonActionBinding> m_removeBinding;
-    QScopedPointer<Bindings::ButtonActionBinding> m_itemActionBinding;
+    QScopedPointer<Gui::ButtonActionBinding> m_removeBinding;
+    QScopedPointer<Gui::ButtonActionBinding> m_itemActionBinding;
 };
 
 } // View

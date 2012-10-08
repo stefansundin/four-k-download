@@ -40,7 +40,7 @@ enum EncoderMode
 class encoder_settings;
 typedef boost::shared_ptr<encoder_settings> encoder_settings_ptr;
 
-class _OPENMEDIASDK_API video_encoder_settings : interface_base
+class _OPENMEDIASDK_API media_settings : interface_base
 {
     DT_DECLARE_IMPL2(encoder_settings);
 public:

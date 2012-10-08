@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file DTDecoder.cpp
 
@@ -36,6 +36,11 @@ decoder::~decoder()
 decoder::decoder(decoder::Impl * _Impl): m_pImpl(_Impl)
 {
     DT_ASSERT(NULL != _Impl);
+}
+
+void decoder::reset()
+{
+    impl()->reset();
 }
 
 ///

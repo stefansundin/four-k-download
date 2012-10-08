@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersVideoDownload.h"
+// precompiled header end
 
 #include "DTDownloaderMetacafe.h"
 #include "DTDownloaderUtils.h"

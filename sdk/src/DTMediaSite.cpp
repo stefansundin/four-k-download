@@ -14,30 +14,45 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersVideoDownload.h"
+// precompiled header end
 
 #include <openmedia/DTMediaSite.h>
 #include <urdl/url.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include "DTDownloaderYoutubeDetails.h"
+#include <boost/regex.hpp>
 
 namespace openmedia { namespace downloader {
 
 media_site_type_t media_site_utils::validate_url(const std::string & Url)
 {
     std::string url_to_parse = Url;
-    if (!( boost::algorithm::contains(url_to_parse, "http://") || boost::algorithm::contains(url_to_parse, "https://") ))
+    if (!( boost::algorithm::contains(url_to_parse, "http://") ||
+        boost::algorithm::contains(url_to_parse, "https://") ))
         url_to_parse = "http://" + url_to_parse;
 
+    boost::regex matchUrl("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]");
+
+    boost::match_results< std::string::const_iterator > res;
+    if (boost::regex_search(url_to_parse, res, matchUrl, boost::match_default))
+    {
+        url_to_parse = res[0];
+    }
+    else
+        return mediaSiteNull;
+    
     urdl::url url(url_to_parse);
     if (boost::algorithm::contains(url.host(), std::string("youtube")) || 
         boost::algorithm::contains(url.host(), std::string("youtu.be")))
     {
         return mediaSiteYoutube;    
     }
-    else if (boost::algorithm::contains(url.host(), std::string("xnxx")))
+    else if (boost::algorithm::contains(url.host(), std::string("rai.tv")))
     {
-        return mediaSiteXnxx;
+        return mediaSiteRaiTv;    
     }
     else if (boost::algorithm::contains(url.host(), std::string("vimeo")))
     {
@@ -50,10 +65,6 @@ media_site_type_t media_site_utils::validate_url(const std::string & Url)
     else if (boost::algorithm::contains(url.host(), std::string("facebook")))
     {
         return mediaSiteFacebook;
-    }
-    else if (boost::algorithm::contains(url.host(), std::string("megavideo")))
-    {
-        return mediaSiteMegavideo;
     }
     else if (boost::algorithm::contains(url.host(), std::string("metacafe")))
     {

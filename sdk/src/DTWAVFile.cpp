@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include <openmedia/DTWAVFile.h>
 
@@ -149,6 +152,7 @@ public:
         );
 
 public:
+    virtual void open() {}
     virtual void write_packet(media_packet_ptr _MediaPacket);
     virtual void close();
 

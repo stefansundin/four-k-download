@@ -22,6 +22,8 @@
 #pragma once
 #endif
 
+#include <vector>
+
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -48,9 +50,54 @@ class _OPENMEDIASDK_API media_muxer: interface_base
 {
     DT_DECLARE_IMPL2(media_muxer);
 public:
+    struct error : public errors::dt_error
+    {
+        error(const std::string & msg = "failed"): dt_error((std::string("muxer : ") + msg).c_str())
+        {}
+    };
+
+    struct error_invalid_format: public error
+    {
+        error_invalid_format(): error("invalid format")
+        {}    
+    };
+
+    struct error_create_file : public error
+    {
+        error_create_file(): error("create file error")
+        {}   
+    };
+
+    struct error_invalid_encoder : public error
+    {
+        error_invalid_encoder(): error("invlide encoder")
+        {}        
+    };
+
+    struct error_write_header : public error
+    {
+        error_write_header(): error("write header error")
+        {}
+    };
+
+    struct error_write_trailer : public error
+    {
+        error_write_trailer(): error("write trailer error")
+        {}
+    };
+
+    struct error_write_packet : public error
+    {
+        error_write_packet(): error("write packet error")
+        {}    
+    };
+
+public:
+    void open();
     void write_packet(media_packet_ptr _MediaPacket);
+    void write_packet(media_packet_ptr _MediaPacket, int stream);
     void close();
-    virtual ~media_muxer() = 0;
+    virtual ~media_muxer();
 
 protected:
     media_muxer(media_muxer::Impl * _Impl);
@@ -63,11 +110,8 @@ private:
 class _OPENMEDIASDK_API media_muxer_creator
 {
 public:
-    static media_muxer_ptr create(const char * FormatName, const char * FileName);
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    static media_muxer_ptr create(const char * FormatName, const wchar_t * Filename);
-#endif
+    static media_muxer_ptr create(const std::string&  FormatName, const std::string& FileName);
+    static media_muxer_ptr create(const std::string&  FormatName, const std::string& FileName, std::vector<void*> encoderPrivateData);
 
 };
 

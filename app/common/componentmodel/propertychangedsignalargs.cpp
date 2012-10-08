@@ -24,7 +24,6 @@ PropertyChangedSignalArgs::PropertyChangedSignalArgs(QObject* sender, const QStr
     m_property(property),
     m_value(value)
 {
-    qRegisterMetaType<PropertyChangedSignalArgs>();
 }
 
 

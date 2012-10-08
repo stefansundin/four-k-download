@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersDownload.h"
+// precompiled header end
 
 #include <openmedia/DTCommon.h>
 #include <openmedia/DTHttpDownloader.h>
@@ -193,6 +193,7 @@ void downloader_instance_simple2::handle_read(const boost::system::error_code& e
                         if (owner()->state_notify_)
                             owner()->state_notify_(http_downloader::statePause);
 
+                        DT_LOG(trace) << "state paused" << "\n";
                         while (
                             owner()->command_ != http_downloader_simple2::commandCancel &&
                             owner()->command_ != http_downloader_simple2::commandResume
@@ -202,6 +203,7 @@ void downloader_instance_simple2::handle_read(const boost::system::error_code& e
                             boost::this_thread::sleep( boost::posix_time::milliseconds(100) ); 
                             lock.lock();                                                                                                
                         }
+                        DT_LOG(trace) << "leave paused" << "\n";
 
                         if (owner()->command_ == http_downloader_simple2::commandResume)
                         {
@@ -216,6 +218,7 @@ void downloader_instance_simple2::handle_read(const boost::system::error_code& e
 
                 case http_downloader_simple2::commandCancel:
                     {
+                        DT_LOG(trace) << "cancel" << "\n";
                         owner()->command_ = http_downloader_simple2::commandNull;
                         if (owner()->state_notify_)
                             owner()->state_notify_(http_downloader::stateCancel);
@@ -284,6 +287,7 @@ ostream_(OutputStream)
 
 http_downloader_simple2::~http_downloader_simple2()
 {
+    DT_LOG(trace) << "destroy downloader" << "\n";
     this->cancel();
     thread_->join();   
 }
@@ -292,8 +296,10 @@ http_downloader_simple2::~http_downloader_simple2()
 http_downloader::command_result_t http_downloader_simple2::pause()
 {
     boost::mutex::scoped_lock lock(stateGuard_);
+    DT_LOG(trace) << "try to put paused" << "\n";
     if (state_ != statePaused)
     {
+        DT_LOG(trace) << "put commandPause" << "\n";
         command_ = commandPause;
     }
     return http_downloader::resultOk;
@@ -302,8 +308,10 @@ http_downloader::command_result_t http_downloader_simple2::pause()
 http_downloader::command_result_t http_downloader_simple2::resume()
 {
     boost::mutex::scoped_lock lock(stateGuard_);
+    DT_LOG(trace) << "try to put resume" << "\n";
     if (state_ != stateDownload)
     {
+        DT_LOG(trace) << "put commandResume" << "\n";
         command_ = commandResume;
     }
     return http_downloader::resultOk;
@@ -313,6 +321,7 @@ http_downloader::command_result_t http_downloader_simple2::resume()
 http_downloader::command_result_t http_downloader_simple2::cancel()
 {
     boost::mutex::scoped_lock lock(stateGuard_);
+    DT_LOG(trace) << "put commandCancel" << "\n";
     command_ = commandCancel;
     return http_downloader::resultOk;
 }

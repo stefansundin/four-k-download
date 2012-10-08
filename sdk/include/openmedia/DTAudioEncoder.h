@@ -36,6 +36,9 @@
 
 namespace openmedia {
 
+class media_settings;
+typedef boost::shared_ptr<media_settings> media_settings_ptr;
+
 class audio_format;
 
 class audio_encoder_settings;
@@ -67,12 +70,17 @@ private:
 };
 
 
-class _OPENMEDIASDK_API audio_encoder_utils {
+class _OPENMEDIASDK_API audio_encoder_creator {
 public:
-    static audio_encoder_ptr create_lame_mp3_encoder(const audio_format * _InputAudioFormat);
-    static audio_encoder_ptr create_lame_mp3_encoder(const audio_format * _InputAudioFormat, const char * Artist, const char * Title);
+//    static audio_encoder_ptr create_lame_mp3_encoder(const audio_format * _InputAudioFormat);
+//    static audio_encoder_ptr create_lame_mp3_encoder(const audio_format * _InputAudioFormat, const char * Artist, const char * Title);
     static audio_encoder_queue_ptr create_lame_mp3_encoder_queue(const audio_format * _InputAudioFormat);
-    static audio_encoder_queue_ptr create_lame_mp3_encoder_queue(const audio_format * _InputAudioFormat, const char * Artist, const char * Title);
+    static audio_encoder_queue_ptr create_lame_mp3_encoder_queue(const audio_format * _InputAudioFormat, const char * Artist, const char * Title, int Bitrate = -1);
+    
+    static audio_encoder_queue_ptr create(
+        const std::string& formatName,
+        const audio_format * inputAudioFormat,
+        media_settings_ptr settings);
 
 };
 

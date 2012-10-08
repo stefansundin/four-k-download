@@ -28,7 +28,7 @@ class DownloadListViewModel : public ComponentModel::NotifyList
     Q_OBJECT
 
 public:
-    DownloadListViewModel(QObject* parent = 0);
+    explicit DownloadListViewModel(QObject* parent = 0);
 
 private:
     virtual void checkObject(const QSharedPointer<QObject>& object);

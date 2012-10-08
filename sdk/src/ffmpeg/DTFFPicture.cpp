@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include <boost/shared_ptr.hpp>
 
@@ -85,7 +85,7 @@ AVFramePtr dt_create_decoded_frame()
     if (NULL == frame.get())
     {
         BOOST_THROW_EXCEPTION(errors::bad_alloc());
-        return AVFramePtr((AVFrame*)NULL);
+        DT_IF_DISABLE_EXCEPTIONS(return AVFramePtr());
     }
     return frame;
 }

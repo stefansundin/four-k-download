@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioData.cpp
 
@@ -42,6 +45,7 @@ public:
     virtual bool                is_valid() const { return true; }
     virtual media_packet_ptr    duplicate() const;
     virtual dt_rational_t       get_time_base() const;
+    virtual dt_rational_t       get_frame_rate() const;
     
     virtual ~audio_packet_impl();
 
@@ -53,7 +57,7 @@ private:
 audio_packet_impl::audio_packet_impl(audio_data_ptr _AudioData) : audioData_(_AudioData)
 {}
 
-const uint8_t *     audio_packet_impl::get_data() const
+const uint8_t * audio_packet_impl::get_data() const
 {
     return audioData_->get_raw_data();
 }
@@ -68,17 +72,22 @@ dt_media_data_duration_t audio_packet_impl::get_duration() const
     return 0;
 }
 
-dt_media_type_t     audio_packet_impl::get_media_type() const
+dt_media_type_t audio_packet_impl::get_media_type() const
 {
     return DT_AVMEDIA_TYPE_AUDIO;
 }
 
-media_packet_ptr    audio_packet_impl::duplicate() const
+media_packet_ptr audio_packet_impl::duplicate() const
 {
     return audio_data::to_packet(audioData_);
 }
 
-dt_rational_t       audio_packet_impl::get_time_base() const
+dt_rational_t audio_packet_impl::get_time_base() const
+{
+    return dt_rational_t();
+}
+
+dt_rational_t audio_packet_impl::get_frame_rate() const
 {
     return dt_rational_t();
 }
@@ -88,7 +97,7 @@ audio_packet_impl::~audio_packet_impl()
 
 media_packet_ptr audio_data::to_packet(audio_data_ptr _AudioData)
 {
-    ::std::auto_ptr<audio_packet_impl> audio_packet_impl_(new audio_packet_impl(_AudioData));
+    std::auto_ptr<audio_packet_impl> audio_packet_impl_(new audio_packet_impl(_AudioData));
     media_packet_ptr media_packet_ = media_packet_ptr( new media_packet( audio_packet_impl_.get() ) );
     audio_packet_impl_.release();
     return media_packet_;

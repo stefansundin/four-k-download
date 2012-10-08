@@ -42,6 +42,7 @@ public:
     ff_media_packet(AVPacketPtr _AVPacket);
     ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType);
     ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase);
+    ff_media_packet(AVPacketPtr _AVPacket, dt_media_type_t _MediaType, dt_rational_t _TimeBase, dt_rational_t frameRate);
 };
 
 }

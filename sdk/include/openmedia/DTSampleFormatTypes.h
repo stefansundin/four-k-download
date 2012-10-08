@@ -22,6 +22,8 @@
 #pragma once
 #endif
 
+#include <string>
+
 namespace openmedia {
 
 /**
@@ -36,6 +38,16 @@ enum dt_sample_format_t {
     DT_SAMPLE_FMT_DBL,             ///< double
     DT_SAMPLE_FMT_NB               ///< Number of sample formats. DO NOT USE if dynamically linking to libavcodec
 };
+
+static const char * DT_SAMPLE_FMT_U8_STR = "U8";
+static const char * DT_SAMPLE_FMT_S16_STR = "S16";
+static const char * DT_SAMPLE_FMT_S32_STR = "S32";
+static const char * DT_SAMPLE_FMT_FLT_STR = "FLT";
+static const char * DT_SAMPLE_FMT_DBL_STR = "DBL";
+
+dt_sample_format_t audio_sample_format(const char * id);
+dt_sample_format_t audio_sample_format(const std::string& id);
+std::string audio_sample_format(dt_sample_format_t sampleFormat);
 
 }
 

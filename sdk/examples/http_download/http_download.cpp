@@ -20,7 +20,6 @@
 #include <iostream>
 #include <boost/thread.hpp>
 #include <boost/asio/error.hpp>
-
 #include "../common/utils.h"
 
 #ifdef _MSC_VER
@@ -30,84 +29,108 @@
 #   pragma comment(lib, "liburdl.lib")
 #endif
 
-boost::mutex guard;
+using namespace std;
+using namespace boost;
+using namespace openmedia::downloader;
+
+mutex guard;
 
 template <class T>
-T & operator << (T & _Ostream, openmedia::downloader::http_downloader::download_state_t _State)
+T & operator << (T & _Ostream, http_downloader::download_state_t _State)
 {
-    if (_State == openmedia::downloader::http_downloader::stateStart)
-        _Ostream << "[start]";
-    else if (_State == openmedia::downloader::http_downloader::stateCancel)
-        _Ostream << "[cancel]";
-    else if (_State == openmedia::downloader::http_downloader::stateDownload)
-        _Ostream << "[download]";
-    else if (_State == openmedia::downloader::http_downloader::stateError)
-        _Ostream << "[error]";
-    else if (_State == openmedia::downloader::http_downloader::stateFinish)
-        _Ostream << "[finish]";
-    else if (_State == openmedia::downloader::http_downloader::statePause)
-        _Ostream << "[pause]";
-    else if (_State == openmedia::downloader::http_downloader::stateResume)
-        _Ostream << "[resume]";
-    else  _Ostream << "[unknown]";
-
+    switch(_State)
+    {
+    case http_downloader::stateStart:  _Ostream << "[start]"; break;
+    case http_downloader::stateCancel: _Ostream << "[cancel]"; break;
+    case http_downloader::stateDownload: _Ostream << "[download]"; break;
+    case http_downloader::stateError: _Ostream << "[error]"; break;
+    case http_downloader::stateFinish: _Ostream << "[finish]"; break;
+    case http_downloader::statePause: _Ostream << "[pause]"; break;
+    case http_downloader::stateResume: _Ostream << "[resume]"; break;
+    default: _Ostream << "[unknown]"; break;
+    }
     return _Ostream;
 }
 
 class Downloader
 {
 public:
-    Downloader(const std::string & Url, const std::string & Cookies, const std::string OutputFileName, const std::string & DownloadName, boost::mutex & Guard) :
-      mutex_(Guard),
-      name_(DownloadName),
-      http_downloader_(
-          new openmedia::downloader::http_downloader( Url, Cookies, OutputFileName, boost::bind(&Downloader::StateNotify, this, _1), boost::bind(&Downloader::ProgressNotify, this, _1) )
-          )
-      {}
+    Downloader( const string & Url,
+                const string & Cookies,
+                const string & OutputFileName,
+                const string & DownloadName,
+                mutex & Guard) : mutex_(Guard),
+            name_(DownloadName)
+    {
+        init(Url, Cookies, OutputFileName);
+    }
 
-      void cancel()
-      {
-          http_downloader_->cancel();      
-      }
+    void cancel()
+    {
+        http_downloader_->cancel();      
+    }
 
-      void pause()
-      {
-          http_downloader_->pause();        
-      }
+    void pause()
+    {
+        http_downloader_->pause();        
+    }
 
-      void resume()
-      {
-          http_downloader_->resume();        
-      }
+    void resume()
+    {
+        http_downloader_->resume();        
+    }
 
 private:
-    std::string name_;
-    boost::scoped_ptr< openmedia::downloader::http_downloader > http_downloader_;
+    void init(const string & Url,
+              const string & Cookies,
+              const string & OutputFileName)
+    {
+        http_downloader_.reset(
+                new http_downloader( 
+                        Url,
+                        Cookies,
+                        OutputFileName,
+                        bind(&Downloader::StateNotify, this, _1),
+                        bind(&Downloader::ProgressNotify, this, _1) )
+                        );
+        
+    }
+
+private:
+    string name_;
+    scoped_ptr< http_downloader > http_downloader_;
     
-    void ProgressNotify(boost::uint64_t Bytes)
+    void ProgressNotify(uint64_t Bytes)
     {
-        boost::mutex::scoped_lock lock(mutex_);
-        std::cout << "progress: " << name_ << " " << Bytes << "\n";
+        mutex::scoped_lock lock(mutex_);
+        cout << "progress: " << name_ << " " << Bytes << "\n";
     }
 
-    void StateNotify(openmedia::downloader::http_downloader::download_state_t State)
+    void StateNotify(http_downloader::download_state_t State)
     {
-        boost::mutex::scoped_lock lock(mutex_);
-        std::cout << "\n ********** State: " << name_ << " " << State << "\n";
+        mutex::scoped_lock lock(mutex_);
+        cout << "state: " << name_ << " " << State << "\n";
     }
 
-    mutable boost::mutex & mutex_;
-
+    mutable mutex & mutex_;
 };
 
-#if defined(_MSC_VER) && defined(_UNICODE)
-int wmain(int argc, wchar_t * argv[])
-#else
 int main(int argc, char* argv[])
-#endif
 {
-    std::string url3 = "http://img20.megavideo.com/633dfe45f4196be3e1a015f0f2649e43.jpg";
-    Downloader d1( url3, "", "g:/test/test01.jpg", "D1", guard);
+    string url = "http://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg";
+    string dest = "c:/temp/image.svg";
+
+    if (argc == 3)
+    {
+        url = argv[1];
+        dest = argv[2];
+    }
+
+    Downloader d1(url, "", dest, "downloader_1", guard);
+
+    char ch;
+    cin >> ch;
 
 	return 0;
 }
+

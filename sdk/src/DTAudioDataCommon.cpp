@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioDataCommon.cpp
 
@@ -60,21 +60,23 @@ public:
 
     virtual int                 get_samples_count() const;
     virtual dt_sample_format_t  get_sample_format() const;
-	virtual dt_channel_layout_t get_channel_layout() const;
+    virtual dt_channel_layout_t get_channel_layout() const;
     virtual int                 get_channels_count() const;
     virtual int                 get_bits_per_sample() const;
+    virtual uint8_t *           lock_data();
+    virtual void                unlock_data();
 
 private:
     
-    uint8_t *           m_Buffer;       
-    size_t              m_BufferSize;   
-    int                 m_DataSize;     
+    uint8_t *           m_Buffer;
+    size_t              m_BufferSize;
+    int                 m_DataSize;
     bool                m_OwnBuffer;
 
-    int                 m_SamplesCount; 
+    int                 m_SamplesCount;
 
     dt_sample_format_t  m_SampleFormat;
-	dt_channel_layout_t m_ChannelLayout;
+    dt_channel_layout_t m_ChannelLayout;
     int                 m_ChannelsCount;
     int                 m_BitsPerSample;
     int                 m_SampleRate;
@@ -241,6 +243,15 @@ void audio_data_common_impl::resize(size_t _SizeBytes)
     m_BufferSize = _SizeBytes;
     audio_data_common::free_buffer(m_Buffer);
     m_Buffer = newBuffer;
+}
+
+uint8_t * audio_data_common_impl::lock_data()
+{
+    return m_Buffer;
+}
+
+void audio_data_common_impl::unlock_data()
+{
 }
 
 audio_data_common::audio_data_common(const audio_format * _AudioFormat, uint8_t * _RawBuffer, size_t _SizeBytes, OwnBuffer _OwnBuffer)

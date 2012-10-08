@@ -27,10 +27,15 @@
 
 #include <openmedia/DTCommon.h>
 #include <openmedia/DTDeclareImpl.h>
+#include <openmedia/DTError.h>
 
 namespace openmedia {
 
 class audio_data;
+
+template <class MediaData> class media_data_timed;
+typedef media_data_timed<audio_data> audio_data_timed;
+typedef boost::shared_ptr<audio_data_timed> audio_data_timed_ptr;
 
 class media_packet;
 typedef boost::shared_ptr<media_packet> media_packet_ptr;
@@ -45,19 +50,29 @@ typedef boost::shared_ptr<audio_encoder_queue> audio_encoder_queue_ptr;
 class _OPENMEDIASDK_API audio_encoder_queue : interface_base 
 {
     DT_DECLARE_IMPL2(audio_encoder_queue);
+public:
+    struct error : virtual errors::dt_error 
+    {
+        error(const std::string & msg = "failed"): dt_error((std::string("audio encoder: ") + msg).c_str())
+        {}
+    };
 
 public:
-    void                    send_audio(const audio_data * _AudioData);    
+    void                    open();
+    void                    send_audio(const audio_data * audioData);
+    void                    send_audio(const audio_data_timed * audioDataTimed);
+    void                    flush();
     media_packet_ptr        receive_packet();    
 
     codec_extra_data_ptr    get_extra_data() const;
+    void *                  get_private_data() const;
     virtual ~audio_encoder_queue();
     
 protected:
-    audio_encoder_queue(audio_encoder_queue::Impl * _Impl);
+    audio_encoder_queue(Impl * _Impl);
 
 private:
-    audio_encoder_queue::Impl * m_pImpl;
+    Impl * m_pImpl;
 
 };
 

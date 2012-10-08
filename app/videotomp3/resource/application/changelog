@@ -1,0 +1,21 @@
+4kvideotomp3 (1.2-1) stable; urgency=medium
+
+* Audio player added.
+* MP3 quality and stability improved.
+
+-- 4kdownload <support@4kdownload.com>  Tue, 02 October 2012 23:30:00 +0300
+
+
+4kvideotomp3 (1.1-1) stable; urgency=medium
+
+* Mac OS X support fixed.
+* Major bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Tue, 17 July 2012 22:30:00 +0300
+
+
+4kvideotomp3 (1.0-1) stable; urgency=medium
+
+* Initial release.
+
+-- 4kdownload <support@4kdownload.com>  Fri, 25 March 2012 12:11:45 +0300

@@ -7,10 +7,10 @@
         <file alias="remove">image/remove.png</file>
         <file alias="information">image/information.png</file>
         <file alias="paste-url">image/paste-url.png</file>
-        <file alias="item-download">image/item-download.png</file>
+        <file alias="item-download-progress">image/item-download-progress.png</file>
         <file alias="item-done">image/item-done.png</file>
         <file alias="item-error">image/item-error.png</file>
-        <file alias="item-paused">image/item-paused.png</file>
+        <file alias="item-download-paused">image/item-download-paused.png</file>
         <file alias="item-link">image/item-link.png</file>
         <file alias="thumbnail-default">image/thumbnail-default.png</file>
         <file alias="progress">image/progress.gif</file>

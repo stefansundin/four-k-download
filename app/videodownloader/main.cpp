@@ -21,13 +21,13 @@
 #include <QSettings>
 #include <QTranslator>
 #include <QLibraryInfo>
-#include "mvvm/dialog.h"
+#include "componentmodel/singleapplication.h"
+#include "componentmodel/platform.h"
+#include "mvvm/cxx/dialog.h"
 #include "view/mainview.h"
 #include "view/downloadsettingsview.h"
 #include "view/smartmodeview.h"
 #include "openmedia/DTMediaDownloader.h"
-#include "componentmodel/singleapplication.h"
-#include "componentmodel/platform.h"
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
     QApplication::setApplicationVersion(APP_VERSION);
     QApplication::setOrganizationName("4kdownload.com");
-    QApplication::setApplicationName("4k Video Downloader");
+    QApplication::setApplicationName("4K Video Downloader");
     QApplication::setWindowIcon(QIcon(":/image/application-icon"));
 
     QSettings settings;
@@ -90,15 +90,10 @@ int main(int argc, char *argv[])
     settings.setValue("web", "http://www.4kdownload.com?source=4k-video-downloader");
     settings.setValue("webHelp", "http://www.4kdownload.com/howto/howto-download-youtube-video?source=4k-video-downloader");
     settings.setValue("webThanks", "http://www.4kdownload.com/thanks-for-installing?source=4k-video-downloader");
-    settings.setValue("webFacebook", "http://www.facebook.com/4kdownload?sk=app_190322544333196");
+    settings.setValue("webFacebook", "http://www.facebook.com/4kdownload");
     settings.setValue("socialUrl", "http://www.4kdownload.com/");
     settings.setValue("socialReferrer", "http://www.4kdownload.com/");
     settings.setValue("socialVia", "4kdownload");
-
-    downloader::service_script_info_list scripts;
-    scripts.push_back(downloader::service_script_info(downloader::mediaSiteMegavideo, 1, "http://www.4kdownload.com/files/script/services/megavideo-2.txt"));
-        
-    downloader::set_service_script_list(scripts);
 
     // Translate
 
@@ -125,7 +120,7 @@ int main(int argc, char *argv[])
 
     qtTranslator.load("qt_" + QLocale::system().name(), translationDir.absolutePath());
 
-    if (!appTranslator.load("videodownloader_" + QLocale::system().name(), translationDir.absolutePath()))
+    if (!appTranslator.load("videodownloader_" + QLocale::system().name().left(2), translationDir.absolutePath()))
         appTranslator.load("videodownloader_en", translationDir.absolutePath());
 
     a.installTranslator(&qtTranslator);
@@ -143,8 +138,6 @@ int main(int argc, char *argv[])
 
     QWidget* view = qobject_cast<QWidget*>(factory->createView(mainViewModel.data()));
     view->show();
-
-    // Prevent multiple execution
 
     QObject::connect(&a, SIGNAL(messageAvailable(QString)), view, SLOT(notifyUser()));
 

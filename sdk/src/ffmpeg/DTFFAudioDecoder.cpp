@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTFFAudioDecoder.cpp
 
@@ -91,6 +91,7 @@ public:
     virtual audio_data_timed_ptr    decode_timed(media_packet_ptr _MediaPacket);
     virtual audio_decoder_info_ptr  get_decoder_info() const;
     virtual audio_decoder_additional_info_ptr get_additional_info() const;
+    virtual void reset();
 
 private:
     std::list<media_packet_ptr>         m_AudioDataList;
@@ -114,6 +115,11 @@ private:
 
 ff_audio_decoder::ff_audio_decoder(const audio_decoder_info * _AudioDecoderInfo): audio_decoder( new ff_audio_decoder_impl(_AudioDecoderInfo) )
 {
+}
+
+void ff_audio_decoder_impl::reset()
+{
+    avcodec_flush_buffers(m_CodecContextPtr.get());
 }
 
 audio_decoder_info_ptr ff_audio_decoder_impl::get_decoder_info() const
@@ -238,12 +244,14 @@ audio_data_timed_ptr ff_audio_decoder_impl::decode_timed(media_packet_ptr _Media
     audio_data_ptr audioData = decode(_MediaPacket);
     dt_float_t pts = m_audioClock;
 
+    double duration = 0.0;
     if (m_CodecContextPtr->sample_rate)
     {
-        m_audioClock += audioData->get_samples_count() / (audioData->get_sample_align() * m_CodecContextPtr->sample_rate);
+        duration = 1.0 * audioData->get_samples_count() / m_CodecContextPtr->sample_rate;
+        m_audioClock += duration;
     }
 
-    return audio_data_timed_ptr(new audio_data_timed(audioData, 0, pts));
+    return audio_data_timed_ptr(new audio_data_timed(audioData, duration, pts));
 }
 
 

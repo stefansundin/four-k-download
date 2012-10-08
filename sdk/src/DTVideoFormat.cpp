@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTVideoFormat.cpp
 #include <openmedia/DTVideoFormat.h>

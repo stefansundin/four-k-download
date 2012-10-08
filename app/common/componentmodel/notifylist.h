@@ -14,11 +14,11 @@
 */
 
 
-#ifndef NOTIFYLIST_H
-#define NOTIFYLIST_H
+#ifndef COMPONENTMODEL_NOTIFYLIST_H
+#define COMPONENTMODEL_NOTIFYLIST_H
 
-#include "componentmodel/listchangedsignalargs.h"
 #include <QSharedPointer>
+#include "componentmodel/listchangedsignalargs.h"
 
 namespace ComponentModel
 {
@@ -28,7 +28,7 @@ class NotifyList : public QObject
     Q_OBJECT
 
 public:
-    NotifyList(QObject* parent = 0);
+    explicit NotifyList(QObject* parent = 0);
 
     void append(QSharedPointer<QObject> object);
     void insert(int index, QSharedPointer<QObject> object);
@@ -53,9 +53,10 @@ signals:
 private:
     virtual void checkObject(const QSharedPointer<QObject>& object);
 
+private:
     QList< QSharedPointer<QObject> > m_list;
 };
 
 } // ComponentModel
 
-#endif // NOTIFYLIST_H
+#endif // COMPONENTMODEL_NOTIFYLIST_H

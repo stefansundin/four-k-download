@@ -17,7 +17,7 @@
 #include "view/downloaditemdelegate.h"
 #include "view/downloadlistmodel.h"
 #include "viewmodel/downloaditemviewmodel.h"
-#include "gui/thumbnail.h"
+#include "gui/cxx/thumbnail.h"
 #include <QPainter>
 #include <QTime>
 #include <QApplication>
@@ -27,9 +27,14 @@ using namespace ViewModel;
 using namespace Gui;
 
 
+namespace
+{
+
 const int BorderOffset      = 6;
 const int ElementOffset     = 7;
 const int TextOffset        = 3;
+
+} // Anonimous
 
 
 DownloadItemDelegate::DownloadItemDelegate(QObject* parent) :
@@ -40,13 +45,29 @@ DownloadItemDelegate::DownloadItemDelegate(QObject* parent) :
 
 void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    QPixmap pixmap = QPixmap(":/image/item-audio");
     QString title = index.model()->data(index, DownloadListModel::TitleRole).toString();
     QString duration = index.model()->data(index, DownloadListModel::DurationRole).toString();
     QString size = index.model()->data(index, DownloadListModel::SizeRole).toString();
     int progress = index.model()->data(index, DownloadListModel::ProgressRole).toInt();
     QString remainingTime = index.model()->data(index, DownloadListModel::RemainingTimeRole).toString();
+    QString playingTime = index.model()->data(index, DownloadListModel::PlayingTimeRole).toString();
     DownloadItemViewModel::State state = index.model()->data(index, DownloadListModel::StateRole).value<DownloadItemViewModel::State>();
+    QPixmap pixmap;
+    switch (state)
+    {
+    case DownloadItemViewModel::DoneState:
+    case DownloadItemViewModel::PlayerPauseState:
+        pixmap = QPixmap(":/image/item-player-play");
+        break;
+
+    case DownloadItemViewModel::PlayerPlayState:
+        pixmap = QPixmap(":/image/item-player-pause");
+        break;
+
+    default:
+        pixmap = QPixmap(":/image/item-audio");
+        break;
+    }
 
     QStyleOptionViewItem curOption = option;
     curOption.textElideMode = Qt::ElideRight;
@@ -62,8 +83,8 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     int progressWidth = 120;
 
     QRect textClip = clip;
-    if (state == DownloadItemViewModel::Download || state == DownloadItemViewModel::Convert ||
-        state == DownloadItemViewModel::Pause || state == DownloadItemViewModel::Error)
+    if (state == DownloadItemViewModel::DownloadState || state == DownloadItemViewModel::ConvertState ||
+        state == DownloadItemViewModel::PauseState || state == DownloadItemViewModel::ErrorState)
         textClip.setRight(clip.right() - controlAreaWidth - progressWidth);
     else if (index.row() == controlAreaIndex)
         textClip.setRight(clip.right() - controlAreaWidth);
@@ -75,7 +96,17 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     drawBackground(painter, curOption, index);
 
     // Thumbnail
-    painter->drawPixmap(textClip.left(), textClip.top(), pixmap);
+    if (index.row() != controlAreaIndex || (state != DownloadItemViewModel::DoneState &&
+                                            state != DownloadItemViewModel::PlayerPlayState &&
+                                            state != DownloadItemViewModel::PlayerPauseState))
+    {
+#if defined(Q_OS_LINUX)
+        painter->drawPixmap(textClip.left(), textClip.top(), pixmap);
+#else
+        painter->drawPixmap(textClip.left(), textClip.top() - 1, pixmap);
+#endif
+    }
+
     textClip.setLeft(textClip.left() + pixmap.width() + TextOffset);
 
     // Title area
@@ -88,18 +119,18 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
     switch (state)
     {
-    case DownloadItemViewModel::Download:
-    case DownloadItemViewModel::Convert:
-    case DownloadItemViewModel::Pause:
+    case DownloadItemViewModel::DownloadState:
+    case DownloadItemViewModel::ConvertState:
+    case DownloadItemViewModel::PauseState:
         {
             QPixmap icon;
 
-            if (state == DownloadItemViewModel::Download)
-                icon.load(":/image/item-download");
-            else if (state == DownloadItemViewModel::Convert)
+            if (state == DownloadItemViewModel::DownloadState)
+                icon.load(":/image/item-download-progress");
+            else if (state == DownloadItemViewModel::ConvertState)
                 icon.load(":/image/item-convert");
-            if (state == DownloadItemViewModel::Pause)
-                icon.load(":/image/item-paused");
+            if (state == DownloadItemViewModel::PauseState)
+                icon.load(":/image/item-download-paused");
 
             painter->drawPixmap(progressClip.left(), progressClip.top() + (curOption.fontMetrics.height() - icon.height() - 1) / 2, icon);
             progressClip.setLeft(progressClip.left() + icon.width() + TextOffset);
@@ -120,17 +151,22 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         }
         break;
 
-    case DownloadItemViewModel::Done:
+    case DownloadItemViewModel::DoneState:
+    case DownloadItemViewModel::PlayerPlayState:
+    case DownloadItemViewModel::PlayerPauseState:
         {
             if (index.row() != controlAreaIndex)
             {
                 curOption.displayAlignment = Qt::AlignRight | Qt::AlignTop;
-                drawDisplay(painter, curOption, controlClip, duration);
+                if (state == DownloadItemViewModel::PlayerPlayState)
+                    drawDisplay(painter, curOption, controlClip, playingTime);
+                else
+                    drawDisplay(painter, curOption, controlClip, duration);
             }
         }
         break;
 
-    case DownloadItemViewModel::Error:
+    case DownloadItemViewModel::ErrorState:
         {
             QString text = tr("Error");
             QPixmap icon(":/image/item-error");

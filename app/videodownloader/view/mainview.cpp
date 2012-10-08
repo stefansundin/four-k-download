@@ -17,7 +17,7 @@
 #include "view/mainview.h"
 #include "view/downloaditemdelegate.h"
 #include "viewmodel/downloaditemviewmodel.h"
-#include "gui/animation/manualtransition.h"
+#include "gui/cxx/manualtransition.h"
 #include "ui_mainview.h"
 #include <QSettings>
 #include <QMenu>
@@ -29,12 +29,16 @@
 using namespace View;
 using namespace ViewModel;
 using namespace ComponentModel;
-using namespace Bindings;
-using namespace Animation;
+using namespace Gui;
 using namespace Mvvm;
 
 
+namespace
+{
+
 const int BorderOffset = 6;
+
+} // Anonimous
 
 
 MainView::MainView(const Factory* factory, QWidget* parent) :
@@ -107,6 +111,7 @@ MainView::MainView(const Factory* factory, QWidget* parent) :
 
     QObject::connect(&m_menu, SIGNAL(aboutToShow()), this, SLOT(fillMenu()));
 
+
     restore();
 }
 
@@ -162,7 +167,7 @@ void MainView::setViewModel(QObject* value)
 
             QObject::disconnect(m_viewModel.data()->list(), SIGNAL(listChanged(ComponentModel::ListChangedSignalArgs)));
             QObject::disconnect(m_viewModel.data()->selection(), SIGNAL(selectionChanged(ComponentModel::SelectionChangedSignalArgs)));
-            QObject::disconnect(m_viewModel.data(), SIGNAL(downloadComplited(ComponentModel::SignalArgs)));
+            QObject::disconnect(m_viewModel.data(), SIGNAL(downloadCompleted()));
         }
 
 
@@ -195,8 +200,8 @@ void MainView::setViewModel(QObject* value)
                              this, SLOT(listChanged(ComponentModel::ListChangedSignalArgs)));
             QObject::connect(m_viewModel.data()->selection(), SIGNAL(selectionChanged(ComponentModel::SelectionChangedSignalArgs)),
                              this, SLOT(selectionChanged(ComponentModel::SelectionChangedSignalArgs)), Qt::QueuedConnection);
-            QObject::connect(m_viewModel.data(), SIGNAL(downloadComplited(ComponentModel::SignalArgs)),
-                             this, SLOT(downloadComplited(ComponentModel::SignalArgs)));
+            QObject::connect(m_viewModel.data(), SIGNAL(downloadCompleted()),
+                             this, SLOT(downloadCompleted()));
         }
     }
 }
@@ -275,10 +280,8 @@ void MainView::selectionChanged(const ComponentModel::SelectionChangedSignalArgs
 }
 
 
-void MainView::downloadComplited(const ComponentModel::SignalArgs& args)
+void MainView::downloadCompleted()
 {
-    Q_UNUSED(args)
-
     QApplication::alert(this);
 }
 
@@ -437,6 +440,7 @@ void MainView::resizeEvent(QResizeEvent* event)
 void MainView::layoutContainers()
 {
     QSize size = ui->centralWidget->size();
+
     QRect listRect = QRect(0, 0, size.width(), size.height());
 
     ui->listView->setGeometry(listRect);
@@ -449,4 +453,13 @@ void MainView::notifyUser()
 {
     raise();
     activateWindow();
+}
+
+
+bool MainView::eventFilter(QObject *object, QEvent *event)
+{
+    if (!m_viewModel)
+        return false;
+
+    return false;
 }

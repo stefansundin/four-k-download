@@ -17,8 +17,22 @@
 #include "componentmodel/filesystem.h"
 #include <QUuid>
 #include <QDir>
+#include <QDesktopServices>
+#include <QUrl>
+
+#if defined(Q_OS_WIN)
+#include <windows.h>
+#include <Shellapi.h>
+#endif 
 
 using namespace ComponentModel;
+
+
+QString FileSystem::changeFilePathExt(const QString& filepath, const QString& ext)
+{
+    QFileInfo info(filepath);
+    return info.dir().absoluteFilePath(info.completeBaseName() + ext);
+}
 
 
 QString FileSystem::generateFileName(const QString& ext)
@@ -78,4 +92,33 @@ QString FileSystem::filterInvalidSymbols(const QString& filename)
     result = result.replace(">", " ", Qt::CaseInsensitive);
 
     return result;
+}
+
+
+void FileSystem::showFile(const QString& filename)
+{
+    QFileInfo info = QFileInfo(filename);
+    if (!info.exists())
+        return;
+
+#if defined(Q_OS_WIN)
+    QString url = info.canonicalFilePath();
+    url.replace("/", "\\");
+    url = "/select, \"" + url + "\"";
+    ShellExecute(NULL, L"open", L"explorer.exe", (WCHAR*)url.utf16(), NULL, 5);
+#else
+    QString url = info.canonicalPath();
+    QDesktopServices::openUrl(QUrl("file:///"+url));
+#endif
+}
+
+
+void FileSystem::openFile(const QString& filename)
+{
+    QFileInfo info = QFileInfo(filename);
+    if (!info.exists())
+        return;
+
+    QString url = info.canonicalFilePath();
+    QDesktopServices::openUrl(QUrl("file:///"+url));
 }

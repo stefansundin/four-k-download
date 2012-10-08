@@ -14,8 +14,8 @@
 */
 
 
-#ifndef XMLSERIALIZABLE_H
-#define XMLSERIALIZABLE_H
+#ifndef COMPONENTMODEL_XMLSERIALIZABLE_H
+#define COMPONENTMODEL_XMLSERIALIZABLE_H
 
 #include <QtXml>
 
@@ -31,4 +31,4 @@ public:
 
 } // ComponentModel
 
-#endif // XMLSERIALIZABLE_H
+#endif // COMPONENTMODEL_XMLSERIALIZABLE_H

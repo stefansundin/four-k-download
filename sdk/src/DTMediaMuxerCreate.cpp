@@ -15,12 +15,11 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include <openmedia/DTMediaMuxer.h>
-#include "./ffmpeg/DTFFMediaMuxer.h"
 #include "DTRAWFile.h"
 
 #include <string>
@@ -30,16 +29,17 @@
 
 namespace openmedia {
 
-media_muxer_ptr media_muxer_creator::create(const char * FormatName, const char * FileName)
+media_muxer_ptr media_muxer_creator::create(const std::string& FormatName,
+                                            const std::string& FileName, std::vector<void*> encoderPrivateData)
 {
-    ::std::vector< ::std::string > result;
-    ::std::string fmt(FormatName);
+    std::vector<std::string> result;
+    std::string fmt(FormatName);
     boost::algorithm::split(result, fmt, boost::algorithm::is_any_of("/"));
     
     if ( !result.size() )
     {
-        BOOST_THROW_EXCEPTION( errors::invalid_operation() );            
-        return media_muxer_ptr();
+        BOOST_THROW_EXCEPTION(errors::invalid_operation());
+        DT_IF_DISABLE_EXCEPTIONS(return media_muxer_ptr());
     }
 
     if (result[0] == "openmedia")
@@ -47,7 +47,7 @@ media_muxer_ptr media_muxer_creator::create(const char * FormatName, const char 
         if (result.size() < 2)
         {
             BOOST_THROW_EXCEPTION( errors::invalid_operation() );            
-            return media_muxer_ptr();
+            DT_IF_DISABLE_EXCEPTIONS(return media_muxer_ptr());
         }
 
         if (result[1] == "ppm")
@@ -56,26 +56,24 @@ media_muxer_ptr media_muxer_creator::create(const char * FormatName, const char 
         }
     }
 
-    if (result[0] == "ffmpeg")
-    {
-        if (result.size() < 2)
-        {
-            BOOST_THROW_EXCEPTION( errors::invalid_operation() );            
-            return media_muxer_ptr();
-        }
+    //if (result[0] == "ffmpeg")
+    //{
+    //    if (result.size() < 2)
+    //    {
+    //        BOOST_THROW_EXCEPTION( errors::invalid_operation() );            
+    //        DT_IF_DISABLE_EXCEPTIONS(return media_muxer_ptr());
+    //    }
 
-        return media_muxer_ptr( new ff_simple_media_muxer(result[1].c_str(), FileName) );
-    }
+    //    return media_muxer_ptr( new ff_simple_media_muxer(result[1].c_str(), FileName, encoderPrivateData) );
+    //}
 
-    BOOST_THROW_EXCEPTION( errors::invalid_operation() );            
-    return media_muxer_ptr();
+    BOOST_THROW_EXCEPTION(errors::invalid_operation());            
+    DT_IF_DISABLE_EXCEPTIONS(return media_muxer_ptr());
 }
 
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-media_muxer_ptr media_muxer_creator::create(const char * FormatName, const wchar_t * FileName)
+media_muxer_ptr media_muxer_creator::create(const std::string& FormatName, const std::string& FileName)
 {
-    return media_muxer_ptr( );
+    return create(FormatName, FileName, std::vector<void*>());
 }
-#endif
 
 } // namespace openmedia

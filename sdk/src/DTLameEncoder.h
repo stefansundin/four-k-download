@@ -35,7 +35,7 @@ public:
     typedef boost::shared_ptr<properties> properties_ptr;
     // TODO: default only
     static properties_ptr create_properties();
-    static properties_ptr create_properties(const char * Artist, const char * Title);
+    static properties_ptr create_properties(const char * Artist, const char * Title, int Bitrate = -1);
 };
 
 class audio_encoder_lame : public audio_encoder

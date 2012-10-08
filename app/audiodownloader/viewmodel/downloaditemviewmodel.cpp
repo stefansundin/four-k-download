@@ -17,8 +17,6 @@
 #include "viewmodel/downloaditemviewmodel.h"
 #include "componentmodel/transform.h"
 #include "componentmodel/filesystem.h"
-#include "social/facebook.h"
-#include "social/twitter.h"
 #include <QFileInfo>
 #include <QApplication>
 #include <QPointer>
@@ -30,15 +28,17 @@
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
-#include <Shellapi.h>
 #endif
 
 using namespace ViewModel;
 using namespace ComponentModel;
+using namespace Multimedia;
 using namespace Mvvm;
-using namespace Social;
 using namespace openmedia;
 
+
+namespace
+{
 
 const QEvent::Type DownloadStateEventType = QEvent::Type(QEvent::User + 1);
 const QEvent::Type DownloadProgressEventType = QEvent::Type(QEvent::User + 2);
@@ -46,10 +46,7 @@ const QEvent::Type ConvertStateEventType = QEvent::Type(QEvent::User + 3);
 const QEvent::Type ParseResultEventType = QEvent::Type(QEvent::User + 4);
 const QEvent::Type InitializeResultEventType = QEvent::Type(QEvent::User + 5);
 
-namespace
-{
-    QMutex mutex;
-}
+QMutex mutex;
 
 
 class ParseResultEvent : public QEvent
@@ -256,10 +253,13 @@ private:
     QPointer<QObject> m_item;
 };
 
+} // Anonimous
 
-DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
+
+DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QSharedPointer<ComponentModel::ObjectLessor> playerLessor, QObject* parent) :
     NotifyObject(parent),
     m_dialog(dialog),
+    m_playerLessor(playerLessor),
     m_downloadFileName(""),
     m_resultFileName(""),
     m_url(""),
@@ -267,12 +267,12 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QObject
     m_duration(0),
     m_progress(-1),
     m_remainingTime(0),
-    m_state(DownloadItemViewModel::None),
+    m_state(DownloadItemViewModel::NoneState),
     m_basicAction(this),
-    m_folderAction(this),
     m_urlAction(this),
     m_facebookAction(this),
-    m_twitterAction(this)
+    m_twitterAction(this),
+    m_togglePlayAction(this)
 {
     qRegisterMetaType<State>();
 
@@ -280,35 +280,37 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QObject
     m_basicAction.setVisible(false);
     m_basicAction.setText("");
     m_basicAction.setToolTip("");
-    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(doBasicAction()));
-
-    m_folderAction.setEnabled(false);
-    m_folderAction.setText(tr("Show in folder"));
-    m_folderAction.setToolTip("Open folder with downloaded file");
-    QObject::connect(&m_folderAction, SIGNAL(triggered()), this, SLOT(showInFolder()));
+    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(onBasicAction()));
 
     m_urlAction.setEnabled(true);
     m_urlAction.setText(tr("Copy url"));
-    m_urlAction.setToolTip("Copty url address");
+    m_urlAction.setToolTip(tr("Copty url address"));
     QObject::connect(&m_urlAction, SIGNAL(triggered()), this, SLOT(copyUrl()));
 
     m_facebookAction.setEnabled(true);
     m_facebookAction.setText(tr("Share on Facebook"));
-    m_facebookAction.setToolTip("Share link to clip on facebook");
+    m_facebookAction.setToolTip(tr("Share link to clip on facebook"));
     m_facebookAction.setIcon(QIcon(":/image/item-facebook"));
     QObject::connect(&m_facebookAction, SIGNAL(triggered()), this, SLOT(shareOnFacebook()));
 
     m_twitterAction.setEnabled(true);
     m_twitterAction.setText(tr("Share on Twitter"));
-    m_twitterAction.setToolTip("Share link to clip on twitter");
+    m_twitterAction.setToolTip(tr("Share link to clip on twitter"));
     m_twitterAction.setIcon(QIcon(":/image/item-twitter"));
     QObject::connect(&m_twitterAction, SIGNAL(triggered()), this, SLOT(shareOnTwitter()));
+
+    m_togglePlayAction.setEnabled(false);
+    m_togglePlayAction.setVisible(false);
+    m_togglePlayAction.setText("");
+    m_togglePlayAction.setToolTip("");
+    QObject::connect(&m_togglePlayAction, SIGNAL(triggered()), this, SLOT(togglePlay()));
 }
 
 
-DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QString url, bool isPlaylist, QObject* parent) :
+DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QString url, bool isPlaylist, QSharedPointer<ComponentModel::ObjectLessor> playerLessor, QObject* parent) :
     NotifyObject(parent),
     m_dialog(dialog),
+    m_playerLessor(playerLessor),
     m_downloadFileName(""),
     m_resultFileName(""),
     m_url(url),
@@ -316,12 +318,12 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QString
     m_duration(0),
     m_progress(-1),
     m_remainingTime(0),
-    m_state(DownloadItemViewModel::None),
+    m_state(DownloadItemViewModel::NoneState),
     m_basicAction(this),
-    m_folderAction(this),
     m_urlAction(this),
     m_facebookAction(this),
-    m_twitterAction(this)
+    m_twitterAction(this),
+    m_togglePlayAction(this)
 {
     qRegisterMetaType<State>();
 
@@ -329,31 +331,32 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QString
     m_basicAction.setVisible(false);
     m_basicAction.setText("");
     m_basicAction.setToolTip("");
-    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(doBasicAction()));
-
-    m_folderAction.setEnabled(false);
-    m_folderAction.setText(tr("Show in folder"));
-    m_folderAction.setToolTip("Open folder with downloaded file");
-    QObject::connect(&m_folderAction, SIGNAL(triggered()), this, SLOT(showInFolder()));
+    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(onBasicAction()));
 
     m_urlAction.setEnabled(true);
     m_urlAction.setText(tr("Copy url"));
-    m_urlAction.setToolTip("Copy url address");
+    m_urlAction.setToolTip(tr("Copty url address"));
     QObject::connect(&m_urlAction, SIGNAL(triggered()), this, SLOT(copyUrl()));
 
     m_facebookAction.setEnabled(true);
     m_facebookAction.setText(tr("Share on Facebook"));
-    m_facebookAction.setToolTip("Share link to clip on facebook");
+    m_facebookAction.setToolTip(tr("Share link to clip on facebook"));
     m_facebookAction.setIcon(QIcon(":/image/item-facebook"));
     QObject::connect(&m_facebookAction, SIGNAL(triggered()), this, SLOT(shareOnFacebook()));
 
     m_twitterAction.setEnabled(true);
     m_twitterAction.setText(tr("Share on Twitter"));
-    m_twitterAction.setToolTip("Share link to clip on twitter");
+    m_twitterAction.setToolTip(tr("Share link to clip on twitter"));
     m_twitterAction.setIcon(QIcon(":/image/item-twitter"));
     QObject::connect(&m_twitterAction, SIGNAL(triggered()), this, SLOT(shareOnTwitter()));
 
-    setState(DownloadItemViewModel::Parse);
+    m_togglePlayAction.setEnabled(false);
+    m_togglePlayAction.setVisible(false);
+    m_togglePlayAction.setText("");
+    m_togglePlayAction.setToolTip("");
+    QObject::connect(&m_togglePlayAction, SIGNAL(triggered()), this, SLOT(togglePlay()));
+
+    setState(DownloadItemViewModel::ParseState);
 
     downloader::url_parser::parse_url_async(url.toStdString(),
                                             isPlaylist ? downloader::url_parser::parsePlaylist : downloader::url_parser::parseNormal,
@@ -361,23 +364,24 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QString
 }
 
 
-DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, openmedia::downloader::media_download_list_ptr item, QObject* parent) :
+DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, openmedia::downloader::media_download_list_ptr item, QSharedPointer<ComponentModel::ObjectLessor> playerLessor, QObject* parent) :
     NotifyObject(parent),
     m_dialog(dialog),
+    m_playerLessor(playerLessor),
+    m_item(item),
     m_downloadFileName(""),
     m_resultFileName(""),
     m_url(""),
     m_size(0),
     m_duration(0),
-    m_item(item),
     m_progress(-1),
     m_remainingTime(0),
-    m_state(DownloadItemViewModel::None),
+    m_state(DownloadItemViewModel::NoneState),
     m_basicAction(this),
-    m_folderAction(this),
     m_urlAction(this),
     m_facebookAction(this),
-    m_twitterAction(this)
+    m_twitterAction(this),
+    m_togglePlayAction(this)
 {
     qRegisterMetaType<State>();
 
@@ -385,33 +389,34 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, openmed
     m_basicAction.setVisible(false);
     m_basicAction.setText("");
     m_basicAction.setToolTip("");
-    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(doBasicAction()));
-
-    m_folderAction.setEnabled(false);
-    m_folderAction.setText(tr("Show in folder"));
-    m_folderAction.setToolTip("Open folder with downloaded file");
-    QObject::connect(&m_folderAction, SIGNAL(triggered()), this, SLOT(showInFolder()));
+    QObject::connect(&m_basicAction, SIGNAL(triggered()), this, SLOT(onBasicAction()));
 
     m_urlAction.setEnabled(true);
     m_urlAction.setText(tr("Copy url"));
-    m_urlAction.setToolTip("Copty url address");
+    m_urlAction.setToolTip(tr("Copty url address"));
     QObject::connect(&m_urlAction, SIGNAL(triggered()), this, SLOT(copyUrl()));
 
     m_facebookAction.setEnabled(true);
     m_facebookAction.setText(tr("Share on Facebook"));
-    m_facebookAction.setToolTip("Share link to clip on facebook");
+    m_facebookAction.setToolTip(tr("Share link to clip on facebook"));
     m_facebookAction.setIcon(QIcon(":/image/item-facebook"));
     QObject::connect(&m_facebookAction, SIGNAL(triggered()), this, SLOT(shareOnFacebook()));
 
     m_twitterAction.setEnabled(true);
     m_twitterAction.setText(tr("Share on Twitter"));
-    m_twitterAction.setToolTip("Share link to clip on twitter");
+    m_twitterAction.setToolTip(tr("Share link to clip on twitter"));
     m_twitterAction.setIcon(QIcon(":/image/item-twitter"));
     QObject::connect(&m_twitterAction, SIGNAL(triggered()), this, SLOT(shareOnTwitter()));
 
+    m_togglePlayAction.setEnabled(false);
+    m_togglePlayAction.setVisible(false);
+    m_togglePlayAction.setText("");
+    m_togglePlayAction.setToolTip("");
+    QObject::connect(&m_togglePlayAction, SIGNAL(triggered()), this, SLOT(togglePlay()));
+
     m_url = QString::fromStdString(item->url());
 
-    setState(DownloadItemViewModel::Parse);
+    setState(DownloadItemViewModel::ParseState);
 
     m_item->initialize(InitializeResultFunctor(this));
 }
@@ -420,9 +425,9 @@ DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, openmed
 DownloadItemViewModel::~DownloadItemViewModel()
 {
     if (!m_downloadFileName.isEmpty())
-    {
         QFile::remove(m_downloadFileName);
-    }
+
+    releasePlayer(true);
 }
 
 
@@ -449,7 +454,7 @@ bool DownloadItemViewModel::deserialize(const QDomDocument& doc, const QDomEleme
     m_duration = element.attribute("duration").toInt();
     m_size = info.size();
 
-    setState(DownloadItemViewModel::Done);
+    setState(DownloadItemViewModel::DoneState);
 
     return true;
 }
@@ -459,10 +464,10 @@ QString DownloadItemViewModel::title() const
 {
     switch (state())
     {
-        case DownloadItemViewModel::Parse:
+        case DownloadItemViewModel::ParseState:
             return tr("Retrieving information...");
 
-        case DownloadItemViewModel::Error:
+        case DownloadItemViewModel::ErrorState:
             if (m_resultFileName.isEmpty())
                 return m_url;
 
@@ -505,7 +510,7 @@ void DownloadItemViewModel::setProgress(int value)
 
 QString DownloadItemViewModel::remainingTime() const
 {
-    if ((m_state == Download || m_state == Pause) && m_remainingTime > 0)
+    if ((m_state == DownloadState || m_state == PauseState) && m_remainingTime > 0)
         return Transform::timeToString(m_remainingTime, "remain");
 
     return "";
@@ -519,6 +524,15 @@ void DownloadItemViewModel::setRemainingTime(qint64 value)
         m_remainingTime = value;
         emitPropertyChanged("remainingTime", m_remainingTime);
     }
+}
+
+
+QString DownloadItemViewModel::playingTime() const
+{
+    if (m_player)
+        return Transform::timeToString(m_player.data()->time(), "H:mm:ss");
+
+    return "0:00:00";
 }
 
 
@@ -537,7 +551,7 @@ void DownloadItemViewModel::setState(DownloadItemViewModel::State value)
 
         if (m_progressMetrics)
         {
-            if (m_state == Download)
+            if (m_state == DownloadState)
                 m_progressMetrics->start();
             else
                 m_progressMetrics->stop();
@@ -546,51 +560,64 @@ void DownloadItemViewModel::setState(DownloadItemViewModel::State value)
 
         switch (m_state)
         {
-        case Parse:
-        case Initialized:
+        case ParseState:
+        case InitializedState:
             m_basicAction.setEnabled(false);
             m_basicAction.setVisible(false);
             break;
 
-        case Download:
+        case DownloadState:
             m_basicAction.setEnabled(true);
             m_basicAction.setVisible(true);
             m_basicAction.setText(tr("Pause"));
             m_basicAction.setToolTip(tr("Pause download"));
             break;
 
-        case Convert:
+        case ConvertState:
             m_basicAction.setEnabled(true);
             m_basicAction.setVisible(true);
             m_basicAction.setText(tr("Pause"));
             m_basicAction.setToolTip(tr("Pause convertion"));
             break;
 
-        case Pause:
+        case PauseState:
             m_basicAction.setEnabled(true);
             m_basicAction.setVisible(true);
             m_basicAction.setText(tr("Resume"));
             m_basicAction.setToolTip(tr("Resume"));
             break;
 
-        case Done:
-        {
+        case DoneState:
             m_basicAction.setEnabled(true);
             m_basicAction.setVisible(true);
-            m_basicAction.setText(tr("Play"));
-            m_basicAction.setToolTip(tr("Play downloaded file"));
-
-            m_folderAction.setEnabled(true);
+            m_basicAction.setText(tr("Show in folder"));
+            m_basicAction.setToolTip(tr("Open folder with downloaded file"));
+            m_togglePlayAction.setEnabled(true);
+            m_togglePlayAction.setVisible(true);
+            m_togglePlayAction.setIcon(QIcon(":/image/item-player-play"));
 
             m_progressMetrics.reset();
             break;
-        }
 
-        case Error:
+        case ErrorState:
             m_basicAction.setEnabled(false);
             m_basicAction.setVisible(false);
+            m_togglePlayAction.setEnabled(false);
+            m_togglePlayAction.setVisible(false);
 
             m_progressMetrics.reset();
+            break;
+
+        case PlayerPlayState:
+            m_togglePlayAction.setEnabled(true);
+            m_togglePlayAction.setVisible(true);
+            m_togglePlayAction.setIcon(QIcon(":/image/item-player-pause"));
+            break;
+
+        case PlayerPauseState:
+            m_togglePlayAction.setEnabled(true);
+            m_togglePlayAction.setVisible(true);
+            m_togglePlayAction.setIcon(QIcon(":/image/item-player-play"));
             break;
 
         default:
@@ -600,6 +627,7 @@ void DownloadItemViewModel::setState(DownloadItemViewModel::State value)
         emitPropertyChanged("state", m_state);
         emitPropertyChanged("title", title());
         emitPropertyChanged("remainingTime", remainingTime());
+        emitPropertyChanged("playingTime", playingTime());
     }
 }
 
@@ -607,12 +635,6 @@ void DownloadItemViewModel::setState(DownloadItemViewModel::State value)
 QAction* DownloadItemViewModel::basicAction()
 {
     return &m_basicAction;
-}
-
-
-QAction* DownloadItemViewModel::folderAction()
-{
-    return &m_folderAction;
 }
 
 
@@ -634,39 +656,15 @@ QAction* DownloadItemViewModel::twitterAction()
 }
 
 
-void DownloadItemViewModel::doBasicAction()
+QAction* DownloadItemViewModel::togglePlayAction()
 {
-    switch (m_state)
-    {
-    case Download:
-    case Convert:
-        pause();
-        break;
-
-    case Pause:
-        resume();
-        break;
-
-    case Done:
-        play();
-        break;
-
-    default:
-        break;
-    }
-}
-
-
-void DownloadItemViewModel::doRemainingTimeChanged(const ComponentModel::PropertyChangedSignalArgs& args)
-{
-    Q_UNUSED(args)
-    setRemainingTime(m_progressMetrics->remainingTime());
+    return &m_togglePlayAction;
 }
 
 
 void DownloadItemViewModel::pause()
 {
-    if (m_state != Download)
+    if (m_state != DownloadState)
         return;
 
     m_downloader->pause();
@@ -675,7 +673,7 @@ void DownloadItemViewModel::pause()
 
 void DownloadItemViewModel::resume()
 {
-    if (m_state != Pause)
+    if (m_state != PauseState)
         return;
 
     m_downloader->resume();
@@ -684,31 +682,8 @@ void DownloadItemViewModel::resume()
 
 void DownloadItemViewModel::showInFolder()
 {
-    if (m_state != Done)
-        return;
-
-    QFileInfo info = QFileInfo(m_resultFileName);
-
-#if defined(Q_OS_WIN)
-    QString url = info.canonicalFilePath();
-    url.replace("/", "\\");
-    url = "/select, \"" + url + "\"";
-    ShellExecute(NULL, L"open", L"explorer.exe", (WCHAR*)url.utf16(), NULL, 5);
-#else
-    QString url = info.canonicalPath();
-    QDesktopServices::openUrl(QUrl("file:///"+url));
-#endif
-}
-
-
-void DownloadItemViewModel::play()
-{
-    if (m_state != Done)
-        return;
-
-    QFileInfo info = QFileInfo(m_resultFileName);
-    QString url = info.canonicalFilePath();
-    QDesktopServices::openUrl(QUrl("file:///"+url));
+    if (m_state == DoneState || m_state == PlayerPlayState || m_state == PlayerPauseState)
+        FileSystem::showFile(m_resultFileName);
 }
 
 
@@ -721,20 +696,87 @@ void DownloadItemViewModel::copyUrl()
 
 void DownloadItemViewModel::shareOnFacebook()
 {
-    QSettings settings;
-    QString socialUrl = settings.value("socialUrl").toString();
-
-    Facebook::shareLink(m_url, tr("I like this video! Download it with %1").arg(socialUrl));
 }
 
 
 void DownloadItemViewModel::shareOnTwitter()
 {
-    QSettings settings;
-    QString socialReferrer = settings.value("socialReferrer").toString();
-    QString socialVia = settings.value("socialVia").toString();
+}
 
-    Twitter::shareLink(m_url, tr("I like this video!"), socialReferrer, socialVia);
+
+void DownloadItemViewModel::togglePlay()
+{
+    switch (state())
+    {
+    case DoneState:
+    case PlayerPauseState:
+    {
+        leasePlayer();
+
+        if (!m_player.isNull())
+            m_player.data()->play();
+
+        break;
+    }
+
+    case PlayerPlayState:
+    {
+        if (!m_player.isNull())
+            m_player.data()->pause();
+
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+
+void DownloadItemViewModel::leasePlayer()
+{
+    if (!m_playerLessor.isNull() && m_player.isNull())
+    {
+        m_player = static_cast<AudioPlayer*>(m_playerLessor->leaseObject(this));
+        m_source = av_source_creator::create(m_resultFileName.toUtf8().constData());
+
+        if (!m_player.isNull() && m_source.get())
+        {
+            m_player.data()->resetSource(m_source);
+
+            QObject::connect(m_player.data(), SIGNAL(timeChanged(qint64)),
+                             this, SLOT(onPlayerTimeChanged(qint64)));
+            QObject::connect(m_player.data(), SIGNAL(stateChanged(Multimedia::Player::State)),
+                             this, SLOT(onPlayerStateChanged(Multimedia::Player::State)));
+            QObject::connect(m_player.data(), SIGNAL(completed()),
+                             this, SLOT(onPlayerCompleted()));
+        }
+
+        emitPropertyChanged("playingTime", playingTime());
+    }
+}
+
+
+void DownloadItemViewModel::releasePlayer(bool notifyLessor)
+{
+    if (!m_player.isNull())
+    {
+        m_player.data()->resetSource();
+        m_source.reset();
+
+        QObject::disconnect(m_player.data(), SIGNAL(timeChanged(qint64)),
+                           this, SLOT(onPlayerTimeChanged(qint64)));
+        QObject::disconnect(m_player.data(), SIGNAL(stateChanged(Multimedia::Player::State)),
+                            this, SLOT(onPlayerStateChanged(Multimedia::Player::State)));
+        QObject::disconnect(m_player.data(), SIGNAL(completed()),
+                            this, SLOT(onPlayerCompleted()));
+        m_player.clear();
+
+        if (notifyLessor && !m_playerLessor.isNull())
+            m_playerLessor->releaseObject(this);
+
+        emitPropertyChanged("playingTime", playingTime());
+    }
 }
 
 
@@ -771,7 +813,7 @@ void DownloadItemViewModel::doParsed(downloader::url_parser_result_ptr result, d
     }
 
     default:
-        setState(DownloadItemViewModel::Error);
+        setState(DownloadItemViewModel::ErrorState);
         break;
     }
 }
@@ -787,7 +829,7 @@ void DownloadItemViewModel::doInitialized(downloader::media_download_list::Initi
         int index = getDownloadIndex(m_item);
         if (index == -1)
         {
-            setState(DownloadItemViewModel::Error);
+            setState(DownloadItemViewModel::ErrorState);
             break;
         }
 
@@ -795,9 +837,14 @@ void DownloadItemViewModel::doInitialized(downloader::media_download_list::Initi
         m_duration = qint32(m_item->duration());
 
         QSettings settings;
-        QString outputDir = QDesktopServices::storageLocation(QDesktopServices::MusicLocation);
-        outputDir = settings.value("Download/outputDirName", outputDir).toString();
+        QString defaultDir = QDesktopServices::storageLocation(QDesktopServices::MusicLocation);
+        QString outputDir = settings.value("Download/outputDirName", defaultDir).toString();
         QString outputTitle = QString::fromStdWString(m_item->title());
+
+        QDir d;
+        if (!d.exists(outputDir))
+            if (!d.mkpath(outputDir))
+                outputDir = defaultDir;
 
 
         mutex.lock();
@@ -824,16 +871,91 @@ void DownloadItemViewModel::doInitialized(downloader::media_download_list::Initi
 
         m_progressMetrics.reset(new ComponentModel::Progress(0, m_size, 2000, 100000));
         QObject::connect(m_progressMetrics.data(), SIGNAL(remainingTimeChanged(ComponentModel::PropertyChangedSignalArgs)),
-                         this, SLOT(doRemainingTimeChanged(ComponentModel::PropertyChangedSignalArgs)));
+                         this, SLOT(onRemainingTimeChanged(ComponentModel::PropertyChangedSignalArgs)));
 
-        setState(DownloadItemViewModel::Initialized);
+        setState(DownloadItemViewModel::InitializedState);
         break;
     }
 
     default:
-        setState(DownloadItemViewModel::Error);
+        setState(DownloadItemViewModel::ErrorState);
         break;
     }
+}
+
+
+void DownloadItemViewModel::onBasicAction()
+{
+    switch (m_state)
+    {
+    case DownloadState:
+    case ConvertState:
+        pause();
+        break;
+
+    case PauseState:
+        resume();
+        break;
+
+    case DoneState:
+    case PlayerPlayState:
+    case PlayerPauseState:
+        showInFolder();
+        break;
+
+    default:
+        break;
+    }
+}
+
+
+void DownloadItemViewModel::onRemainingTimeChanged(const ComponentModel::PropertyChangedSignalArgs& args)
+{
+    Q_UNUSED(args)
+    setRemainingTime(m_progressMetrics->remainingTime());
+}
+
+
+void DownloadItemViewModel::onPlayerTimeChanged(qint64 playerTime)
+{
+    emitPropertyChanged("playingTime", playerTime);
+}
+
+
+void DownloadItemViewModel::onPlayerStateChanged(Multimedia::Player::State playerState)
+{
+    switch (playerState)
+    {
+    case Player::PlayState:
+        setState(DownloadItemViewModel::PlayerPlayState);
+        break;
+
+    case Player::PauseState:
+        setState(DownloadItemViewModel::PlayerPauseState);
+        break;
+
+    default:
+        setState(DownloadItemViewModel::DoneState);
+        break;
+    }
+}
+
+
+void DownloadItemViewModel::onPlayerCompleted()
+{
+    emit playerCompleted();
+}
+
+
+bool DownloadItemViewModel::releaseLeasableObject(ObjectLessor* lessor)
+{
+    if (!m_playerLessor.isNull() && m_playerLessor.data() == lessor)
+    {
+        releasePlayer(false);
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -866,20 +988,23 @@ bool DownloadItemViewModel::event(QEvent* e)
             case downloader::media_downloader::stateStart:
             case downloader::media_downloader::stateDownload:
             case downloader::media_downloader::stateResume:
-                setState(DownloadItemViewModel::Download);
+                setState(DownloadItemViewModel::DownloadState);
                 break;
 
             case downloader::media_downloader::statePause:
-                setState(DownloadItemViewModel::Pause);
+                setState(DownloadItemViewModel::PauseState);
                 break;
 
             case downloader::media_downloader::stateFinish:
-                audio::video2mp3::convert(m_downloadFileName.toStdWString(), m_resultFileName.toStdWString(), title().toStdWString(), ConvertStateFunctor(this));
-                setState(DownloadItemViewModel::Convert);
+                audio::video2mp3::convert(
+                std::string(m_downloadFileName.toUtf8().constData()),
+                std::string(m_resultFileName.toUtf8().constData()),                
+                title().toStdWString(), ConvertStateFunctor(this), false);
+                setState(DownloadItemViewModel::ConvertState);
                 break;
 
             default:
-                setState(DownloadItemViewModel::Error);
+                setState(DownloadItemViewModel::ErrorState);
                 break;
             }
         }
@@ -911,13 +1036,16 @@ bool DownloadItemViewModel::event(QEvent* e)
                 break;
 
             case audio::video2mp3::stateFinish:
-                setState(DownloadItemViewModel::Done);
+                setState(DownloadItemViewModel::DoneState);
+
+                emit downloadCompleted();
 
                 QFile::remove(m_downloadFileName);
+                m_downloadFileName.clear();
                 break;
 
             default:
-                setState(DownloadItemViewModel::Error);
+                setState(DownloadItemViewModel::ErrorState);
                 break;
             }
         }

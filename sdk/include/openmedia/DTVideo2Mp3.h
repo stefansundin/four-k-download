@@ -25,7 +25,23 @@
 
 #include <openmedia/DTConfig.h>
 
-namespace openmedia { namespace audio { 
+namespace openmedia {
+
+class media_handle;
+typedef boost::shared_ptr<media_handle> media_handle_ptr;
+
+namespace audio {
+
+class video2mp3_control;
+typedef boost::shared_ptr<video2mp3_control> video2mp3_control_ptr;
+class _OPENMEDIASDK_API video2mp3_control
+{
+public:
+    virtual ~video2mp3_control(){}
+    virtual void pause() = 0;
+    virtual void resume() = 0;
+    virtual void cancel() = 0;
+};
 
 class _OPENMEDIASDK_API video2mp3 
 {
@@ -34,7 +50,9 @@ public:
     {
         stateProgress = 0,
         stateFinish = 1,
-        stateError
+        stateError,
+        statePause,
+        stateResume
     };
 
     enum Operation
@@ -44,10 +62,28 @@ public:
     };
 
     typedef boost::function< bool (State, double) > ConvertStateNotify;
+    typedef boost::function< void (video2mp3_control_ptr) > GetControl;
 
-    static void convert(std::wstring InputFileName, std::wstring OutputMp3Name, std::wstring Title, ConvertStateNotify StateNotify);
-    static void convert(std::string InputFileName, std::string OutputMp3Name, std::wstring Title, ConvertStateNotify StateNotify);
-    
+    static void convert(
+        std::string InputFileName,
+        std::string OutputMp3Name,
+        std::wstring Title,
+        ConvertStateNotify StateNotify,
+        bool UseSourceBitrate);
+
+    static void convert(
+        media_handle_ptr MediaHandle,
+        std::string OutputMp3Name,
+        std::wstring Title,
+        ConvertStateNotify StateNotify,
+        bool UseSourceBitrate);
+
+    static void convert(media_handle_ptr MediaHandle,
+        std::string OutputMp3Name,
+        std::wstring Title,
+        ConvertStateNotify StateNotify,
+        GetControl OnGetControl,
+        bool UseSourceBitrate);
 };
 
  

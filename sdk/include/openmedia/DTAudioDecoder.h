@@ -32,7 +32,6 @@
 #include <openmedia/DTError.h>
 
 #include <openmedia/DTDecoder.h>
-#include <openmedia/DTAudioDataTimed.h>
 
 namespace openmedia {
 
@@ -44,6 +43,10 @@ typedef boost::shared_ptr<media_packet> media_packet_ptr;
 
 class audio_data;
 typedef boost::shared_ptr<audio_data> audio_data_ptr;
+
+template <class MediaData> class media_data_timed;
+typedef media_data_timed<audio_data> audio_data_timed;
+typedef boost::shared_ptr<audio_data_timed> audio_data_timed_ptr;
 
 class audio_decoder_info;
 typedef boost::shared_ptr<audio_decoder_info> audio_decoder_info_ptr;

@@ -17,20 +17,20 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_FILEVERSION             2,1,1,300
-#define VER_FILEVERSION_STR         "2.1.1.300\0"
+#define VER_FILEVERSION             2,5,0,500
+#define VER_FILEVERSION_STR         "2.5.0.500\0"
 
-#define VER_PRODUCTVERSION          2,1,1,300
-#define VER_PRODUCTVERSION_STR      "2.1\0"
+#define VER_PRODUCTVERSION          2,5,0,500
+#define VER_PRODUCTVERSION_STR      "2.5\0"
 
 #define VER_COMPANYNAME_STR         "4kdownload.com"
 #define VER_FILEDESCRIPTION_STR     "4k Video Downloader"
 #define VER_INTERNALNAME_STR        "videodownloader"
-#define VER_LEGALCOPYRIGHT_STR      "Copyright © 2011 www.4kdownload.com"
+#define VER_LEGALCOPYRIGHT_STR      "Copyright © 2012 www.4kdownload.com"
 #define VER_LEGALTRADEMARKS1_STR    "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR    VER_LEGALTRADEMARKS1_STR
 #define VER_ORIGINALFILENAME_STR    "4kvideodownloader.exe"
-#define VER_PRODUCTNAME_STR         "4k Video Downloader"
+#define VER_PRODUCTNAME_STR         "4K Video Downloader"
 
 #define VER_COMPANYDOMAIN_STR       "4kdownload.com"
 

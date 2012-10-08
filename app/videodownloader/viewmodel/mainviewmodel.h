@@ -19,12 +19,12 @@
 
 #include <QObject>
 #include <QAction>
-#include "mvvm/dialog.h"
+#include "mvvm/cxx/dialog.h"
 #include "componentmodel/notifyobject.h"
 #include "viewmodel/downloadlistviewmodel.h"
 #include "viewmodel/mediadownload.h"
 #include "componentmodel/notifyselection.h"
-#include "componentmodel/binding/binding.h"
+#include "componentmodel/propertybinding.h"
 
 namespace ViewModel
 {
@@ -59,7 +59,11 @@ public:
     Q_INVOKABLE bool canClose();
 
 signals:
-    void downloadComplited(const ComponentModel::SignalArgs& args);
+    void downloadCompleted();
+
+public slots:
+    void showMessage(QString message) const;
+    void showUpdate(QString message, bool& needUpdate) const;
 
 protected:
     void save();
@@ -82,6 +86,7 @@ protected slots:
     void listChanged(const ComponentModel::ListChangedSignalArgs& args);
     void selectionChanged(const ComponentModel::SelectionChangedSignalArgs& args);
     void itemParsed(ViewModel::MediaDownloadList downloadList);
+    void onItemDownloadCompleted();
 
     void updatePasteAction();
 

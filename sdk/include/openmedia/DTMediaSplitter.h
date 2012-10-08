@@ -74,11 +74,6 @@ class _OPENMEDIASDK_API media_splitter_creator
 {
 public:
     static media_splitter_ptr create(const char * _Filename);
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    static media_splitter_ptr create(const wchar_t * _Filename);
-#endif
-
 };
 
 

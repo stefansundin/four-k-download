@@ -34,10 +34,18 @@ namespace openmedia {
 class audio_encoder_queue::Impl : impl_base
 {
 public:
-    virtual void                    send_audio(const audio_data * _AudioData) = 0;    
+    virtual void                    open() = 0;
+    virtual void                    send_audio(const audio_data * _AudioData) = 0;  
+    virtual void                    send_audio(const audio_data_timed * audioDataTimed) = 0;
     virtual media_packet_ptr        receive_packet() = 0;
     virtual codec_extra_data_ptr    get_extra_data() const = 0;
+    virtual void *                  get_private_data() const;
 };
+
+inline void * audio_encoder_queue::Impl::get_private_data() const
+{
+    return NULL;
+}
 
 } // namespace openmedia
 

@@ -41,6 +41,7 @@ class _OPENMEDIASDK_API decoder: interface_base
 {
     DT_DECLARE_IMPL2(decoder);
 public:
+    void reset();
     virtual ~decoder() = 0;
 
 public:

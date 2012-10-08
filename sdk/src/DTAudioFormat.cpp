@@ -15,17 +15,24 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioFormat.h
 
 #include <openmedia/DTAudioFormat.h>
+#include <openmedia/DTMediaSettings.h>
 #include <openmedia/DTAssert.h>
+#include <openmedia/DTAudioDecoderInfo.h>
 #include "DTAudioFormatImpl.h"
 
 namespace openmedia {
+
+const char * audio_format::optSampleRate = "audio-sample-rate";
+const char * audio_format::optSampleFormat = "audio-sample-format";
+const char * audio_format::optChannelsCount = "audio-channels-count";
+const char * audio_format::optChannelLayout = "audio-channel-layout";
 
 dt_sample_format_t audio_format::get_sample_format() const
 {
@@ -103,5 +110,38 @@ audio_format::invalid_format::invalid_format()
     m_msg = "invalid audio format";
 }
 
+audio_format_ptr audio_format::create(const audio_decoder_info * audioDecoderInfo)
+{
+    return create(audioDecoderInfo->get_sample_rate(),
+        audioDecoderInfo->get_sample_format(),
+        audioDecoderInfo->get_channels_count(),
+        audioDecoderInfo->get_channel_layout());
+}
+
+audio_format_ptr audio_format::create(media_settings_ptr settings)
+{
+    media_settings_ptr newSettings = media_settings::create(settings);
+    return create(
+        newSettings->get_param<int>(optSampleRate),
+        audio_sample_format(newSettings->get_param(optSampleFormat)),
+        newSettings->get_param<int>(optChannelsCount),
+        newSettings->get_param_or<uint64_t>(optChannelLayout, 0)
+        );
+}
+
+media_settings_ptr audio_format::serialize(const audio_format * audioFormat)
+{
+    media_settings_ptr newSettings = media_settings::create();
+    if (audioFormat)
+    {
+        newSettings->set_param(optSampleRate, audioFormat->get_sample_rate());
+        newSettings->set_param(optSampleFormat, audio_sample_format(audioFormat->get_sample_format()));
+        newSettings->set_param(optChannelsCount, audioFormat->get_channels_count());
+        newSettings->set_param(optChannelLayout, audioFormat->get_channel_layout());
+    }
+        
+    return newSettings;
+}
 
 }
+

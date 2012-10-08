@@ -43,16 +43,43 @@ protected:
     std::string m_msg;
 
 protected:
-    dt_error();
+    dt_error(const char * msg = "openmedia sdk error");
 };
 
 struct error: virtual dt_error {};
-struct invalid_argument: virtual dt_error {};
-struct invalid_pointer: virtual dt_error{};
-struct unexpected: virtual dt_error {};
-struct std_exception: virtual dt_error {};
-struct bad_alloc: virtual dt_error {};
-struct invalid_operation: virtual dt_error {};
+
+struct invalid_argument: virtual dt_error 
+{
+    invalid_argument(): dt_error("invalid argument")
+    {}
+};
+
+struct invalid_pointer: virtual dt_error
+{
+    invalid_pointer(): dt_error("invalid pointer")
+    {}
+};
+
+struct unexpected: virtual dt_error 
+{
+    unexpected(): dt_error("unexpected")
+    {}
+};
+
+struct std_exception: virtual dt_error 
+{};
+
+struct bad_alloc: virtual dt_error 
+{
+    bad_alloc(): dt_error("bad alloc")
+    {}
+};
+
+struct invalid_operation: virtual dt_error 
+{
+    invalid_operation(): dt_error("invalid operation")
+    {}
+};
 
 } // namespace errors
 } // namespace openmedia

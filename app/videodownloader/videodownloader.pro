@@ -1,15 +1,14 @@
-TEMPLATE = app
 TARGET = 4kvideodownloader
-
-include ($$SOURCE_TREE/common.pri)
+TEMPLATE = app
 
 QT += core gui
 QT += xml xmlpatterns
 QT += script
 QT += scripttools
 
+VERSION = 2.5.0.500
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DEFINES += __STDC_CONSTANT_MACROS
-
 
 mac {
     ICON = resource/application/icon.icns
@@ -21,13 +20,16 @@ win32 {
     RC_FILE = resource/application.rc
 }
 
-VERSION = 2.1.1.300
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
+include ($$SOURCE_TREE/common.pri)
 
 
 INCLUDEPATH += \
+    $$BOOST_PATH/include \
+    $$FFMPEG_PATH/include \
+    $$LAME_PATH/include \
     $$SOURCE_TREE/app/common \
-    $$SOURCE_TREE/app/common/gui/component \
+    $$SOURCE_TREE/app/common/gui/cxx/component \
     $$SOURCE_TREE/sdk/include \
     $$SOURCE_TREE/3rdparty/urdl/include \
     $$PWD
@@ -77,13 +79,27 @@ FORMS += \
     view/smartmodeview.ui
 
 TRANSLATIONS = \
-    resource/translation/videodownloader_en.ts
+    resource/translation/videodownloader_en.ts \
+    resource/translation/videodownloader_de.ts \
+    resource/translation/videodownloader_es.ts \
+    resource/translation/videodownloader_fr.ts \
+    resource/translation/videodownloader_it.ts \
+    resource/translation/videodownloader_pt.ts
+
 
 RESOURCES += \
     resource/image.qrc
     
 LIBS += \
-    -lappcommon \
+    -L$$BOOST_PATH/lib \
+    -L$$FFMPEG_PATH/lib \
+    -L$$LAME_PATH/lib
+    
+LIBS += \
+    -lappguicxx \
+    -lappmvvmcxx \
+    -lappcomponentmodel \
+    -lsdkvideodownload \
     -lsdkdownload \
     -lsdkmedia \
     -lsdkcommon \
@@ -102,45 +118,21 @@ LIBS += \
     -lboost_system-mt \
     -lboost_filesystem-mt \
     -lboost_regex-mt \
+    -lboost_chrono-mt \
     -lavcodec \
     -lavutil \
     -lavformat \
+    -lswresample \    
     -lmp3lame
 
-        
 DEPENDENCY_LIBS = \
-    appcommon \
+    appguicxx \
+    appmvvmcxx \
+    appcomponentmodel \
+    sdkvideodownload \
     sdkdownload \
     sdkmedia \
     sdkcommon \
     urdl
 
 include ($$SOURCE_TREE/dependencies.pri)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,15 +1,14 @@
-TEMPLATE = app
 TARGET = 4kyoutubetomp3
-
-include ($$SOURCE_TREE/common.pri)
+TEMPLATE = app
 
 QT += core gui
 QT += xml xmlpatterns
 QT += script
 QT += scripttools
 
+VERSION = 2.0.0.250
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DEFINES += __STDC_CONSTANT_MACROS
-
 
 mac {
     ICON = resource/application/icon.icns
@@ -21,14 +20,19 @@ win32 {
     RC_FILE = resource/application.rc
 }
 
-VERSION = 1.6.1.100
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
+include ($$SOURCE_TREE/common.pri)
 
 
 INCLUDEPATH += \
+    $$BOOST_PATH/include \
+    $$FFMPEG_PATH/include \
+    $$LAME_PATH/include \
+    $$PORTAUDIO_PATH/include \
     $$SOURCE_TREE/app/common \
-    $$SOURCE_TREE/app/common/gui/component \
+    $$SOURCE_TREE/app/common/gui/cxx/component \
     $$SOURCE_TREE/sdk/include \
+    $$SOURCE_TREE/3rdparty/portaudio++/include \
     $$SOURCE_TREE/3rdparty/urdl/include \
     $$PWD
 
@@ -55,18 +59,35 @@ FORMS += \
     view/mainview.ui
 
 TRANSLATIONS = \
-    resource/translation/audiodownloader_en.ts
+    resource/translation/audiodownloader_en.ts \
+    resource/translation/audiodownloader_pt.ts
 
 RESOURCES += \
     resource/image.qrc
-    
+
 LIBS += \
-    -lappcommon \
+    -L$$BOOST_PATH/lib \
+    -L$$FFMPEG_PATH/lib \
+    -L$$LAME_PATH/lib \
+    -L$$PORTAUDIO_PATH/lib
+
+!mac {
+LIBS += \
+    -Wl,--start-group
+}
+
+LIBS += \
+    -lappguicxx \
+    -lappmultimedia \
+    -lappmvvmcxx \
+    -lappcomponentmodel \
+    -lsdkvideodownload \
     -lsdkdownload \
     -lsdkmedia \
     -lsdkcommon \
+    -lportaudioxx \
     -lurdl
-        
+
 win32 {
 LIBS += \
     -lws2_32 \
@@ -80,16 +101,30 @@ LIBS += \
     -lboost_system-mt \
     -lboost_filesystem-mt \
     -lboost_regex-mt \
+    -lboost_chrono-mt \
     -lavcodec \
     -lavutil \
     -lavformat \
-    -lmp3lame
+    -lswresample \    
+    -lswscale \
+    -lmp3lame \
+    -lportaudio
+
+!mac {
+LIBS += \
+    -Wl,--end-group 
+}
 
 DEPENDENCY_LIBS = \
-    appcommon \
+    appguicxx \
+    appmultimedia \
+    appmvvmcxx \
+    appcomponentmodel \
+    sdkvideodownload \
     sdkdownload \
     sdkmedia \
     sdkcommon \
+    portaudioxx \
     urdl
 
 include ($$SOURCE_TREE/dependencies.pri)

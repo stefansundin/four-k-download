@@ -1,9 +1,9 @@
 TEMPLATE = subdirs
-
 CONFIG  += ordered
 
-SUBDIRS = \
+SUBDIRS = download_youtube \
     get_download_info \
     get_download_info_async \
-    download_youtube \
-    http_download
+    http_download \
+    read_audio \
+    video2mp3

@@ -14,12 +14,11 @@
 */
 
 
-#ifndef METAOBJECTMAP_H
-#define METAOBJECTMAP_H
+#ifndef COMPONENTMODEL_METAOBJECTMAP_H
+#define COMPONENTMODEL_METAOBJECTMAP_H
 
 #include <QObject>
 #include <QMap>
-#include <QSharedPointer>
 
 namespace ComponentModel
 {
@@ -29,7 +28,7 @@ class MetaObjectMap : public QObject
     Q_OBJECT
 
 public:
-    MetaObjectMap(QObject* parent = 0);
+    explicit MetaObjectMap(QObject* parent = 0);
 
     void add(const QMetaObject& key, const QMetaObject& value);
     void remove(const QMetaObject& key);
@@ -44,4 +43,4 @@ private:
 
 } // ComponentModel
 
-#endif // METAOBJECTMAP_H
+#endif // COMPONENTMODEL_METAOBJECTMAP_H

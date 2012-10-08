@@ -34,7 +34,7 @@ namespace openmedia {
 class decoder::Impl: public impl_base
 {
 public:
-private:
+    virtual void reset() = 0;
 };
 
 } // namespace openmedia 

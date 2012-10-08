@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   ffvideodata.cpp
 
@@ -43,13 +43,13 @@ uint8_t * ff_video_data_impl::get_data() const
 
 uint8_t * ff_video_data_impl::get_plane(size_t _PlaneIndex) const
 {
-    DT_STRONG_ASSERT(_PlaneIndex < 4);
+    DT_STRONG_ASSERT(_PlaneIndex < AV_NUM_DATA_POINTERS);
     return m_AVFrame->data[_PlaneIndex];
 }
 
 int ff_video_data_impl::get_line_size(size_t _PlaneIndex) const
 {
-    DT_STRONG_ASSERT(_PlaneIndex < 4);
+    DT_STRONG_ASSERT(_PlaneIndex < AV_NUM_DATA_POINTERS);
     return m_AVFrame->linesize[_PlaneIndex];
 }
 

@@ -69,6 +69,7 @@ inline bool operator == (const dt_rational_t & _Left, const dt_rational_t & _Rig
     return _Left.num == _Right.num && _Left.den == _Right.den;
 }
 
+/// \TODO remove from here
 enum dt_own_buffer_t
 {
     bufferRef, 

@@ -16,8 +16,8 @@
 
 /// \file   DTAudioConvert.h
 
-#ifndef _DTAUDIOCONVERT_H_INCLUDED_
-#define _DTAUDIOCONVERT_H_INCLUDED_
+#ifndef _DTAUDIOCONVERT_H_INCLUDED_D2437194
+#define _DTAUDIOCONVERT_H_INCLUDED_D2437194
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
@@ -29,11 +29,15 @@
 #include <openmedia/DTDeclareImpl.h>
 #include <openmedia/DTConfig.h>
 #include <openmedia/DTCommon.h>
-#include <openmedia/DTAudioFormat.h>
-#include <openmedia/DTAudioData.h>
 #include <openmedia/DTAudioBuffer.h>
 
 namespace openmedia {
+
+class audio_data;
+typedef boost::shared_ptr<audio_data> audio_data_ptr;
+
+class audio_format;
+typedef boost::shared_ptr<audio_format> audio_format_ptr;
 
 class audio_convert;
 typedef boost::shared_ptr<audio_convert> audio_convert_ptr;
@@ -42,7 +46,7 @@ typedef boost::shared_ptr<audio_convert> audio_convert_ptr;
 class _OPENMEDIASDK_API audio_convert: public audio_buffer
 {
 public:
-    audio_data_ptr convert(const audio_data * _AudioData);
+    audio_data_ptr convert(const audio_data * audioData);
 
 protected:
     audio_convert(audio_buffer::Impl * _Impl);  
@@ -53,8 +57,9 @@ class _OPENMEDIASDK_API audio_convert_utils
 public:
     // create sample format converter
     // input and ouptut channels layout must be same
-    static audio_convert_ptr create_sample_fmt_convert(const audio_format * _OutputAudioFormat);
-    static audio_convert_ptr create_resample_convert(const audio_format * _OutputAudioFormat, int _InputSampleRate, int _OutputSampleRate);
+    //static audio_convert_ptr create_sample_fmt_convert(const audio_format * _OutputAudioFormat);
+    //static audio_convert_ptr create_resample_convert(const audio_format * _OutputAudioFormat, int _InputSampleRate, int _OutputSampleRate);
+    static audio_convert_ptr create_resample_convert(const audio_format * out, const audio_format * in);
 };
 
 

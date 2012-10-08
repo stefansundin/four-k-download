@@ -16,8 +16,8 @@
 
 /// \file   DTAudioBuffer.h
 
-#ifndef _DTAUDIOBUFFER_H_INCLUDED_
-#define _DTAUDIOBUFFER_H_INCLUDED_
+#ifndef OPENMEDIA_DTAUDIOBUFFER_H_INCLUDED_AAB8E78A
+#define OPENMEDIA_DTAUDIOBUFFER_H_INCLUDED_AAB8E78A
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
@@ -27,13 +27,18 @@
 #include <boost/shared_ptr.hpp>
 
 #include <openmedia/DTDeclareImpl.h>
+#include <openmedia/DTCStdInt.h>
 #include <openmedia/DTConfig.h>
 #include <openmedia/DTCommon.h>
-#include <openmedia/DTAudioData.h>
-#include <openmedia/DTAudioFormat.h>
 #include <openmedia/DTError.h>
 
 namespace openmedia {
+
+class audio_data;
+typedef boost::shared_ptr<audio_data> audio_data_ptr;
+
+class audio_format;
+typedef boost::shared_ptr<audio_format> audio_format_ptr;
 
 class   audio_buffer;
 typedef boost::shared_ptr<audio_buffer> audio_buffer_ptr;
@@ -46,10 +51,10 @@ class _OPENMEDIASDK_API audio_buffer: interface_base
 public:
     enum AudioBufferType
     {
-        audio_buffer_SameFormat = 0 
+        audio_buffer_SameFormat = 0
     };
 
-    static audio_buffer_ptr create(AudioBufferType _BufferType, const audio_format * _AudioFormat);
+    static audio_buffer_ptr create(AudioBufferType bufferType, const audio_format * audioFormat);
 
     struct invalid_format: public virtual errors::dt_error
     {
@@ -58,19 +63,18 @@ public:
     };
 
 public:
-    void                push_back(const audio_data * _AudioData); 
-    audio_data_ptr      pop_front(int _SamplesCount);
-    void                push_back_raw(const uint8_t * _Data, size_t _DataSize); 
+    void                push_back(const audio_data * audioData); 
+    audio_data_ptr      pop_front(int samplesCount);
+    void                push_back_raw(const uint8_t * data, size_t dataSize); 
     audio_format_ptr    get_output_audio_format() const;
     int                 get_samples_count() const;
-
     virtual             ~audio_buffer();
             
 protected:
-    audio_buffer(audio_buffer::Impl * _Impl);    
+    audio_buffer(Impl * _Impl);    
 
 private:
-    audio_buffer::Impl * m_pImpl;
+    Impl * m_pImpl;
 };
 
 }

@@ -15,7 +15,7 @@
 
 
 #include "viewmodel/mediaitemviewmodel.h"
-#include "gui/thumbnail.h"
+#include "gui/cxx/thumbnail.h"
 #include "componentmodel/transform.h"
 #include <QEvent>
 #include <QPointer>
@@ -26,6 +26,9 @@ using namespace ComponentModel;
 using namespace Gui;
 using namespace openmedia;
 
+
+namespace
+{
 
 const QEvent::Type InitializeResultEventType = QEvent::Type(QEvent::User + 5);
 
@@ -67,6 +70,7 @@ private:
     QPointer<QObject> m_item;
 };
 
+} // Anonimous
 
 
 MediaItemViewModel::MediaItemViewModel(const Mvvm::Dialog* dialog, openmedia::downloader::media_download_list_ptr item, QObject *parent) :
@@ -121,6 +125,9 @@ QString MediaItemViewModel::title() const
 
 QString MediaItemViewModel::duration() const
 {
+    if (m_item->duration() == 0)
+        return QString();
+
     return Transform::timeToString(m_item->duration(), "H:mm:ss");
 }
 

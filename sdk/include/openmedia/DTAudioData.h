@@ -55,6 +55,8 @@ public:
 	dt_channel_layout_t get_channel_layout() const;
     int                 get_channels_count() const;
     int                 get_bits_per_sample() const;
+    uint8_t *           lock_data();
+    void                unlock_data();
     virtual             ~audio_data() = 0;
 
 public:

@@ -14,11 +14,12 @@
 */
 
 
-#ifndef SIGNALARGS_H
-#define SIGNALARGS_H
+#ifndef COMPONENTMODEL_SIGNALARGS_H
+#define COMPONENTMODEL_SIGNALARGS_H
 
 #include <QObject>
 #include <QMetaType>
+#include "componentmodel/metatypes.h"
 
 namespace ComponentModel
 {
@@ -26,7 +27,7 @@ namespace ComponentModel
 class SignalArgs
 {
 public:
-    SignalArgs(QObject* sender = NULL);
+    explicit SignalArgs(QObject* sender = NULL);
 
     QObject* sender() const;
 
@@ -38,4 +39,4 @@ private:
 
 Q_DECLARE_METATYPE(ComponentModel::SignalArgs)
 
-#endif // SIGNALARGS_H
+#endif // COMPONENTMODEL_SIGNALARGS_H

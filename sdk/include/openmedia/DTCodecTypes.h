@@ -22,6 +22,8 @@
 #pragma once
 #endif
 
+#define DT_MKBETAG(a,b,c,d) ((d) | ((c) << 8) | ((b) << 16) | ((unsigned)(a) << 24))
+
 namespace openmedia {
 
 enum dt_codec_base_t {
@@ -42,7 +44,7 @@ enum dt_codec_base_t {
  * 1. no value of a existing codec ID changes (that would break ABI),
  * 2. it is as close as possible to similar codecs.
  */
-#define LIBAVCODEC_VERSION_MAJOR 52 
+#define LIBAVCODEC_VERSION_MAJOR 54
 enum dt_codec_id_t {
     CODEC_ID_NONE,
 
@@ -109,9 +111,6 @@ enum dt_codec_id_t {
     CODEC_ID_QDRAW,
     CODEC_ID_VIXL,
     CODEC_ID_QPEG,
-#if LIBAVCODEC_VERSION_MAJOR < 53
-    CODEC_ID_XVID,
-#endif
     CODEC_ID_PNG,
     CODEC_ID_PPM,
     CODEC_ID_PBM,
@@ -149,7 +148,6 @@ enum dt_codec_id_t {
     CODEC_ID_TIERTEXSEQVIDEO,
     CODEC_ID_TIFF,
     CODEC_ID_GIF,
-    CODEC_ID_FFH264,
     CODEC_ID_DXA,
     CODEC_ID_DNXHD,
     CODEC_ID_THP,
@@ -167,8 +165,6 @@ enum dt_codec_id_t {
     CODEC_ID_INDEO5,
     CODEC_ID_MIMIC,
     CODEC_ID_RL2,
-    CODEC_ID_8SVX_EXP,
-    CODEC_ID_8SVX_FIB,
     CODEC_ID_ESCAPE124,
     CODEC_ID_DIRAC,
     CODEC_ID_BFI,
@@ -199,9 +195,38 @@ enum dt_codec_id_t {
     CODEC_ID_ANSI,
     CODEC_ID_A64_MULTI,
     CODEC_ID_A64_MULTI5,
+    CODEC_ID_R10K,
+    CODEC_ID_MXPEG,
+    CODEC_ID_LAGARITH,
+    CODEC_ID_PRORES,
+    CODEC_ID_JV,
+    CODEC_ID_DFA,
+    CODEC_ID_WMV3IMAGE,
+    CODEC_ID_VC1IMAGE,
+    CODEC_ID_UTVIDEO,
+    CODEC_ID_BMV_VIDEO,
+    CODEC_ID_VBLE,
+    CODEC_ID_DXTORY,
+    CODEC_ID_V410,
+    CODEC_ID_XWD,
+    CODEC_ID_CDXL,
+    CODEC_ID_XBM,
+    CODEC_ID_ZEROCODEC,
+    CODEC_ID_Y41P       = DT_MKBETAG('Y','4','1','P'),
+    CODEC_ID_ESCAPE130  = DT_MKBETAG('E','1','3','0'),
+    CODEC_ID_EXR        = DT_MKBETAG('0','E','X','R'),
+    CODEC_ID_AVRP       = DT_MKBETAG('A','V','R','P'),
+
+    CODEC_ID_G2M        = DT_MKBETAG( 0 ,'G','2','M'),
+    CODEC_ID_AVUI       = DT_MKBETAG('A','V','U','I'),
+    CODEC_ID_AYUV       = DT_MKBETAG('A','Y','U','V'),
+    CODEC_ID_V308       = DT_MKBETAG('V','3','0','8'),
+    CODEC_ID_V408       = DT_MKBETAG('V','4','0','8'),
+    CODEC_ID_YUV4       = DT_MKBETAG('Y','U','V','4'),
 
     /* various PCM "codecs" */
-    CODEC_ID_PCM_S16LE= 0x10000,
+    CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
+    CODEC_ID_PCM_S16LE = 0x10000,
     CODEC_ID_PCM_S16BE,
     CODEC_ID_PCM_U16LE,
     CODEC_ID_PCM_U16BE,
@@ -226,9 +251,12 @@ enum dt_codec_id_t {
     CODEC_ID_PCM_F64BE,
     CODEC_ID_PCM_F64LE,
     CODEC_ID_PCM_BLURAY,
+    CODEC_ID_PCM_LXF,
+    CODEC_ID_S302M,
+    CODEC_ID_PCM_S8_PLANAR,
 
     /* various ADPCM codecs */
-    CODEC_ID_ADPCM_IMA_QT= 0x11000,
+    CODEC_ID_ADPCM_IMA_QT = 0x11000,
     CODEC_ID_ADPCM_IMA_WAV,
     CODEC_ID_ADPCM_IMA_DK3,
     CODEC_ID_ADPCM_IMA_DK4,
@@ -256,23 +284,25 @@ enum dt_codec_id_t {
     CODEC_ID_ADPCM_EA_XAS,
     CODEC_ID_ADPCM_EA_MAXIS_XA,
     CODEC_ID_ADPCM_IMA_ISS,
+    CODEC_ID_ADPCM_G722,
+    CODEC_ID_ADPCM_IMA_APC,
 
     /* AMR */
-    CODEC_ID_AMR_NB= 0x12000,
+    CODEC_ID_AMR_NB = 0x12000,
     CODEC_ID_AMR_WB,
 
     /* RealAudio codecs*/
-    CODEC_ID_RA_144= 0x13000,
+    CODEC_ID_RA_144 = 0x13000,
     CODEC_ID_RA_288,
 
     /* various DPCM codecs */
-    CODEC_ID_ROQ_DPCM= 0x14000,
+    CODEC_ID_ROQ_DPCM = 0x14000,
     CODEC_ID_INTERPLAY_DPCM,
     CODEC_ID_XAN_DPCM,
     CODEC_ID_SOL_DPCM,
 
     /* audio codecs */
-    CODEC_ID_MP2= 0x15000,
+    CODEC_ID_MP2 = 0x15000,
     CODEC_ID_MP3, ///< preferred ID for decoding MPEG audio layer 1, 2 or 3
     CODEC_ID_AAC,
     CODEC_ID_AC3,
@@ -284,8 +314,6 @@ enum dt_codec_id_t {
     CODEC_ID_MACE3,
     CODEC_ID_MACE6,
     CODEC_ID_VMDAUDIO,
-    CODEC_ID_SONIC,
-    CODEC_ID_SONIC_LS,
     CODEC_ID_FLAC,
     CODEC_ID_MP3ADU,
     CODEC_ID_MP3ON4,
@@ -324,9 +352,23 @@ enum dt_codec_id_t {
     CODEC_ID_ATRAC1,
     CODEC_ID_BINKAUDIO_RDFT,
     CODEC_ID_BINKAUDIO_DCT,
+    CODEC_ID_AAC_LATM,
+    CODEC_ID_QDMC,
+    CODEC_ID_CELT,
+    CODEC_ID_G723_1,
+    CODEC_ID_G729,
+    CODEC_ID_8SVX_EXP,
+    CODEC_ID_8SVX_FIB,
+    CODEC_ID_BMV_AUDIO,
+    CODEC_ID_RALF,
+    CODEC_ID_FFWAVESYNTH = DT_MKBETAG('F','F','W','S'),
+    CODEC_ID_8SVX_RAW    = DT_MKBETAG('8','S','V','X'),
+    CODEC_ID_SONIC       = DT_MKBETAG('S','O','N','C'),
+    CODEC_ID_SONIC_LS    = DT_MKBETAG('S','O','N','L'),
 
     /* subtitle codecs */
-    CODEC_ID_DVD_SUBTITLE= 0x17000,
+    CODEC_ID_FIRST_SUBTITLE = 0x17000,          ///< A dummy ID pointing at the start of subtitle codecs.
+    CODEC_ID_DVD_SUBTITLE = 0x17000,
     CODEC_ID_DVB_SUBTITLE,
     CODEC_ID_TEXT,  ///< raw UTF-8 text
     CODEC_ID_XSUB,
@@ -335,14 +377,24 @@ enum dt_codec_id_t {
     CODEC_ID_HDMV_PGS_SUBTITLE,
     CODEC_ID_DVB_TELETEXT,
     CODEC_ID_SRT,
+    CODEC_ID_MICRODVD   = DT_MKBETAG('m','D','V','D'),
+    CODEC_ID_EIA_608    = DT_MKBETAG('c','6','0','8'),
+    CODEC_ID_JACOSUB    = DT_MKBETAG('J','S','U','B'),
 
     /* other specific kind of codecs (generally used for attachments) */
-    CODEC_ID_TTF= 0x18000,
+    CODEC_ID_FIRST_UNKNOWN = 0x18000,           ///< A dummy ID pointing at the start of various fake codecs.
+    CODEC_ID_TTF = 0x18000,
+    CODEC_ID_BINTEXT    = DT_MKBETAG('B','T','X','T'),
+    CODEC_ID_XBIN       = DT_MKBETAG('X','B','I','N'),
+    CODEC_ID_IDF        = DT_MKBETAG( 0 ,'I','D','F'),
 
-    CODEC_ID_PROBE= 0x19000, ///< codec_id is not known (like CODEC_ID_NONE) but lavf should attempt to identify it
+    CODEC_ID_PROBE = 0x19000, ///< codec_id is not known (like CODEC_ID_NONE) but lavf should attempt to identify it
 
-    CODEC_ID_MPEG2TS= 0x20000, /**< _FAKE_ codec to indicate a raw MPEG-2 TS
+    CODEC_ID_MPEG2TS = 0x20000, /**< _FAKE_ codec to indicate a raw MPEG-2 TS
                                 * stream (only used by libavformat) */
+    CODEC_ID_MPEG4SYSTEMS = 0x20001, /**< _FAKE_ codec to indicate a MPEG-4 Systems
+                                * stream (only used by libavformat) */
+    CODEC_ID_FFMETADATA = 0x21000,   ///< Dummy codec for streams containing only metadata information.
 };
 
 }

@@ -1,11 +1,9 @@
-TEMPLATE = lib
 TARGET = sdkmedia
-
-include ($$SOURCE_TREE/common.pri)
+TARGET = sdkmedia
+TEMPLATE = lib
+CONFIG += staticlib
 
 QT -= core gui
-
-CONFIG += staticlib
 
 DEFINES += URDL_DISABLE_SSL
 #DEFINES += URDL_HEADER_ONLY
@@ -14,9 +12,17 @@ win32 {
     DEFINES += WIN32_LEAN_AND_MEAN=1
 }
 
+
+include ($$SOURCE_TREE/common.pri)
+
+
 INCLUDEPATH += \
-    include \
-    $$SOURCE_TREE/3rdparty/urdl/include
+    $$BOOST_PATH/include \
+    $$FFMPEG_PATH/include \
+    $$LAME_PATH/include \
+    $$SOURCE_TREE/3rdparty/urdl/include \
+    $$SOURCE_TREE/sdk/src/ \
+    include
                 
 HEADERS += \
     src/DTAudioBufferImpl.h \
@@ -63,7 +69,7 @@ HEADERS += \
     include/openmedia/DTConfig.h \
     include/openmedia/DTDecoder.h \
     include/openmedia/DTDecoderInfo.h \
-    include/openmedia/DTHeaders.h \
+    include/openmedia/DTEncoderInfo.h \
     include/openmedia/DTMediaMuxer.h \
     include/openmedia/DTMediaTypes.h \
     include/openmedia/DTMP3File.h \
@@ -80,26 +86,50 @@ HEADERS += \
     src/DTFileInfoImpl.h \
     src/DTMediaSplitterImpl.h \
     src/DTStreamInfoImpl.h \
+    include/openmedia/DTMetadata.h \
+    include/openmedia/DTMetadataTag.h \
+    src/DTMetadataImpl.h \
+    src/DTMetadataTagImpl.h	\
+    src/ffmpeg/DTFFMetadata.h \
     src/ffmpeg/DTFFPacket.h \
     src/ffmpeg/DTFFUTF8File.h \
-    src/ffmpeg/DTFFResampleConvert.h \
-    src/ffmpeg/DTFFSampleFmtConvert.h \
     include/openmedia/DTAudioConvert.h \
     src/DTVideoDataImpl.h \
     src/ffmpeg/DTFFVideoDataImpl.h \
     src/ffmpeg/DTFFVideoData.h \
     src/ffmpeg/DTFFPicture.h \
-    src/ffmpeg/DTFFMediaMuxer.h \
     include/openmedia/DTVideoData.h \
     include/openmedia/DTVideoDataTimed.h \
     include/openmedia/DTVideoDecoder.h \
+    include/openmedia/DTVideoEncoder.h \
+    include/openmedia/DTVideoEncoderQueue.h \
     include/openmedia/DTVideoFormat.h \
     src/ffmpeg/DTFFVideoDecoder.h \
     src/DTVideoDecoderImpl.h \
+    src/DTVideoEncoderQueueImpl.h \
+    src/DTPPMFile.h \
     src/DTRAWFile.h \
     src/DTPictureConvertImpl.h \
     src/ffmpeg/DTFFPictureConvertImpl.h \
-    src/ffmpeg/DTFFPictureConvert.h
+    src/ffmpeg/DTFFPictureConvert.h \
+    src/ffmpeg/DTFFSWResample.h \
+    include/openmedia/DTMediaFile.h \
+    src/DTMediaHandleImpl.h \
+    src/DTMediaHandle.h \
+    src/DTMediaFileInfoImpl.h \
+    src/DTVideoEncoderCreateImpl.h \
+    include/openmedia/DTMediaSettings.h \
+    src/DTVideoEncoderFactory.h \
+    src/DTEncoderFactory.h \
+    src/DTAudioFilterImpl.h \
+    include/openmedia/DTAudioFilters.h \
+    src/DTAudioEncoderFactory.h \
+    include/openmedia/DTMediaSource.h \
+    include/openmedia/DTVideoSource.h \
+    include/openmedia/DTAudioSource.h \
+    include/openmedia/DTAVSource.h \
+    src/DTAVSourceImpl.h \
+    src/DTAVSourceFile.h    
                 
 SOURCES += \
     src/DTAdditionalSettings.cpp \
@@ -142,15 +172,12 @@ SOURCES += \
     src/ffmpeg/DTFFUTF8File.cpp \
     src/ffmpeg/DTFFUtils.cpp \
     src/DTAudioConvert.cpp \
-    src/ffmpeg/DTFFResampleConvert.cpp \
-    src/ffmpeg/DTFFSampleFmtConvert.cpp \
     src/DTAudioPacket.cpp \
     src/DTAudioDataCreate.cpp \
     src/DTPacketSpecial.cpp \
     src/DTAudioEncoderSettingsImpl.cpp \
     src/DTAudioEncoderQueue.cpp \
     src/DTMediaSplitterCreate.cpp \
-    src/ffmpeg/DTFFMediaMuxer.cpp \
     src/ffmpeg/DTFFPicture.cpp \
     src/ffmpeg/DTFFVideoData.cpp \
     src/ffmpeg/DTFFVideoDataImpl.cpp \
@@ -162,15 +189,25 @@ SOURCES += \
     src/ffmpeg/DTFFVideoDecoder.cpp \
     src/DTMediaMuxerCreate.cpp \
     src/DTVideo2Mp3.cpp \
+    src/DTVideoEncoderQueue.cpp \
+    src/DTVideoEncoderCreate.cpp \
+    src/DTPPMFile.cpp \
     src/DTRAWFile.cpp \
     src/DTPictureConvert.cpp \
     src/ffmpeg/DTFFPictureConvert.cpp \
     src/ffmpeg/DTFFPictureConvertImpl.cpp \
-    src/DTPictureConvertCreate.cpp
-    
-DEPENDENCY_LIBS = \
-    sdkcommon \
-    urdl
-
-include ($$SOURCE_TREE/dependencies.pri)
-   
+    src/DTPictureConvertCreate.cpp \
+    src/ffmpeg/DTFFSWResample.cpp \
+    src/DTMediaHandle.cpp \
+    src/DTMediaFile.cpp \
+    src/DTMediaFileInfoImpl.cpp \
+    src/DTRegisterElements.cpp \
+    src/DTVideoEncoderQueueImpl.cpp \
+    src/DTMediaSettings.cpp \
+    src/DTAudioFilter.cpp \
+    src/audiofilters/DTAudioFilterAmpilfy.cpp \
+    src/DTAudioEncoderCreate.cpp \
+    src/DTSampleFormatTypes.cpp \
+    src/DTAVSource.cpp \
+    src/DTAVSourceFile.cpp \
+    src/DTWAVFile.cpp    

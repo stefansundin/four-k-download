@@ -19,9 +19,13 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot;&quot;&gt;bar and then click &amp;quot;&lt;/span&gt;&lt;a href=&quot;paste&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Paste URL&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot;&quot;&gt;&amp;quot; here.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../../view/mainview.ui" line="20"/>
         <source>4k YouTube to MP3</source>
-        <translation>4k YouTube to MP3</translation>
+        <translation type="obsolete">4k YouTube to MP3</translation>
+    </message>
+    <message>
+        <location filename="../../view/mainview.ui" line="20"/>
+        <source>4K YouTube to MP3</source>
+        <translation>4K YouTube to MP3</translation>
     </message>
     <message>
         <location filename="../../view/mainview.ui" line="165"/>
@@ -82,17 +86,17 @@ p, li { white-space: pre-wrap; }
         <translation>action</translation>
     </message>
     <message>
-        <location filename="../../view/mainview.ui" line="457"/>
+        <location filename="../../view/mainview.ui" line="529"/>
         <source>TextLabel</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../view/mainview.ui" line="473"/>
+        <location filename="../../view/mainview.ui" line="545"/>
         <source>Hide</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../view/mainview.ui" line="502"/>
+        <location filename="../../view/mainview.ui" line="612"/>
         <source>toolBar</source>
         <translation>toolBar</translation>
     </message>
@@ -100,7 +104,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>View::DownloadItemDelegate</name>
     <message>
-        <location filename="../../view/downloaditemdelegate.cpp" line="119"/>
+        <location filename="../../view/downloaditemdelegate.cpp" line="151"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
@@ -108,77 +112,99 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ViewModel::DownloadItemViewModel</name>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="272"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="321"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="377"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="580"/>
         <source>Show in folder</source>
         <translation>Show in folder</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="277"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="326"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="273"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="324"/>
         <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="382"/>
         <source>Copy url</source>
         <translation>Copy url</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="282"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="331"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="274"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="325"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="383"/>
+        <source>Copty url address</source>
+        <translation>Copty url address</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="278"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="329"/>
         <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="387"/>
         <source>Share on Facebook</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="288"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="337"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="279"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="330"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="388"/>
+        <source>Share link to clip on facebook</source>
+        <translation>Share link to clip on facebook</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="284"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="335"/>
         <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="393"/>
         <source>Share on Twitter</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="449"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="285"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="336"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="394"/>
+        <source>Share link to clip on twitter</source>
+        <translation>Share link to clip on twitter</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="455"/>
         <source>Retrieving information...</source>
         <translation>Retrieving information...</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="544"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="551"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="559"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="566"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="545"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="560"/>
         <source>Pause download</source>
         <translation>Pause download</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="552"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="567"/>
         <source>Pause convertion</source>
         <translation>Pause convertion</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="558"/>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="559"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="573"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="574"/>
         <source>Resume</source>
         <translation>Resume</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="566"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="581"/>
+        <source>Open folder with downloaded file</source>
+        <translation>Open folder with downloaded file</translation>
+    </message>
+    <message>
         <source>Play</source>
-        <translation>Play</translation>
+        <translation type="obsolete">Play</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="567"/>
         <source>Play downloaded file</source>
-        <translation>Play downloaded file</translation>
+        <translation type="obsolete">Play downloaded file</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="713"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="689"/>
         <source>I like this video! Download it with %1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="723"/>
+        <location filename="../../viewmodel/downloaditemviewmodel.cpp" line="699"/>
         <source>I like this video!</source>
         <translation></translation>
     </message>
@@ -186,144 +212,165 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ViewModel::MainViewModel</name>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="36"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="39"/>
         <source>Paste url</source>
         <translation>Paste url</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="37"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="40"/>
         <source>Paste video link from clipboard</source>
         <translation>Paste video link from clipboard</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="55"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="433"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="464"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="58"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="498"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="529"/>
         <source>Remove</source>
         <translation>Remove</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="62"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="65"/>
         <source>Remove all</source>
         <translation>Remove all</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="43"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="46"/>
         <source>Change folder</source>
         <translation>Change folder</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="44"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="47"/>
         <source>Change folder for output audio files</source>
         <translation>Change folder for output audio files</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="49"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="52"/>
         <source>Help</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="50"/>
         <source>Open online help</source>
-        <translation>Open online help</translation>
+        <translation type="obsolete">Open online help</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="63"/>
         <source>Remove all downloads form list</source>
-        <translation>Remove all downloads form list</translation>
+        <translation type="obsolete">Remove all downloads form list</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="67"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="70"/>
         <source>Pause all</source>
         <translation>Pause all</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="72"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="75"/>
         <source>Resume all</source>
         <translation>Resume all</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="77"/>
-        <source>Facebook</source>
-        <translation></translation>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="80"/>
+        <source>Like</source>
+        <translation>Like</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="78"/>
-        <source>Open 4kdownload Facebook page</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="306"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="338"/>
         <source>Quit</source>
         <translation>Quit</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="307"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="362"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="435"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="466"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="339"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="423"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="500"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="531"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="309"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="341"/>
         <source>Some downloads are not finished yet. Are you sure want to quit?</source>
         <translation> Some downloads are not yet completed. Are you sure you want to quit?</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="332"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="362"/>
+        <source>Open Site</source>
+        <translation>Open Site</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="389"/>
+        <source>Copy video link from your browser address bar and then click &quot;Paste URL&quot; here.</source>
+        <translation>Copy video link from your browser address bar and then click &quot;Paste URL&quot; here.</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="397"/>
         <source>Post</source>
         <translation>Post</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="333"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="353"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="363"/>
         <location filename="../../viewmodel/mainviewmodel.cpp" line="387"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="398"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="452"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="335"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="53"/>
+        <source>Show online help</source>
+        <translation>Show online help</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="66"/>
+        <source>Remove all downloads from list</source>
+        <translation>Remove all downloads from list</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="81"/>
+        <source>Show 4K Download Facebook page</source>
+        <translation>Show 4K Download Facebook page</translation>
+    </message>
+    <message>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="400"/>
         <source>Sorry this site is unsupported. Please post a request to add this site in supported list.</source>
         <translation>Sorry, this website is not supported. Please, send request to append new website to supported services.</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="360"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="421"/>
         <source>Download Playlist</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="361"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="422"/>
         <source>Download Clip</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="364"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="425"/>
         <source>This video is part of the playlist. Do you want do download all playlist or clip only?</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="389"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="454"/>
         <source>No valid url found in the clipboard. Please copy video link from the browser address bar and press &quot;Paste URL&quot; again.</source>
         <translation>No valid url in the clipboard. Please, copy video link from the browser address bar and press &quot;Paste URL&quot; again.</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="403"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="468"/>
         <source>Choose output directory</source>
         <translation>Choose output directory</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="434"/>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="465"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="499"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="530"/>
         <source>Remove and don&apos;t ask again</source>
         <translation>Remove and don&apos;t ask again</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="438"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="503"/>
         <source>Are you sure want to remove &quot;%1&quot;?</source>
         <translation>Are you sure want to remove &quot;%1&quot;?</translation>
     </message>
     <message>
-        <location filename="../../viewmodel/mainviewmodel.cpp" line="469"/>
+        <location filename="../../viewmodel/mainviewmodel.cpp" line="534"/>
         <source>Are you sure want to remove all downloads from list?</source>
         <translation>Are you sure want to remove all downloads from list?</translation>
     </message>

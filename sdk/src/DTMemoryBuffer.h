@@ -38,7 +38,7 @@ class memory_buffer_simple: boost::noncopyable
 public:
     memory_buffer_simple();
     void    push_back(const uint8_t * _Buffer, size_t _SizeBytes);
-    void    pop_front(size_t _SizeBytes, uint8_t * _Buffer, size_t & _OutBytesReceived);
+    void    pop_front(size_t _SizeBytes, uint8_t * _Buffer, size_t & _OutBytesReceived); ///< output buffer must be created by user
     size_t  size() const;
     size_t  buffers_count() const; ///< debug
     ~memory_buffer_simple();

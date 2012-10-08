@@ -1,3 +1,35 @@
+4kvideodownloader (2.5-1) stable; urgency=medium
+
+* YouTube subtitles supported.
+* New YouTube video formats.
+* Several sites supported.
+
+-- 4kdownload <support@4kdownload.com>  Tue, 02 October 2012 23:30:00 +0300
+
+
+4kvideodownloader (2.4-1) stable; urgency=medium
+
+* New YouTube formats support.
+* Major bugfixes.
+
+-- 4kdownload <support@4kdownload.com>  Tue, 17 July 2012 22:30:00 +0300
+
+
+4kvideodownloader (2.3-1) stable; urgency=medium
+
+* Vimeo bug fixes.
+
+-- 4kdownload <support@4kdownload.com>  Wed, 06 June 2012 23:30:00 +0300
+
+
+4kvideodownloader (2.2-1) stable; urgency=medium
+
+* Major bug fixes.
+* Portuguese language.
+
+-- 4kdownload <support@4kdownload.com>  Fri, 25 March 2012 19:30:00 +0300
+
+
 4kvideodownloader (2.1-1) stable; urgency=medium
 
 * Smart Mode.

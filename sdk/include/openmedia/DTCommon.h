@@ -24,6 +24,8 @@
 
 #include <openmedia/DTConfig.h>
 
+#define DT_IF_DISABLE_EXCEPTIONS(A)
+
 #define DT_SIMPLE_PROPERTY(TYPE, NAME) private:\
     TYPE m_##NAME;\
     public:\

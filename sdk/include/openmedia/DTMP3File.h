@@ -44,15 +44,6 @@ public:
         const audio_format * _AudioFormat,
         codec_extra_data_ptr _CodecExtraData
         );
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    media_muxer_mp3file(
-        const wchar_t * _FileName,
-        const audio_format * _AudioFormat,
-        codec_extra_data_ptr _CodecExtraData
-        );
-#endif
-
 };
 
 } // namespace openmedia

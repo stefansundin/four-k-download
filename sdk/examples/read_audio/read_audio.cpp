@@ -14,34 +14,40 @@
 */
 
 
-#include <iostream>
+/// \file   read_audio.cpp
+
+#define BOOST_THREAD_USE_LIB
 
 #include <boost/shared_ptr.hpp>
 #include <boost/timer.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <openmedia/DTMediaSplitter.h>
-#include <openmedia/DTFileInfo.h>
-#include <openmedia/DTDecoderInfo.h>
+#include <openmedia/DTCommon.h>
+#include <openmedia/DTTypes.h>
 #include <openmedia/DTError.h>
+#include <openmedia/DTMediaSplitter.h>
+#include <openmedia/DTDecoderInfo.h>
 #include <openmedia/DTAudioDecoder.h>
 #include <openmedia/DTAudioDecoderInfo.h>
-#include <openmedia/DTAudioUtils.h>
 #include <openmedia/DTStreamInfo.h>
-#include <openmedia/DTAudioConvert.h>
+#include <openmedia/DTFileInfo.h>
 #include <openmedia/DTWAVFile.h>
+#include <openmedia/DTAudioConvert.h>
+#include <openmedia/DTAudioFormat.h>
+#include <openmedia/DTAudioData.h>
+#include <openmedia/DTAudioDataTimed.h>
+#include <iostream>
 #include <vector>
 
 #ifdef _MSC_VER
 #   pragma comment(lib, "dtcommonsdk-static.lib")
 #   pragma comment(lib, "dtmediasdk-static.lib")
 
-#   pragma comment(lib, "libavformat.a")
-#   pragma comment(lib, "libavcodec.a")
-#   pragma comment(lib, "libavutil.a")
-#   pragma comment(lib, "libgcc.lib")
-#   pragma comment(lib, "libmingwex.lib") 
-#   pragma comment(lib, "libmp3lame.a") 
+#   pragma comment(lib, "avcodec.lib")
+#   pragma comment(lib, "avformat.lib")
+#   pragma comment(lib, "avutil.lib")
+#   pragma comment(lib, "swresample.lib")
+#   pragma comment(lib, "swscale.lib")
 #endif
 
 using namespace openmedia;
@@ -50,48 +56,51 @@ int main(int argc, char* argv[])
 {
     if (argc < 3)
     {
-        std::cerr << "usage: test_read_audio.exe [inputfile] [outputfile.wav]\n";
+        std::cout << "usage: " << argv[0] << " [inputfile] [outputfile.wav]\n";
         return 1;
     }
-
     try
     {
-        const char * fileName = argv[1];
-        media_splitter_ptr splitter = media_splitter_creator::create(fileName);
+        media_splitter_ptr splitter = media_splitter_creator::create(argv[1]);
 
-        unsigned int streamsCount = splitter->get_file_info()->get_streams_count();
-        int firstAudioStreamIndex = -1;
-        for (unsigned int s = 0; s < streamsCount; ++s)
+        const unsigned int strmCnt = splitter->get_file_info()->get_streams_count();
+        int audStrm = -1;
+        for (unsigned int s = 0; s < strmCnt; ++s)
         {
             stream_info_ptr streamInfo = splitter->get_stream_info(s);
-            if (firstAudioStreamIndex == -1 && openmedia::DT_AVMEDIA_TYPE_AUDIO == streamInfo->get_decoder_info()->get_codec_type())
-                firstAudioStreamIndex = s; 
+            if (audStrm == -1 && openmedia::DT_AVMEDIA_TYPE_AUDIO == streamInfo->get_decoder_info()->get_codec_type())
+                audStrm = s; 
         }
 
-        decoder_info_ptr decoderInfo = splitter->get_stream_info(firstAudioStreamIndex)->get_decoder_info();
-        audio_decoder_info * audioDecoderInfo = dynamic_cast<audio_decoder_info *>(decoderInfo.get());
-        DT_ASSERT(NULL != audioDecoderInfo);
+        decoder_info_ptr decoderInfo = splitter->get_stream_info(audStrm)->get_decoder_info();
+        audio_decoder_info * audInfo = dynamic_cast<audio_decoder_info *>(decoderInfo.get());
+        DT_ASSERT(NULL != audInfo);
 
-        audio_decoder_ptr audioDecoder = audio_decoder::create(audioDecoderInfo);
+        audio_decoder_ptr audioDecoder = audio_decoder::create(audInfo);
 
         audio_format_ptr outputAudioFormat = audio_format::create(
-            /*audioDecoderInfo->get_sample_rate()*/ 44100,
+            44100,
             DT_SAMPLE_FMT_S16,
-            audioDecoderInfo->get_channels_count(),
-            audioDecoderInfo->get_channel_layout());
+            audInfo->get_channels_count(),
+            audInfo->get_channel_layout());
+
+         audio_format_ptr inputAudioFormat = audio_format::create(
+            audInfo->get_sample_rate(),
+            audInfo->get_sample_format(),
+            audInfo->get_channels_count(),
+            audInfo->get_channel_layout());
+
 
         media_muxer_wavfile waveFile(argv[2], outputAudioFormat.get());
 
-        std::vector<uint8_t> tempBuffer;
+        std::vector<boost::uint8_t> tempBuffer;
 
-        audio_convert_ptr audioConvert = audio_convert_utils::create_sample_fmt_convert(outputAudioFormat.get());
-        audio_convert_ptr audioConvertSampleRate =
-            audio_convert_utils::create_resample_convert(outputAudioFormat.get(), 
-            audioDecoderInfo->get_sample_rate(),
-            outputAudioFormat->get_sample_rate()
+        audio_convert_ptr audioConvert = 
+            audio_convert_utils::create_resample_convert(outputAudioFormat.get(),
+            inputAudioFormat.get()
             );
 
-		uint64_t packetCount = 0;
+		boost::uint64_t packetCount = 0;
         boost::timer timerElapsed;
         for (;;)
         {
@@ -100,7 +109,7 @@ int main(int argc, char* argv[])
             if (!packet)
                 break;
 
-            if (firstAudioStreamIndex == packet->get_stream_index())
+            if (audStrm == packet->get_stream_index())
             {
 				packetCount++;
 				if (0 == packetCount % 100)
@@ -108,12 +117,10 @@ int main(int argc, char* argv[])
 
                 audio_data_ptr audioData = audioDecoder->decode(packet);
 
-                if (!!audioData && audioData->get_samples_count())
+                if (audioData && audioData->get_samples_count())
                 {
-                    audioConvertSampleRate->push_back(audioData.get());
-                    audio_data_ptr convertedData = audioConvertSampleRate->pop_front(audioConvertSampleRate->get_samples_count());
-
-                    if (!! convertedData)
+                    audioConvert->push_back(audioData.get());
+                    if (audio_data_ptr convertedData = audioConvert->pop_front(audioConvert->get_samples_count()))
                     {
                         media_packet_ptr packet = audio_data::to_packet(convertedData);
                         waveFile.write_packet(packet);
@@ -121,14 +128,17 @@ int main(int argc, char* argv[])
                 }
             }
         }
+
     }
     catch(openmedia::errors::dt_error & e)
     {
-        std::cerr << "\nDiagnostic information:\n";
+        std::cerr << "\ndiagnostic information:\n";
         std::cerr << boost::diagnostic_information(e);
     }
+    std::cout << "finish\n";
 
-    std::cout << "ok";
+    char ch;
+    std::cin >> ch;
     return 0;
 }
 

@@ -4,10 +4,9 @@
         <file alias="item-remove">image/item-remove.png</file>
         <file alias="remove">image/remove.png</file>
         <file alias="paste-url">image/paste-url.png</file>
-        <file alias="item-download">image/item-download.png</file>
+        <file alias="item-download-progress">image/item-download-progress.png</file>
         <file alias="item-error">image/item-error.png</file>
-        <file alias="item-paused">image/item-paused.png</file>
-        <file alias="item-play">image/item-play.png</file>
+        <file alias="item-download-paused">image/item-download-paused.png</file>
         <file alias="item-convert">image/item-convert.png</file>
         <file alias="remove-all">image/remove-all.png</file>
         <file alias="notification-tweet">image/notification-tweet.png</file>
@@ -31,5 +30,9 @@
         <file alias="item-facebook">image/item-facebook.png</file>
         <file alias="item-twitter">image/item-twitter.png</file>
         <file alias="facebook">image/facebook.png</file>
+        <file alias="item-done">image/item-done.png</file>
+        <file alias="item-player-pause">image/item-player-pause.png</file>
+        <file alias="item-player-play">image/item-player-play.png</file>
+        <file alias="item-player-playing">image/item-player-playing.png</file>
     </qresource>
 </RCC>

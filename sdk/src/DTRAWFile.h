@@ -23,6 +23,7 @@
 #pragma once
 #endif
 
+#include <string>
 #include <openmedia/DTMediaMuxer.h>
 
 namespace openmedia {
@@ -30,9 +31,8 @@ namespace openmedia {
 class raw_file : public media_muxer
 {
 public:
-    raw_file(const char * FileName);
-    raw_file(const wchar_t * FileName);
-
+    raw_file(const char * FileNameUtf8);
+    raw_file(const std::string& FileNameUtf8);
 };
 
 }

@@ -15,6 +15,12 @@
 
 
 #include "componentmodel/metatypes.h"
+#include "componentmodel/propertybinding.h"
+#include "componentmodel/listchangedsignalargs.h"
+#include "componentmodel/platform.h"
+#include "componentmodel/propertychangedsignalargs.h"
+#include "componentmodel/selectionchangedsignalargs.h"
+#include "componentmodel/signalargs.h"
 
 using namespace ComponentModel;
 
@@ -26,7 +32,13 @@ MetaTypeInit::MetaTypeInit()
 {
     if (initCount++ == 0)
     {
-        qRegisterMetaType< QList<QIcon> >();
+        qRegisterMetaType<ComponentModel::PropertyBinding::Mode>();
+        qRegisterMetaType<ComponentModel::ListChangedSignalArgs>();
+        qRegisterMetaType<ComponentModel::ListChangedSignalArgs::Action>();
+        qRegisterMetaType<ComponentModel::Platform::Architecture>();
+        qRegisterMetaType<ComponentModel::PropertyChangedSignalArgs>();
+        qRegisterMetaType<ComponentModel::SelectionChangedSignalArgs>();
+        qRegisterMetaType<ComponentModel::SignalArgs>();
     }
 }
 

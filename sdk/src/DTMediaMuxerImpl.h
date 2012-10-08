@@ -34,9 +34,16 @@ namespace openmedia {
 class media_muxer::Impl: public impl_base
 {
 public:
-    virtual void write_packet(media_packet_ptr _MediaPacket) = 0;
+    virtual void open() = 0;
+    virtual void write_packet(media_packet_ptr mediaPacket) = 0;
+    virtual void write_packet(media_packet_ptr mediaPacket, int stream);
     virtual void close() = 0;
 };
+
+inline void media_muxer::Impl::write_packet(media_packet_ptr mediaPacket, int stream)
+{
+    this->write_packet(mediaPacket, mediaPacket->get_stream_index());
+}
 
 } // namespace openmedia
 

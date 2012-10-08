@@ -46,6 +46,7 @@ public:
     virtual bool                is_valid() const = 0;
     virtual media_packet_ptr    duplicate() const;
     virtual dt_rational_t       get_time_base() const = 0;
+    virtual dt_rational_t       get_frame_rate() const = 0;
 };
 
 } // namespace openmedia

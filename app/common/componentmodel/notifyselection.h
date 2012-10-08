@@ -14,8 +14,8 @@
 */
 
 
-#ifndef NOTIFYSELECTION_H
-#define NOTIFYSELECTION_H
+#ifndef COMPONENTMODEL_NOTIFYSELECTION_H
+#define COMPONENTMODEL_NOTIFYSELECTION_H
 
 #include <componentmodel/notifylist.h>
 #include <componentmodel/selectionchangedsignalargs.h>
@@ -56,4 +56,4 @@ private:
 
 } // ComponentModel
 
-#endif // NOTIFYSELECTION_H
+#endif // COMPONENTMODEL_NOTIFYSELECTION_H

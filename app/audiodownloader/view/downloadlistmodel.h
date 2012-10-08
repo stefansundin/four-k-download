@@ -33,9 +33,9 @@ class DownloadListModel : public QAbstractListModel
     Q_ENUMS(Role)
 
 public:
-    enum Role { TitleRole = Qt::UserRole + 1, DurationRole, SizeRole, ProgressRole, RemainingTimeRole, StateRole };
+    enum Role { TitleRole = Qt::UserRole + 1, DurationRole, SizeRole, ProgressRole, RemainingTimeRole, PlayingTimeRole, StateRole };
 
-    Q_INVOKABLE DownloadListModel(QObject* parent = 0);
+    Q_INVOKABLE explicit DownloadListModel(QObject* parent = 0);
 
     QObject* viewModel() const;
     void setViewModel(QObject* value);

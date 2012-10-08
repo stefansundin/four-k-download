@@ -38,9 +38,9 @@
 extern "C" {
 #endif
 
-#include "libswscale/swscale.h"
-#include "libavcodec/avcodec.h"
-#include "libavcodec/audioconvert.h"
+#include <libswscale/swscale.h>
+#include <libavcodec/avcodec.h>
+#include <libswresample/swresample.h>
 
 #ifdef __cplusplus
 }
@@ -50,21 +50,6 @@ extern "C" {
 #pragma warning(pop)
 #endif
 
-//class initialize_avcodec_register_all
-//{
-//public:
-//    initialize_avcodec_register_all()
-//    {
-//        avcodec_register_all();        
-//    }
-//};
-//
-//namespace {
-//initialize_avcodec_register_all initialize_avcodec;
-//}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 #if defined(_MSC_VER)
 #pragma warning(push)
 #pragma warning(disable:4244)
@@ -73,8 +58,11 @@ extern "C" {
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "libavutil/avutil.h"
-#include "libavutil/mem.h"
+#include <libavutil/opt.h>
+#include <libavutil/avutil.h>
+#include <libavutil/mem.h>
+#include <libavutil/mathematics.h>
+#include <libavutil/rational.h>
 #ifdef __cplusplus
 }
 #endif
@@ -95,7 +83,9 @@ extern "C" {
 extern "C" {
 #endif
 
-#include "libavformat/avformat.h"
+#include <libavformat/avformat.h>
+#include <libavformat/avio.h>
+#include <libavformat/url.h>
 
 #ifdef __cplusplus
 }
@@ -104,19 +94,6 @@ extern "C" {
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
-
-//class initialize_avformat_register_all
-//{
-//public:
-//    initialize_avformat_register_all()
-//    {
-//        av_register_all();        
-//    }
-//};
-//
-//namespace {
-//initialize_avformat_register_all initialize_avformat;
-//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,12 +130,12 @@ inline PixelFormat DT2FFType(const openmedia::dt_pixel_format_t _DTPixelFormat)
     return static_cast<PixelFormat>(_DTPixelFormat);
 }
 
-inline SampleFormat DT2FFType(const openmedia::dt_sample_format_t _DTSampleFormat)
+inline AVSampleFormat DT2FFType(const openmedia::dt_sample_format_t _DTSampleFormat)
 {
-    return static_cast<SampleFormat>(_DTSampleFormat);
+    return static_cast<AVSampleFormat>(_DTSampleFormat);
 }
 
-inline openmedia::dt_sample_format_t FF2DTType(const SampleFormat _AVSampleFormat)
+inline openmedia::dt_sample_format_t FF2DTType(const AVSampleFormat _AVSampleFormat)
 {
     return static_cast<openmedia::dt_sample_format_t>(_AVSampleFormat);
 }
@@ -201,7 +178,6 @@ namespace
 #define _DTFFHHEADER_H_INCLUDED_
 
 //#define FF_API_OLD_SAMPLE_FMT (1 == 1)
-
 
 #include <boost/cstdint.hpp>
 

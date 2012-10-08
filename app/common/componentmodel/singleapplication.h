@@ -14,8 +14,8 @@
 */
 
 
-#ifndef SINGLEAPPLICATION_H
-#define SINGLEAPPLICATION_H
+#ifndef COMPONENTMODEL_SINGLEAPPLICATION_H
+#define COMPONENTMODEL_SINGLEAPPLICATION_H
 
 #include <QApplication>
 #include <QSharedMemory>
@@ -46,5 +46,5 @@ private:
 
 } // ComponentModel
 
-#endif // SINGLE_APPLICATION_H
+#endif // COMPONENTMODEL_SINGLE_APPLICATION_H
 

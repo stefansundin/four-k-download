@@ -15,13 +15,17 @@
 
 
 
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
-#include <openmedia/DTHeaders.h>
-
+#include <boost/make_shared.hpp>
 
 #include "DTFFPictureConvertImpl.h"
 #include "DTFFPicture.h"
 #include "DTFFVideoData.h"
+
+using namespace boost;
 
 namespace openmedia {
 
@@ -36,19 +40,23 @@ inline bool same_picture_format(int _NewWidth, int _NewHeight, dt_pixel_format_t
 
 } // namespace details
 
-swscale_picture_convert_impl::swscale_picture_convert_impl(int inWidth, int inHeight, dt_pixel_format_t inPixFmt,
-        int outWidth, int outHeight, dt_pixel_format_t outPixFmt,
-        int _Flags) : 
+swscale_picture_convert_impl::swscale_picture_convert_impl(int inWidth,
+                                                           int inHeight,
+                                                           dt_pixel_format_t inPixFmt,
+                                                           int outWidth,
+                                                           int outHeight,
+                                                           dt_pixel_format_t outPixFmt,
+                                                           int _Flags) : 
 outputWidth_(outWidth),
 outputHeight_(outHeight),
 outputPixelFormat_(DT2FFType(outPixFmt)),
 inputWidth_ (inWidth),
 inputHeight_(inHeight),
 inputPixelFormat_(DT2FFType(inPixFmt)),
-swsContext_ ( sws_getContext
-             (inWidth, inHeight, DT2FFType(inPixFmt), outWidth, outHeight, DT2FFType(outPixFmt), _Flags, NULL, NULL, NULL),
+swsContext_ ( sws_getContext (inWidth, inHeight, DT2FFType(inPixFmt),
+             outWidth, outHeight, DT2FFType(outPixFmt), _Flags, NULL, NULL, NULL),
              &sws_freeContext),
-outputFrame_( dt_create_picture(outPixFmt, outWidth, outHeight) )
+             outputFrame_( dt_create_picture(outPixFmt, outWidth, outHeight) )
 {
     if (!swsContext_)
     {
@@ -56,31 +64,31 @@ outputFrame_( dt_create_picture(outPixFmt, outWidth, outHeight) )
     }
 }
 
-video_data_ptr swscale_picture_convert_impl::convert(video_data_ptr _InputData)
+video_data_ptr swscale_picture_convert_impl::convert(video_data_ptr inData)
 {
     if (!swsContext_)
     {
         BOOST_THROW_EXCEPTION( errors::unexpected() );
-        return video_data_ptr();
+        DT_IF_DISABLE_EXCEPTIONS(return video_data_ptr());
     }
 
     uint8_t * data[4] = {
-        _InputData->get_plane(0),
-        _InputData->get_plane(1),
-        _InputData->get_plane(2),
-        _InputData->get_plane(3)
+        inData->get_plane(0),
+        inData->get_plane(1),
+        inData->get_plane(2),
+        inData->get_plane(3)
     };
 
     int linesize[4] = {
-        _InputData->get_line_size(0),
-        _InputData->get_line_size(1),
-        _InputData->get_line_size(2),
-        _InputData->get_line_size(3)
+        inData->get_line_size(0),
+        inData->get_line_size(1),
+        inData->get_line_size(2),
+        inData->get_line_size(3)
     };
 
-    sws_scale(swsContext_.get(), data, linesize, 0, inputHeight_, outputFrame_.get()->data, outputFrame_.get()->linesize); 
+    sws_scale(swsContext_.get(), data, linesize, 0, inputHeight_, outputFrame_.get()->data, outputFrame_.get()->linesize);
 
-    return video_data_ptr(new ff_video_data(outputFrame_, outputWidth_, outputHeight_, FF2DTType(outputPixelFormat_)));
+    return make_shared<ff_video_data>(outputFrame_, outputWidth_, outputHeight_, FF2DTType(outputPixelFormat_));
     
 }
 

@@ -1,0 +1,58 @@
+<RCC>
+    <qresource prefix="/gui/qml/desktop">
+        <file alias="qmldir">../gui/qml/desktop/qmldir</file>
+        <file alias="ApplicationWindow.qml">../gui/qml/desktop/ApplicationWindow.qml</file>
+        <file alias="Button.qml">../gui/qml/desktop/Button.qml</file>
+        <file alias="ButtonColumn.qml">../gui/qml/desktop/ButtonColumn.qml</file>
+        <file alias="ButtonRow.qml">../gui/qml/desktop/ButtonRow.qml</file>
+        <file alias="CheckBox.qml">../gui/qml/desktop/CheckBox.qml</file>
+        <file alias="ComboBox.qml">../gui/qml/desktop/ComboBox.qml</file>
+        <file alias="ContextMenu.qml">../gui/qml/desktop/ContextMenu.qml</file>
+        <file alias="Dial.qml">../gui/qml/desktop/Dial.qml</file>
+        <file alias="Dialog.qml">../gui/qml/desktop/Dialog.qml</file>
+        <file alias="Frame.qml">../gui/qml/desktop/Frame.qml</file>
+        <file alias="GroupBox.qml">../gui/qml/desktop/GroupBox.qml</file>
+        <file alias="Label.qml">../gui/qml/desktop/Label.qml</file>
+        <file alias="ProgressBar.qml">../gui/qml/desktop/ProgressBar.qml</file>
+        <file alias="RadioButton.qml">../gui/qml/desktop/RadioButton.qml</file>
+        <file alias="ScrollArea.qml">../gui/qml/desktop/ScrollArea.qml</file>
+        <file alias="ScrollBar.qml">../gui/qml/desktop/ScrollBar.qml</file>
+        <file alias="SemitransparentButton.qml">../gui/qml/desktop/SemitransparentButton.qml</file>
+        <file alias="Slider.qml">../gui/qml/desktop/Slider.qml</file>
+        <file alias="SpinBox.qml">../gui/qml/desktop/SpinBox.qml</file>
+        <file alias="SplitterColumn.qml">../gui/qml/desktop/SplitterColumn.qml</file>
+        <file alias="SplitterRow.qml">../gui/qml/desktop/SplitterRow.qml</file>
+        <file alias="StatusBar.qml">../gui/qml/desktop/StatusBar.qml</file>
+        <file alias="Tab.qml">../gui/qml/desktop/Tab.qml</file>
+        <file alias="TabBar.qml">../gui/qml/desktop/TabBar.qml</file>
+        <file alias="TabFrame.qml">../gui/qml/desktop/TabFrame.qml</file>
+        <file alias="TableColumn.qml">../gui/qml/desktop/TableColumn.qml</file>
+        <file alias="TableView.qml">../gui/qml/desktop/TableView.qml</file>
+        <file alias="TextArea.qml">../gui/qml/desktop/TextArea.qml</file>
+        <file alias="TextField.qml">../gui/qml/desktop/TextField.qml</file>
+        <file alias="ToolBar.qml">../gui/qml/desktop/ToolBar.qml</file>
+        <file alias="ToolButton.qml">../gui/qml/desktop/ToolButton.qml</file>
+    </qresource>
+    <qresource prefix="/gui/qml/desktop/private">
+        <file alias="ScrollAreaHelper.qml">../gui/qml/desktop/private/ScrollAreaHelper.qml</file>
+    </qresource>
+    <qresource prefix="/gui/qml/desktop/custom">
+        <file alias="qmldir">../gui/qml/desktop/custom/qmldir</file>
+        <file alias="ButtonGroup.js">../gui/qml/desktop/custom/ButtonGroup.js</file>
+        <file alias="BasicButton.qml">../gui/qml/desktop/custom/BasicButton.qml</file>
+        <file alias="Button.qml">../gui/qml/desktop/custom/Button.qml</file>
+        <file alias="ButtonColumn.qml">../gui/qml/desktop/custom/ButtonColumn.qml</file>
+        <file alias="ButtonRow.qml">../gui/qml/desktop/custom/ButtonRow.qml</file>
+        <file alias="CheckBox.qml">../gui/qml/desktop/custom/CheckBox.qml</file>
+        <file alias="GroupBox.qml">../gui/qml/desktop/custom/GroupBox.qml</file>
+        <file alias="ProgressBar.qml">../gui/qml/desktop/custom/ProgressBar.qml</file>
+        <file alias="Slider.qml">../gui/qml/desktop/custom/Slider.qml</file>
+        <file alias="SpinBox.qml">../gui/qml/desktop/custom/SpinBox.qml</file>
+        <file alias="Splitter.qml">../gui/qml/desktop/custom/Splitter.qml</file>
+        <file alias="TextField.qml">../gui/qml/desktop/custom/TextField.qml</file>
+    </qresource>
+    <qresource prefix="/gui/qml/desktop/custom/behaviors">
+        <file alias="ButtonBehavior.qml">../gui/qml/desktop/custom/behaviors/ButtonBehavior.qml</file>
+        <file alias="ModalPopupBehavior.qml">../gui/qml/desktop/custom/behaviors/ModalPopupBehavior.qml</file>
+    </qresource>
+</RCC>

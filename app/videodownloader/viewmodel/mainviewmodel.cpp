@@ -29,7 +29,6 @@
 
 using namespace ViewModel;
 using namespace Mvvm;
-using namespace Bindings;
 using namespace ComponentModel;
 using namespace openmedia;
 
@@ -63,7 +62,7 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
 
     m_informationAction.setEnabled(true);
     m_informationAction.setText(tr("Help"));
-    m_informationAction.setToolTip(tr("Open online help"));
+    m_informationAction.setToolTip(tr("Show online help"));
     m_informationAction.setIcon(QIcon(":/image/help"));
     QObject::connect(&m_informationAction, SIGNAL(triggered()), this, SLOT(showInformation()));
 
@@ -76,7 +75,7 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
 
     m_clearAction.setEnabled(false);
     m_clearAction.setText(tr("Remove all"));
-    m_clearAction.setToolTip(tr("Remove all downloads form list"));
+    m_clearAction.setToolTip(tr("Remove all downloads from list"));
     QObject::connect(&m_clearAction, SIGNAL(triggered()), this, SLOT(clearItems()));
 
     m_pauseAllAction.setEnabled(false);
@@ -90,8 +89,8 @@ MainViewModel::MainViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
     QObject::connect(&m_resumeAllAction, SIGNAL(triggered()), this, SLOT(resumeItems()));
 
     m_facebookAction.setEnabled(true);
-    m_facebookAction.setText(tr("Facebook"));
-    m_facebookAction.setToolTip(tr("Open 4kdownload Facebook page"));
+    m_facebookAction.setText(tr("Like"));
+    m_facebookAction.setToolTip(tr("Show 4K Download Facebook page"));
     m_facebookAction.setIcon(QIcon(":/image/facebook"));
     QObject::connect(&m_facebookAction, SIGNAL(triggered()), this, SLOT(openFacebook()));
 
@@ -121,23 +120,20 @@ void MainViewModel::save()
     QSettings settings;
     QString filename = settings.value("Download/downloadedItems").toString();
 
-    if (filename.isEmpty())
-    {
-        QDir directory(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-        QDir().mkpath(directory.absolutePath());
-        filename = FileSystem::generateFileName(".xml");
-        filename = directory.filePath(filename);
-    }
-
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::WriteOnly))
-        return;
-
-
     try
     {
+        if (filename.isEmpty())
+        {
+            QDir directory(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+            QDir().mkpath(directory.absolutePath());
+            filename = FileSystem::generateFileName(".xml");
+            filename = directory.filePath(filename);
+        }
+
+        QFile file(filename);
+        if (!file.open(QIODevice::WriteOnly))
+            return;
+
         QDomDocument doc;
         QDomElement root = doc.createElement("Items");
         doc.appendChild(root);
@@ -163,9 +159,6 @@ void MainViewModel::save()
     catch(...)
     {
     }
-
-
-    file.close();
 }
 
 
@@ -174,18 +167,15 @@ void MainViewModel::restore()
     QSettings settings;
     QString filename = settings.value("Download/downloadedItems").toString();
 
-    if (filename.isEmpty())
-        return;
-
-
-    QFile file(filename);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return;
-
-
     try
     {
+        if (filename.isEmpty())
+            return;
+
+        QFile file(filename);
+        if (!file.open(QIODevice::ReadOnly))
+            return;
+
         QDomDocument doc;
         if (!doc.setContent(&file))
             return;
@@ -206,9 +196,6 @@ void MainViewModel::restore()
     catch(...)
     {
     }
-
-
-    file.close();
 }
 
 
@@ -302,6 +289,27 @@ bool MainViewModel::canClose()
 }
 
 
+void MainViewModel::showMessage(QString message) const
+{
+    QList<Mvvm::Dialog::MessageButton> buttons;
+    buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+    m_dialog.data()->showMessageDialog(message, QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+}
+
+
+void MainViewModel::showUpdate(QString message, bool& needUpdate) const
+{
+    QList<Mvvm::Dialog::MessageButton> buttons;
+    buttons << Mvvm::Dialog::MessageButton(tr("Open Site"), QMessageBox::AcceptRole);
+    buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+    int result = m_dialog.data()->showMessageDialog(message, QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+
+    needUpdate = (result == 0);
+}
+
+
 void MainViewModel::paste()
 {
     QClipboard* clipboard = QApplication::clipboard();
@@ -311,38 +319,33 @@ void MainViewModel::paste()
     {
         // Validate url
 
-        if (url.isEmpty())
-        {
-            QList<Mvvm::Dialog::MessageButton> buttons;
-            buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
-
-            m_dialog.data()->showMessageDialog(tr("Copy video link from your browser address bar and then click \"Paste URL\" here."),
-                                               QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
-            return;
-        }
-
         downloader::media_site_type_t type = downloader::media_site_utils::validate_url(url.toStdString());
 
-        if (type == downloader::mediaSiteUnknown)
+        switch (type)
         {
-            QList<Mvvm::Dialog::MessageButton> buttons;
-            buttons << Mvvm::Dialog::MessageButton(tr("Post"), QMessageBox::AcceptRole);
-            buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
-
-            int result = m_dialog.data()->showMessageDialog(tr("Sorry this site is unsupported. Please post a request to add this site in supported list."),
-                                               QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
-
-            if (result == 0)
+        case downloader::mediaSiteNull:
             {
-                QSettings settings;
-                QString mail(settings.value("mailSupport").toString() + "?subject=Site unsupported&body=%1");
-                QString web = settings.value("web").toString();
+                QList<Mvvm::Dialog::MessageButton> buttons;
+                buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
 
-                if (!QDesktopServices::openUrl(QUrl(mail.arg(url))))
-                    QDesktopServices::openUrl(QUrl(web));
+                m_dialog.data()->showMessageDialog(tr("Copy video link from your browser address bar and then click \"Paste URL\" here."),
+                                               QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
             }
-
             return;
+
+        case downloader::mediaSiteUnknown:
+            {
+                QList<Mvvm::Dialog::MessageButton> buttons;
+                buttons << Mvvm::Dialog::MessageButton(tr("Post"), QMessageBox::AcceptRole);
+                buttons << Mvvm::Dialog::MessageButton(tr("Close"), QMessageBox::RejectRole);
+
+                int result = m_dialog.data()->showMessageDialog(tr("Sorry this site is unsupported. Please post a request to add this site in supported list."),
+                                                   QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
+            }
+            return;
+
+        default:
+            break;
         }
 
         // Check playlist
@@ -376,9 +379,9 @@ void MainViewModel::paste()
                              this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
             QObject::connect(item.data(), SIGNAL(parsed(ViewModel::MediaDownloadList)),
                              this, SLOT(itemParsed(ViewModel::MediaDownloadList)));
+            QObject::connect(item.data(), SIGNAL(downloadCompleted()),
+                             this, SLOT(onItemDownloadCompleted()));
             m_list.insert(0, item);
-
-            // Analytics in DownloadItemViewModel
         }
         else
         {
@@ -393,6 +396,8 @@ void MainViewModel::paste()
                     QSharedPointer<DownloadItemViewModel> item(new DownloadItemViewModel(m_dialog.data(), downloadList[i]));
                     QObject::connect(item.data(), SIGNAL(propertyChanged(ComponentModel::PropertyChangedSignalArgs)),
                                      this, SLOT(propertyChanged(ComponentModel::PropertyChangedSignalArgs)));
+                    QObject::connect(item.data(), SIGNAL(downloadCompleted()),
+                                     this, SLOT(onItemDownloadCompleted()));
                     m_list.insert(i, item);
                 }
             }
@@ -406,16 +411,6 @@ void MainViewModel::paste()
 
                 int result = m_dialog.data()->showMessageDialog(tr("Can't parse link. Please post it to our support and we'll check it."),
                                                                 QMessageBox::Information, QCoreApplication::applicationName(), buttons, 0);
-
-                if (result == 0)
-                {
-                    QSettings settings;
-                    QString mail(settings.value("mailSupport").toString() + "?subject=Link parsing failed&body=%1");
-                    QString web = settings.value("web").toString();
-
-                    if (!QDesktopServices::openUrl(QUrl(mail.arg(url))))
-                        QDesktopServices::openUrl(QUrl(web));
-                }
             }
         }
     }
@@ -559,20 +554,6 @@ void MainViewModel::updateSmartMode()
 
 void MainViewModel::propertyChanged(const ComponentModel::PropertyChangedSignalArgs& args)
 {
-    for (int i = 0; i < m_list.count(); ++i)
-    {
-        switch (m_list.at(i).staticCast<DownloadItemViewModel>()->state())
-        {
-        case DownloadItemViewModel::Download:
-        case DownloadItemViewModel::Convert:
-            return;
-
-        default:
-            break;
-        }
-    }
-
-    emit downloadComplited(SignalArgs(this));
 }
 
 
@@ -603,6 +584,27 @@ void MainViewModel::itemParsed(ViewModel::MediaDownloadList downloadList)
 }
 
 
+void MainViewModel::onItemDownloadCompleted()
+{
+    save();
+
+    for (int i = 0; i < m_list.count(); ++i)
+    {
+        switch (m_list.at(i).staticCast<DownloadItemViewModel>()->state())
+        {
+        case DownloadItemViewModel::Download:
+        case DownloadItemViewModel::Convert:
+            return;
+
+        default:
+            break;
+        }
+    }
+
+    emit downloadCompleted();
+}
+
+
 void MainViewModel::updatePasteAction()
 {
     QString image = ":/image/paste-url";
@@ -628,10 +630,6 @@ void MainViewModel::updatePasteAction()
             image = ":/image/paste-facebook";
             break;
 
-        case downloader::mediaSiteMegavideo:
-            image = ":/image/paste-megavideo";
-            break;
-
         case downloader::mediaSiteVimeo:
             image = ":/image/paste-vimeo";
             break;
@@ -652,3 +650,4 @@ void MainViewModel::updatePasteAction()
 
     m_pasteAction.setIcon(QIcon(image));
 }
+

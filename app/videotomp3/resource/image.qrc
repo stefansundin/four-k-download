@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/image">
+        <file alias="application-icon">application/icon.ico</file>
+        <file alias="facebook">image/facebook.png</file>
+        <file alias="help">image/help.png</file>
+        <file alias="add">image/plus.png</file>
+        <file alias="remove">image/remove.png</file>
+        <file alias="remove-all">image/remove-all.png</file>
+        <file alias="progress">image/progress.gif</file>
+        <file alias="item-convert">image/item-convert.png</file>
+        <file alias="item-done">image/item-done.png</file>
+        <file alias="item-error">image/item-error.png</file>
+        <file alias="item-playing">image/item-playing.png</file>
+        <file alias="item-remove">image/item-remove.png</file>
+        <file alias="item-time">image/item-time.png</file>
+        <file alias="change-folder">image/change-folder.png</file>
+        <file alias="item-pause">image/item-pause.png</file>
+        <file alias="item-logo-pause">image/item-logo-pause.png</file>
+        <file alias="item-logo-play">image/item-logo-play.png</file>
+    </qresource>
+</RCC>

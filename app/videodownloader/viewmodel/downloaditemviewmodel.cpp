@@ -16,11 +16,9 @@
 
 #include "viewmodel/downloaditemviewmodel.h"
 #include "componentmodel/transform.h"
-#include "gui/thumbnail.h"
+#include "gui/cxx/thumbnail.h"
 #include "viewmodel/mediadownload.h"
 #include "componentmodel/filesystem.h"
-#include "social/facebook.h"
-#include "social/twitter.h"
 #include <QFileInfo>
 #include <QApplication>
 #include <QPointer>
@@ -32,25 +30,23 @@
 
 #if defined(Q_OS_WIN)
 #include <windows.h>
-#include <Shellapi.h>
 #endif
 
 using namespace ViewModel;
 using namespace ComponentModel;
 using namespace Mvvm;
 using namespace Gui;
-using namespace Social;
 using namespace openmedia;
 
+
+namespace
+{
 
 const QEvent::Type DownloadStateEventType = QEvent::Type(QEvent::User + 1);
 const QEvent::Type DownloadProgressEventType = QEvent::Type(QEvent::User + 2);
 const QEvent::Type ConvertStateEventType = QEvent::Type(QEvent::User + 3);
 
-namespace
-{
-    QMutex mutex;
-}
+QMutex mutex;
 
 
 class DownloadStateEvent : public QEvent
@@ -173,6 +169,8 @@ public:
 private:
     QPointer<QObject> m_item;
 };
+
+} // Anonimous
 
 
 DownloadItemViewModel::DownloadItemViewModel(const Mvvm::Dialog* dialog, QObject* parent) :
@@ -366,7 +364,7 @@ void DownloadItemViewModel::initialize(ViewModel::MediaDownloadItem item)
 
     try
     {
-        m_resultFileName = item.fileName();
+        m_resultFileName = item.mediaFileName();
 
         QFile file(m_resultFileName);
         if (file.open(QIODevice::WriteOnly))
@@ -385,8 +383,7 @@ void DownloadItemViewModel::initialize(ViewModel::MediaDownloadItem item)
         QFileInfo info(m_resultFileName);
         QString filename = FileSystem::generateFileName();
         m_downloadFileName = info.dir().absoluteFilePath(filename);
-    }
-
+    }    
 
     m_size = qint64(item.media().content_size());
     m_duration = qint32(item.mediaList()->duration());
@@ -399,6 +396,9 @@ void DownloadItemViewModel::initialize(ViewModel::MediaDownloadItem item)
     m_progressMetrics.reset(new ComponentModel::Progress(0, m_size, 2000, 100000));
     QObject::connect(m_progressMetrics.data(), SIGNAL(remainingTimeChanged(ComponentModel::PropertyChangedSignalArgs)),
                      this, SLOT(doRemainingTimeChanged(ComponentModel::PropertyChangedSignalArgs)));
+
+    if (item.subtitlesIndex() != -1)
+        item.mediaList()->subtitle_save(item.subtitlesIndex(), std::string(item.subtitlesFileName().toUtf8().data()));
 
 
     emitPropertyChanged("title", QVariant::fromValue(title()));
@@ -439,7 +439,6 @@ bool DownloadItemViewModel::deserialize(const QDomDocument& doc, const QDomEleme
 
     setThumbnail(Transform::base64ToPixmap(element.attribute("thumbnail")));
 
-
     setState(DownloadItemViewModel::Done);
 
     return true;
@@ -477,6 +476,9 @@ QString DownloadItemViewModel::size() const
 
 QString DownloadItemViewModel::duration() const
 {
+    if (m_duration == 0)
+        return QString();
+
     return Transform::timeToString(m_duration, "H:mm:ss");
 }
 
@@ -726,17 +728,7 @@ void DownloadItemViewModel::showInFolder()
     if (m_state != Done)
         return;
 
-    QFileInfo info = QFileInfo(m_resultFileName);
-
-#if defined(Q_OS_WIN)
-    QString url = info.canonicalFilePath();
-    url.replace("/", "\\");
-    url = "/select, \"" + url + "\"";
-    ShellExecute(NULL, L"open", L"explorer.exe", (WCHAR*)url.utf16(), NULL, 5);
-#else
-    QString url = info.canonicalPath();
-    QDesktopServices::openUrl(QUrl("file:///"+url));
-#endif
+    FileSystem::showFile(m_resultFileName);
 }
 
 
@@ -745,9 +737,7 @@ void DownloadItemViewModel::play()
     if (m_state != Done)
         return;
 
-    QFileInfo info = QFileInfo(m_resultFileName);
-    QString url = info.canonicalFilePath();
-    QDesktopServices::openUrl(QUrl("file:///"+url));
+    FileSystem::openFile(m_resultFileName);
 }
 
 
@@ -760,20 +750,11 @@ void DownloadItemViewModel::copyUrl()
 
 void DownloadItemViewModel::shareOnFacebook()
 {
-    QSettings settings;
-    QString socialUrl = settings.value("socialUrl").toString();
-
-    Facebook::shareLink(m_url, tr("I like this video! Download it with %1").arg(socialUrl));
 }
 
 
 void DownloadItemViewModel::shareOnTwitter()
 {
-    QSettings settings;
-    QString socialReferrer = settings.value("socialReferrer").toString();
-    QString socialVia = settings.value("socialVia").toString();
-
-    Twitter::shareLink(m_url, tr("I like this video!"), socialReferrer, socialVia);
 }
 
 
@@ -801,12 +782,19 @@ bool DownloadItemViewModel::event(QEvent* e)
                 {
                     if (m_media == DownloadItemViewModel::Audio)
                     {
-                        audio::video2mp3::convert(m_downloadFileName.toStdWString(), m_resultFileName.toStdWString(), title().toStdWString(), ConvertStateFunctor(this));
+                        audio::video2mp3::convert(
+                        std::string(m_downloadFileName.toUtf8().constData()),
+                        std::string(m_resultFileName.toUtf8().constData()),
+                        title().toStdWString(),
+                        ConvertStateFunctor(this),
+                        false);
+                        
                         setState(DownloadItemViewModel::Convert);
                     }
                     else
                     {
                         setState(DownloadItemViewModel::Done);
+                        emit downloadCompleted();
                     }
                 }
                 break;
@@ -843,7 +831,10 @@ bool DownloadItemViewModel::event(QEvent* e)
             case audio::video2mp3::stateFinish:
                 setState(DownloadItemViewModel::Done);
 
+                emit downloadCompleted();
+
                 QFile::remove(m_downloadFileName);
+                m_downloadFileName.clear();
                 break;
 
             default:

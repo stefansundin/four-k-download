@@ -31,9 +31,8 @@ namespace openmedia {
 class swscale_picture_convert : public picture_convert
 {
 public:
-swscale_picture_convert(int _InputWidth, int _InputHeight, dt_pixel_format_t _InputPixelFormat,
-        int _OutputWidth, int _OutputHeight, dt_pixel_format_t _OutputPixelFormat,
-        int _Flags);
+swscale_picture_convert(int inWidth, int inHeight, dt_pixel_format_t inPixFormat,
+        int outWidth, int outHeight, dt_pixel_format_t outPixelFormat, int flags);
 
 };
 

@@ -14,13 +14,18 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAVMediaSplitter.cpp
 
 #include <string>
 #include <iostream>
 #include <vector>
+
+#include <boost/make_shared.hpp>
 
 #define DT_FF_NEED_AVFORMAT
 #include "DTFFHeader.h"
@@ -40,6 +45,9 @@
 //#include "DTFFMetadata.h"
 #include "DTFFStreamInfo.h"
 #include "DTFFFileInfo.h"
+
+using namespace boost;
+using namespace std;
 
 namespace openmedia { namespace details {
 
@@ -70,16 +78,15 @@ public:
 
 AVFormatContextPtr dt_av_open_input_file(const char * _Filename,
                                          AVInputFormat * _InputFormat,
-                                         int _BufferSize,
-                                         AVFormatParameters * _FormatParameters)
+                                         AVDictionary ** _Options)
 {
     AVFormatContext * inputFormatContext = NULL;
-    int dt_err = av_open_input_file(&inputFormatContext, _Filename, _InputFormat, _BufferSize, _FormatParameters);
+    int dt_err = avformat_open_input(&inputFormatContext, _Filename, _InputFormat, _Options);
     FF_CHECK_ERR(dt_err);
     if (FF_ERR(dt_err))
     {
         DT_THROW_AVERROR(media_splitter::error(), dt_err, "av_open_input_file");
-        return AVFormatContextPtr((AVFormatContext*)NULL);
+        DT_IF_DISABLE_EXCEPTIONS(return AVFormatContextPtr());
     }
 
     return AVFormatContextPtr(inputFormatContext, _AVFormatContextDestruct());
@@ -99,21 +106,22 @@ void dt_av_find_stream_info(AVFormatContext * _AVFormatContext)
 
 AVPacketPtr dt_av_create_packet()
 {
-    AVPacket * packet = (AVPacket *)::av_malloc(sizeof(AVPacket));
-    if (NULL == packet)
+    if (AVPacket * packet = (AVPacket *)::av_malloc(sizeof(AVPacket)))
+    {
+        av_init_packet(packet);
+        return AVPacketPtr(packet, details::_AVPacketDestruct());
+    }
+    else
     {
         BOOST_THROW_EXCEPTION(errors::bad_alloc());        
-    }
-    
-    av_init_packet(packet);
-
-    return AVPacketPtr(packet, details::_AVPacketDestruct());
+        DT_IF_DISABLE_EXCEPTIONS(return AVPacketPtr());
+    }    
 }
 
 AVPacketPtr dt_av_read_frame(AVFormatContext * _FormatContext, bool & _Eof)
 {
-    DT_ASSERT(NULL != _FormatContext);
-    if (NULL == _FormatContext)
+    DT_ASSERT(!!_FormatContext);
+    if (!_FormatContext)
         BOOST_THROW_EXCEPTION(errors::invalid_operation());
     
     _Eof = false;
@@ -131,6 +139,9 @@ AVPacketPtr dt_av_read_frame(AVFormatContext * _FormatContext, bool & _Eof)
 
     if (dt_err >= 0)
     {
+        // creates a duplicate of the packet in the case when the destructor is not defined
+        // or set as av_destruct_packet_nofree
+        // see ffplay.c
         dt_err = av_dup_packet(packet.get());
         FF_CHECK_ERR(dt_err);
         return packet;
@@ -140,20 +151,20 @@ AVPacketPtr dt_av_read_frame(AVFormatContext * _FormatContext, bool & _Eof)
         if (AVERROR_EOF != dt_err && AVERROR(EIO) != dt_err)
         {
             DT_THROW_AVERROR(media_splitter::error(), dt_err, "av_read_frame");
-            return packet;
+            DT_IF_DISABLE_EXCEPTIONS(return packet);
         } 
         else
         {
             _Eof = true;
-            return AVPacketPtr((AVPacket*)NULL);        
+            return AVPacketPtr();        
         }
     }
 }
 
 void dt_av_seek_frame(AVFormatContext * _FormatContext, int _StreamIndex, dt_ts_t _Pos, int _Flags)
 {
-    DT_ASSERT(NULL != _FormatContext);
-    if (NULL == _FormatContext)
+    DT_ASSERT(!!_FormatContext);
+    if (!_FormatContext)
         BOOST_THROW_EXCEPTION(errors::invalid_operation());
 
     int dt_err = av_seek_frame(_FormatContext, _StreamIndex, _Pos, _Flags);
@@ -173,9 +184,6 @@ class av_media_splitter_impl: public media_splitter::Impl
 {
 public:
     av_media_splitter_impl(const char * _Filename);
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    av_media_splitter_impl(const wchar_t * _Filename);
-#endif
     av_media_splitter_impl(AVFormatContextPtr _AVFormatcontext);
     virtual ~av_media_splitter_impl();
 
@@ -187,8 +195,9 @@ public:
     virtual bool                        is_eof() const;
 
 private:
-    static void set_streams_type_and_base(std::vector<dt_media_type_t> & _TypeVector,
-        std::vector<dt_rational_t> & _TimeBaseVector,
+    static void set_streams_type_and_base(vector<dt_media_type_t> & _TypeVector,
+        vector<dt_rational_t> & _TimeBaseVector,
+        vector<dt_rational_t> & _FrameRateVector,
         const AVFormatContext * _FormatContext);
 
     void av_media_splitter_impl_do(const char * Filename);
@@ -197,32 +206,37 @@ private:
     AVFormatContextPtr      m_FormatContextPtr;
     file_info_general_ptr   m_FileInfoGeneral;
     bool                    m_Eof;
-    std::vector<dt_media_type_t> m_MediaTypes;
-    std::vector<dt_rational_t> m_TimeBases;
+    vector<dt_media_type_t> m_MediaTypes;
+    vector<dt_rational_t> m_TimeBases;
+    vector<dt_rational_t> m_FrameRates;
 };
 
 // av_media_splitter_impl impl
 
-void av_media_splitter_impl::set_streams_type_and_base(std::vector<dt_media_type_t> & _TypeVector,
-        std::vector<dt_rational_t> & _TimeBaseVector,
+void av_media_splitter_impl::set_streams_type_and_base(vector<dt_media_type_t> & _TypeVector,
+        vector<dt_rational_t> & _TimeBaseVector,
+        vector<dt_rational_t> & _FrameRateVector,
         const AVFormatContext * _FormatContext)
 {
     _TypeVector.resize(0);
     _TimeBaseVector.resize(0);
+    _FrameRateVector.resize(0);
     if (!_FormatContext)
         return;
 
     const unsigned int streamsCount = _FormatContext->nb_streams;
-    _TypeVector.resize( streamsCount );
-    _TimeBaseVector.resize(  streamsCount );
+    _TypeVector.resize(streamsCount);
+    _TimeBaseVector.resize(streamsCount);
+    _FrameRateVector.resize(streamsCount);
     for (size_t s = 0; s < streamsCount; ++s )
     {
         if (AVStream * stream = _FormatContext->streams[s])
         {
-            _TimeBaseVector[s] = FF2DTType( stream->time_base );
+            _TimeBaseVector[s] = FF2DTType(stream->time_base);
+            _FrameRateVector[s] = FF2DTType(stream->r_frame_rate);
             if (AVCodecContext * codec = stream->codec)
             {
-                _TypeVector[s] = FF2DTType( codec->codec_type );
+                _TypeVector[s] = FF2DTType(codec->codec_type);
             }
         }                
     }
@@ -230,40 +244,25 @@ void av_media_splitter_impl::set_streams_type_and_base(std::vector<dt_media_type
 
 av_media_splitter_impl::av_media_splitter_impl(const char * _Filename) : m_Eof(true)
 {
-    std::string fileName;
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    std::string ansiName = _Filename;
-    fileName = ansi_to_utf8(ansiName);
-#else
-    fileName = _Filename;
-#endif
-    av_media_splitter_impl_do( fileName.c_str() );
+    av_media_splitter_impl_do( _Filename );
 }
 
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-av_media_splitter_impl::av_media_splitter_impl(const wchar_t * _Filename) : m_Eof(true)
-{
-    std::wstring unt16Name = _Filename;
-    std::string fileName = utf16_to_utf8(unt16Name);
-    av_media_splitter_impl_do( fileName.c_str() );
-}
-#endif
 
 void av_media_splitter_impl::av_media_splitter_impl_do(const char * Filename)
 {
-    AVFormatContextPtr formatContextPtr = details::dt_av_open_input_file(Filename, NULL, 0, NULL);
+    AVFormatContextPtr formatContextPtr = details::dt_av_open_input_file(Filename, NULL, NULL);
     details::dt_av_find_stream_info(formatContextPtr.get());
-    m_FileInfoGeneral = file_info_general_ptr( new ff_file_info_general(formatContextPtr.get()) );
+    m_FileInfoGeneral = make_shared<ff_file_info_general>(formatContextPtr.get());
     
-    set_streams_type_and_base(m_MediaTypes, m_TimeBases, formatContextPtr.get());
+    set_streams_type_and_base(m_MediaTypes, m_TimeBases, m_FrameRates, formatContextPtr.get());
     m_FormatContextPtr = formatContextPtr;
     m_Eof = false;
 }
 
 av_media_splitter_impl::av_media_splitter_impl(AVFormatContextPtr _AVFormatcontext)
 {
-    m_FileInfoGeneral = file_info_general_ptr( new ff_file_info_general(_AVFormatcontext.get()) );
-    set_streams_type_and_base(m_MediaTypes, m_TimeBases, _AVFormatcontext.get());
+    m_FileInfoGeneral = make_shared<ff_file_info_general>(_AVFormatcontext.get());
+    set_streams_type_and_base(m_MediaTypes, m_TimeBases, m_FrameRates, _AVFormatcontext.get());
     m_FormatContextPtr = _AVFormatcontext;
 }
 
@@ -281,16 +280,19 @@ media_packet_ptr av_media_splitter_impl::read_packet()
     {
         dt_media_type_t mediaType = DT_AVMEDIA_TYPE_UNKNOWN;
         dt_rational_t timeBase = dt_rational_t();
+        dt_rational_t frameRate = dt_rational_t();
         if (avPacketPtr.get())
         {
-            mediaType = m_MediaTypes[ avPacketPtr->stream_index ];
-            timeBase = m_TimeBases[ avPacketPtr->stream_index ];
+            const int index = avPacketPtr->stream_index;
+            mediaType = m_MediaTypes[index];
+            timeBase = m_TimeBases[index];
+            frameRate = m_FrameRates[index];
         }
-        return media_packet_ptr(new ff_media_packet(avPacketPtr, mediaType, timeBase));
+        return make_shared<ff_media_packet>(avPacketPtr, mediaType, timeBase, frameRate);
     }
     else
     {
-        return media_packet_ptr((media_packet*)NULL);
+        return media_packet_ptr();
     }
 };
 
@@ -305,17 +307,17 @@ stream_info_ptr av_media_splitter_impl::get_stream_info(unsigned int _StreamInde
     {
         DT_ASSERT(false);
         BOOST_THROW_EXCEPTION(errors::invalid_operation());
-        return stream_info_ptr((stream_info *)NULL);
+        DT_IF_DISABLE_EXCEPTIONS(return stream_info_ptr());
     }
 
     if (_StreamIndex >= m_FormatContextPtr->nb_streams)
     {
         DT_ASSERT(false);
         BOOST_THROW_EXCEPTION(errors::invalid_argument());
-        return stream_info_ptr((stream_info *)NULL);
+        DT_IF_DISABLE_EXCEPTIONS(return stream_info_ptr());
     }
 
-    return ff_stream_info::create(m_FormatContextPtr->streams[_StreamIndex]);
+    return ff_stream_info::create(m_FormatContextPtr.get(), m_FormatContextPtr->streams[_StreamIndex]);
 }
 
 bool av_media_splitter_impl::is_eof() const
@@ -333,13 +335,6 @@ ff_media_splitter::ff_media_splitter(const char * _Filename) :
         media_splitter(new av_media_splitter_impl(_Filename))
 {
 }
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)        
-ff_media_splitter::ff_media_splitter(const wchar_t * _Filename) :
-        media_splitter(new av_media_splitter_impl(_Filename))
-{
-}
-#endif
 
 ff_media_splitter::ff_media_splitter(AVFormatContextPtr _Formatcontext) :
         media_splitter(new av_media_splitter_impl(_Formatcontext))

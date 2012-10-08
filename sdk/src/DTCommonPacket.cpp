@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTCommonPacket.h
 
@@ -55,6 +55,7 @@ public:
     virtual dt_media_type_t     get_media_type() const;
     virtual bool                is_valid() const;
     virtual dt_rational_t       get_time_base() const;
+    virtual dt_rational_t       get_frame_rate() const;
 
 private:
     dt_ts_t         m_pts;
@@ -68,6 +69,7 @@ private:
     dt_media_type_t m_media_type;
     bool            m_is_valid;
     dt_rational_t   m_time_base;
+    dt_rational_t   m_frame_rate;
 };
 
 namespace {
@@ -133,6 +135,7 @@ common_media_packet_impl<MediaPacketClass>::common_media_packet_impl(const Media
     m_media_type    = _MediaPacket->get_media_type();
     m_is_valid      = _MediaPacket->is_valid();
     m_time_base     = _MediaPacket->get_time_base();
+    m_frame_rate    = _MediaPacket->get_frame_rate();
 }
 
 template <class MediaPacketClass>
@@ -206,6 +209,12 @@ template <class MediaPacketClass>
 inline dt_rational_t common_media_packet_impl<MediaPacketClass>::get_time_base() const
 {
     return m_time_base;
+}
+
+template <class MediaPacketClass>
+inline dt_rational_t common_media_packet_impl<MediaPacketClass>::get_frame_rate() const
+{
+    return m_frame_rate;
 }
 
 ///

@@ -20,7 +20,7 @@
 #include <QObject>
 #include <QList>
 #include <QAction>
-#include "mvvm/dialog.h"
+#include "mvvm/cxx/dialog.h"
 #include "componentmodel/notifyobject.h"
 #include "viewmodel/mediaitemviewmodel.h"
 #include "viewmodel/mediadetailsviewmodel.h"
@@ -35,6 +35,10 @@ class DownloadSettingsViewModel : public ComponentModel::NotifyObject
     Q_PROPERTY(QList< QSharedPointer<ViewModel::MediaItemViewModel> > mediaList READ mediaList)
     Q_PROPERTY(QList< QSharedPointer<ViewModel::MediaDetailsViewModel> > detailsList READ detailsList)
     Q_PROPERTY(int detailsIndex READ detailsIndex WRITE setDetailsIndex)
+    Q_PROPERTY(QStringList subtitlesList READ subtitlesList)
+    Q_PROPERTY(int subtitlesIndex READ subtitlesIndex WRITE setSubtitlesIndex)
+    Q_PROPERTY(bool subtitlesDownload READ isSubtitlesDownload WRITE setSubtitlesDownload)
+    Q_PROPERTY(bool subtitlesEnabled READ isSubtitlesEnabled)
     Q_PROPERTY(QString outputPath READ outputPath WRITE setOutputPath)
     Q_PROPERTY(QAction* outputPathAction READ outputPathAction)
     Q_PROPERTY(QAction* checkAllAction READ checkAllAction)
@@ -52,6 +56,12 @@ public:
     QList< QSharedPointer<ViewModel::MediaDetailsViewModel> > detailsList() const;
     int detailsIndex() const;
     void setDetailsIndex(int value);
+    QStringList subtitlesList() const;
+    int subtitlesIndex() const;
+    void setSubtitlesIndex(int value);
+    bool isSubtitlesDownload() const;
+    void setSubtitlesDownload(bool value);
+    bool isSubtitlesEnabled() const;
     QString outputPath() const;
     void setOutputPath(QString value);
     QAction* outputPathAction();
@@ -60,6 +70,7 @@ public:
     State state() const;
 
     MediaDownloadList downloadList() const;
+    void saveSubtitles() const;
 
     Q_INVOKABLE bool canClose();
 
@@ -85,7 +96,10 @@ private:
     QList< QSharedPointer<ViewModel::MediaItemViewModel> > m_mediaList;
     QList< QSharedPointer<ViewModel::MediaDetailsViewModel> > m_detailsList;
     int m_detailsIndex;
-    bool m_isSmartMode;
+    QStringList m_subtitlesList;
+    int m_subtitlesIndex;
+    bool m_subtitlesDownload;
+    bool m_smartMode;
     QString m_outputDirName;
     QString m_outputFileName;
     QAction m_outputPathAction;

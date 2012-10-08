@@ -15,22 +15,24 @@
 
 
 
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
-#include <openmedia/DTHeaders.h>
-
-
+#include <boost/make_shared.hpp>
 #include <openmedia/DTPictureConvert.h>
 #include "./ffmpeg/DTFFPictureConvert.h"
 
+using namespace boost;
+
 namespace openmedia {
 
-picture_convert_ptr picture_convert_creator::create(int _InputWidth, int _InputHeight, dt_pixel_format_t _InputPixelFormat,
-        int _OutputWidth, int _OutputHeight, dt_pixel_format_t _OutputPixelFormat,
-        int _Flags)
+picture_convert_ptr picture_convert_creator::create(int inWidth, int inHeight, dt_pixel_format_t inPixFormat,
+        int outWidth, int outHeight, dt_pixel_format_t outPixelFormat, int flags)
 {
-    return picture_convert_ptr( new swscale_picture_convert(_InputWidth, _InputHeight, _InputPixelFormat,
-        _OutputWidth, _OutputHeight, _OutputPixelFormat,
-        _Flags) );
+    return make_shared<swscale_picture_convert>(inWidth, inHeight, inPixFormat,
+        outWidth, outHeight, outPixelFormat,
+        flags);
 }
 
 } // namespace openmedia

@@ -69,9 +69,8 @@ private:
 class _OPENMEDIASDK_API picture_convert_creator
 {
 public:
-    static picture_convert_ptr create(int _InputWidth, int _InputHeight, dt_pixel_format_t _InputPixelFormat,
-        int _OutputWidth, int _OutputHeight, dt_pixel_format_t _OutputPixelFormat,
-        int _Flags);
+    static picture_convert_ptr create(int inWidth, int inHeight, dt_pixel_format_t inPixFormat,
+        int outWidth, int outHeight, dt_pixel_format_t outPixelFormat, int flags);
 };
 
 } // namespace openmedia

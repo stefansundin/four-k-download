@@ -38,45 +38,13 @@ namespace openmedia {
 class audio_buffer::Impl : public impl_base
 {
 public:
-    void                push_back(const audio_data * _AudioData); 
-    audio_data_ptr      pop_front(int _SamplesCount); 
-    void                push_back_raw(const uint8_t * _Data, size_t _DataSize);
-    audio_format_ptr    get_output_audio_format() const;
-    int                 get_samples_count() const;
-
-private:
-    virtual void                push_back_impl(const audio_data * _AudioData) = 0;
-    virtual audio_data_ptr      pop_front_impl(int _SamplesCount) = 0; 
-    virtual void                push_back_raw_impl(const uint8_t * _Data, size_t _DataSize) = 0;
-    virtual audio_format_ptr    get_output_audio_format_impl() const = 0;
-    virtual int                 get_samples_count_impl() const = 0;
+    virtual void                push_back(const audio_data * audioData) = 0;
+    virtual audio_data_ptr      pop_front(int samplesCount) = 0; 
+    virtual void                push_back_raw(const uint8_t * data, size_t dataSize) = 0;
+    virtual audio_format_ptr    get_output_audio_format() const = 0;
+    virtual int                 get_samples_count() const = 0;
 
 };
-
-inline void audio_buffer::Impl::push_back(const audio_data * _AudioData)
-{
-    return push_back_impl(_AudioData);
-}
-
-inline audio_data_ptr audio_buffer::Impl::pop_front(int _SamplesCount)
-{
-    return pop_front_impl(_SamplesCount);
-}
-
-inline void audio_buffer::Impl::push_back_raw(const uint8_t * _Data, size_t _DataSize)
-{
-    return push_back_raw_impl(_Data, _DataSize);
-}
-
-inline audio_format_ptr audio_buffer::Impl::get_output_audio_format() const
-{
-    return get_output_audio_format_impl();
-}
-
-inline int audio_buffer::Impl::get_samples_count() const
-{
-    return get_samples_count_impl();    
-}
 
 } // namespace openmedia
 

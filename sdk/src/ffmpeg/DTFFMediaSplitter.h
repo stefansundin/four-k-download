@@ -39,11 +39,6 @@ class ff_media_splitter: public media_splitter
 public:
     ff_media_splitter(AVFormatContextPtr _AVFormatContext);
     ff_media_splitter(const char * _Filename); 
-
-#if defined(DT_CONFIG_HAVE_UTF16_OPEN) && (1 == DT_CONFIG_HAVE_UTF16_OPEN)
-    ff_media_splitter(const wchar_t * _Filename); 
-#endif
-
 };
 
 } // namespace openmedia

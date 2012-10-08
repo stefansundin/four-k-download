@@ -14,8 +14,8 @@
 */
 
 
-#ifndef NOTIFYOBJECT_H
-#define NOTIFYOBJECT_H
+#ifndef COMPONENTMODEL_NOTIFYOBJECT_H
+#define COMPONENTMODEL_NOTIFYOBJECT_H
 
 #include "componentmodel/propertychangedsignalargs.h"
 
@@ -27,7 +27,7 @@ class NotifyObject : public QObject
     Q_OBJECT
 
 public:
-    NotifyObject(QObject* parent = 0);
+    explicit NotifyObject(QObject* parent = 0);
 
 signals:
     void propertyChanged(const ComponentModel::PropertyChangedSignalArgs& args);
@@ -38,4 +38,4 @@ protected:
 
 } // ComponentModel
 
-#endif // NOTIFYOBJECT_H
+#endif // COMPONENTMODEL_NOTIFYOBJECT_H

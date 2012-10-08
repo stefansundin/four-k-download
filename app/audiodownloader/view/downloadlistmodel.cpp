@@ -79,12 +79,14 @@ QVariant DownloadListModel::data(const QModelIndex& index, int role) const
     case SizeRole:
         return m_viewModel.data()->at(index.row()).staticCast<DownloadItemViewModel>()->size();
 
-
     case ProgressRole:
         return m_viewModel.data()->at(index.row()).staticCast<DownloadItemViewModel>()->progress();
 
     case RemainingTimeRole:
         return m_viewModel.data()->at(index.row()).staticCast<DownloadItemViewModel>()->remainingTime();
+
+    case PlayingTimeRole:
+        return m_viewModel.data()->at(index.row()).staticCast<DownloadItemViewModel>()->playingTime();
 
     case StateRole:
         return QVariant::fromValue(m_viewModel.data()->at(index.row()).staticCast<DownloadItemViewModel>()->state());

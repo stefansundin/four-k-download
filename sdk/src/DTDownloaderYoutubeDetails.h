@@ -43,7 +43,10 @@ std::string extract_youtube_thumbnail_url(const std::string & content);
 std::string get_youtube_token(const std::string & content);
 
 std::string get_youtube_video_id(const std::string & content);
+std::string regExSearch(const std::string & regEx, const std::string & content);
+std::string extract_signature(const std::string & content);
 
+std::string get_transcribed_subtitles(const std::string & content);
 boost::int64_t get_youtube_duration(const std::string & content);
 
 void youtube_format_map(int Id, 

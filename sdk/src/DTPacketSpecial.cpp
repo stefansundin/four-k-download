@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file DTPacketSpecial.cpp
 
@@ -57,7 +57,8 @@ public:
     virtual dt_media_type_t     get_media_type() const    {        return DT_AVMEDIA_TYPE_UNKNOWN;    }
     virtual bool                is_valid() const    {        return true;    }
     virtual media_packet_ptr    duplicate() const    {        return media_packet_utils::create_null_packet();    }
-    virtual dt_rational_t get_time_base() const    {        return dt_rational_t();    }
+    virtual dt_rational_t       get_time_base() const    {        return dt_rational_t();    }
+    virtual dt_rational_t       get_frame_rate() const    {        return dt_rational_t();    }
     virtual ~null_packet_impl()    {    }
 };
 

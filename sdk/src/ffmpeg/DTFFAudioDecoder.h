@@ -36,7 +36,7 @@ class audio_decoder_info;
 class ff_audio_decoder: public audio_decoder
 {
 public:
-    ff_audio_decoder(const audio_decoder_info * _AudioDecoderInfo);
+    ff_audio_decoder(const audio_decoder_info * audioDecoderInfo);
 
 };
 

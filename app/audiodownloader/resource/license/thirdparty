@@ -1,0 +1,83 @@
+Qt Framework
+============
+
+This software uses Qt Framework under the GNU LGPL version 2.1
+<http://www.gnu.org/licenses/lgpl-2.1.html>
+
+Qt is a C++ toolkit for cross-platform application development.
+Qt provides single-source portability across MS Windows, Mac OS X,
+Linux, and all major commercial Unix variants. Qt is also available
+for embedded devices as Qt for Embedded Linux and Qt for Windows CE.
+Qt is available under three different licensing options designed to
+accommodate the needs of our various users.
+Qt licensed under our commercial license agreement is appropriate for
+development of proprietary/commercial software where you do not want
+to share any source code with third parties or otherwise cannot comply
+with the terms of the GNU LGPL version 2.1 or GNU GPL version 3.0.
+Qt licensed under the GNU LGPL version 2.1 is appropriate for the
+development of Qt applications (proprietary or open source) provided
+you can comply with the terms and conditions of the GNU LGPL version
+2.1.
+Qt licensed under the GNU General Public License version 3.0 is
+appropriate for the development of Qt applications where you wish to
+use such applications in combination with software subject to the
+terms of the GNU GPL version 3.0 or where you are otherwise willing to
+comply with the terms of the GNU GPL version 3.0.
+
+Please see qt.nokia.com/products/licensing for an overview of Qt
+licensing.
+
+Copyright (C) 2010 Nokia Corporation and/or its subsidiary(-ies).
+Qt is a Nokia product. See qt.nokia.com for more information.
+
+
+FFmpeg
+======
+
+This software uses libraries from the FFmpeg project under the GNU
+LGPL version 2.1 <http://www.gnu.org/licenses/lgpl-2.1.html>
+FFmpeg is a trademark of Fabrice Bellard, originator of the FFmpeg
+project.
+<http://ffmpeg.org>
+
+
+LAME MP3 Encoder
+================
+
+This software uses libraries from the LAME MP3 Endcoder project under
+the GNU LGPL version 2.1. <http://www.gnu.org/licenses/lgpl-2.1.html>
+<http://lame.sourceforge.net>
+
+
+Fugue Icons
+===========
+
+The icons are licensed under a Creative Commons Attribution 3.0
+license. <http://creativecommons.org/licenses/by/3.0>
+
+Copyright (C) 2010 Yusuke Kamiyamane.
+All rights reserved.
+
+
+OpenSSL
+=======
+
+This software uses libraries from the OpenSSL project under
+the OpenSSL License. <http://www.openssl.org/source/license.html>
+<http://www.openssl.org>
+
+
+PortAudio
+=========
+
+This software uses libraries from the PortAudio project under
+the PortAudio License. <http://www.portaudio.com/license.html>
+<http://www.portaudio.com>
+
+
+ImageMagick
+===========
+
+This software uses libraries from the ImageMagick project under
+the ImageMagick License. <http://www.imagemagick.org/script/license.php>
+<http://www.imagemagick.org>

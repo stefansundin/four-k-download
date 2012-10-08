@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)bin&quot;;&quot;$(SolutionDir)../ffmpeg/lib/&quot;;&quot;$(SolutionDir)../lame/lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)bin&quot;;&quot;$(SolutionDir)../ffmpeg/bin&quot;;&quot;$(SolutionDir)../ffmpeg/lib/&quot;;&quot;$(SolutionDir)../lame/lib&quot;"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -130,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)bin&quot;;&quot;$(SolutionDir)../ffmpeg/lib/&quot;;&quot;$(SolutionDir)../lame/lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)bin&quot;;&quot;$(SolutionDir)../ffmpeg/bin&quot;;&quot;$(SolutionDir)../ffmpeg/lib/&quot;;&quot;$(SolutionDir)../lame/lib&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

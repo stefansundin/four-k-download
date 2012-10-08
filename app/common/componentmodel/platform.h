@@ -14,31 +14,44 @@
 */
 
 
-#ifndef PLATFORM_H
-#define PLATFORM_H
+#ifndef COMPONENTMODEL_PLATFORM_H
+#define COMPONENTMODEL_PLATFORM_H
 
+#include <QObject>
 #include <QtGlobal>
+#include <QMetaType>
+#include <QSysInfo>
+#include "componentmodel/metatypes.h"
 
 namespace ComponentModel
 {
 
-class Platform
+class Platform : public QObject
 {
+    Q_OBJECT
+    Q_ENUMS(Architecture WindowsVersion MacVersion)
+
 public:
     enum Architecture { UnknownArchitecture, x86, x64 };
+    enum WindowsVersion { UnknownWindowsVersion = 0, WindowsXP, WindowsVista, Windows7 };
+    enum MacVersion { UnknownMacVersion = 0, Mac10_5, Mac10_6, Mac10_7 };
 
-    static bool isWindows();
-    static bool isMac();
-    static bool isLinux();
-    static bool isUbuntu();
-    static bool isDebian();
-    static bool isFedora();
+    Q_INVOKABLE static bool isWindows();
+    Q_INVOKABLE static bool isMac();
+    Q_INVOKABLE static bool isLinux();
+    Q_INVOKABLE static bool isUbuntu();
+    Q_INVOKABLE static bool isDebian();
+    Q_INVOKABLE static bool isFedora();
 
-    static Architecture architecture();
-    static QString os();
-    static QString platform();
+    Q_INVOKABLE static WindowsVersion windowsVersion();
+    Q_INVOKABLE static MacVersion macVersion();
+    Q_INVOKABLE static Architecture architecture();
+    Q_INVOKABLE static QString os();
+    Q_INVOKABLE static QString platform();
 };
 
 } // Plarform
 
-#endif // PLATFORM_H
+Q_DECLARE_METATYPE(ComponentModel::Platform::Architecture)
+
+#endif // COMPONENTMODEL_PLATFORM_H

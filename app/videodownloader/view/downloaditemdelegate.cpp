@@ -17,7 +17,7 @@
 #include "view/downloaditemdelegate.h"
 #include "view/downloadlistmodel.h"
 #include "viewmodel/downloaditemviewmodel.h"
-#include "gui/thumbnail.h"
+#include "gui/cxx/thumbnail.h"
 #include <QPainter>
 #include <QTime>
 #include <QApplication>
@@ -27,9 +27,14 @@ using namespace ViewModel;
 using namespace Gui;
 
 
+namespace
+{
+
 const int BorderOffset      = 6;
 const int ElementOffset     = 7;
 const int TextOffset        = 3;
+
+} // Anonimous
 
 
 DownloadItemDelegate::DownloadItemDelegate(QObject* parent) :
@@ -93,12 +98,15 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
     if (state != DownloadItemViewModel::Parse)
     {
-        QPixmap itemclock(":/image/item-time");
-        painter->drawPixmap(textClip.left(), textClip.top() + (curOption.fontMetrics.height() - itemclock.height() - 1) / 2,
-                            itemclock);
-        textClip.setLeft(textClip.left() + itemclock.width() + TextOffset);
-        drawDisplay(painter, curOption, textClip, duration);
-        textClip.setLeft(textClip.left() + curOption.fontMetrics.width(duration) + 2 * ElementOffset);
+        if (!duration.isEmpty())
+        {
+            QPixmap itemclock(":/image/item-time");
+            painter->drawPixmap(textClip.left(), textClip.top() + (curOption.fontMetrics.height() - itemclock.height() - 1) / 2,
+                                itemclock);
+            textClip.setLeft(textClip.left() + itemclock.width() + TextOffset);
+            drawDisplay(painter, curOption, textClip, duration);
+            textClip.setLeft(textClip.left() + curOption.fontMetrics.width(duration) + 2 * ElementOffset);
+        }
 
         QPixmap itemsize(":/image/item-size");
         painter->drawPixmap(textClip.left(), textClip.top() + (curOption.fontMetrics.height() - itemsize.height() - 1) / 2,
@@ -117,11 +125,11 @@ void DownloadItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
             QPixmap icon;
 
             if (state == DownloadItemViewModel::Download)
-                icon.load(":/image/item-download");
+                icon.load(":/image/item-download-progress");
             else if (state == DownloadItemViewModel::Convert)
                 icon.load(":/image/item-convert");
             if (state == DownloadItemViewModel::Pause)
-                icon.load(":/image/item-paused");
+                icon.load(":/image/item-download-paused");
 
             painter->drawPixmap(textClip.left(), textClip.top() + (curOption.fontMetrics.height() - icon.height() - 1) / 2, icon);
             textClip.setLeft(textClip.left() + icon.width() + TextOffset);

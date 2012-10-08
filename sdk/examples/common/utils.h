@@ -22,11 +22,21 @@ inline std::string utf16_to_ansi(const std::wstring & Utf16String)
     char * currentLocale = ::setlocale(LC_ALL, NULL);
     std::string currentLocaleStr = currentLocale;
     ::setlocale(LC_ALL, "");
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
     size_t size = wcstombs(NULL, Utf16String.c_str(), 0);
     std::string ansi;
     ansi.resize(size);
     size = wcstombs(&ansi[0], Utf16String.c_str(), ansi.length());
     ::setlocale(LC_ALL, currentLocaleStr.c_str());
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 
     return ansi;
 }

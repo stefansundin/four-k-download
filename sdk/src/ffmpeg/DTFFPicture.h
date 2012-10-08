@@ -30,7 +30,7 @@ typedef boost::shared_ptr<AVFrame> AVFramePtr;
 
 namespace openmedia {
 
-    AVFramePtr dt_create_picture(dt_pixel_format_t _PixelFormat, int _Width, int _Height);
+AVFramePtr dt_create_picture(dt_pixel_format_t _PixelFormat, int _Width, int _Height);
 AVFramePtr dt_create_decoded_frame();
 
 } // namespace openmedia

@@ -14,10 +14,10 @@
 */
 
 
-#include "view/mainview.h"
+#include "view/mainview.h" 
 #include "view/downloaditemdelegate.h"
 #include "viewmodel/downloaditemviewmodel.h"
-#include "gui/animation/manualtransition.h"
+#include "gui/cxx/manualtransition.h"
 #include "ui_mainview.h"
 #include <QSettings>
 #include <QMenu>
@@ -29,12 +29,16 @@
 using namespace View;
 using namespace ViewModel;
 using namespace ComponentModel;
-using namespace Bindings;
-using namespace Animation;
+using namespace Gui;
 using namespace Mvvm;
 
 
+namespace
+{
+
 const int BorderOffset = 4;
+
+} // Anonimous
 
 
 MainView::MainView(const Factory* factory, QWidget* parent) :
@@ -89,6 +93,16 @@ MainView::MainView(const Factory* factory, QWidget* parent) :
     ui->btnRemove->setParent(ui->listView->viewport());
     ui->btnRemove->hide();
     QObject::connect(ui->btnRemove, SIGNAL(pressed()),
+                     this, SLOT(selectActive()));
+
+#if defined(Q_OS_MAC)
+    ui->btnTogglePlay->setCursor(Qt::PointingHandCursor);
+#endif
+    ui->btnTogglePlay->setVerticalPadding(2);
+    ui->btnTogglePlay->setHorizontalPadding(0);
+    ui->btnTogglePlay->setParent(ui->listView->viewport());
+    ui->btnTogglePlay->hide();
+    QObject::connect(ui->btnTogglePlay, SIGNAL(pressed()),
                      this, SLOT(selectActive()));
 
     ui->greetingsWidget->setParent(ui->listView->viewport());
@@ -163,7 +177,7 @@ void MainView::setViewModel(QObject* value)
 
             QObject::disconnect(m_viewModel.data()->list(), SIGNAL(listChanged(ComponentModel::ListChangedSignalArgs)));
             QObject::disconnect(m_viewModel.data()->selection(), SIGNAL(selectionChanged(ComponentModel::SelectionChangedSignalArgs)));
-            QObject::disconnect(m_viewModel.data(), SIGNAL(downloadComplited(ComponentModel::SignalArgs)));
+            QObject::disconnect(m_viewModel.data(), SIGNAL(downloadCompleted()));
         }
 
 
@@ -196,8 +210,8 @@ void MainView::setViewModel(QObject* value)
                              this, SLOT(listChanged(ComponentModel::ListChangedSignalArgs)));
             QObject::connect(m_viewModel.data()->selection(), SIGNAL(selectionChanged(ComponentModel::SelectionChangedSignalArgs)),
                              this, SLOT(selectionChanged(ComponentModel::SelectionChangedSignalArgs)), Qt::QueuedConnection);
-            QObject::connect(m_viewModel.data(), SIGNAL(downloadComplited(ComponentModel::SignalArgs)),
-                             this, SLOT(downloadComplited(ComponentModel::SignalArgs)));
+            QObject::connect(m_viewModel.data(), SIGNAL(downloadCompleted()),
+                             this, SLOT(downloadCompleted()));
         }
     }
 }
@@ -244,7 +258,7 @@ void MainView::itemDoubleClicked(const QModelIndex& index)
     if (!m_viewModel || !index.isValid())
         return;
 
-    m_viewModel.data()->list()->at(index.row()).staticCast<DownloadItemViewModel>()->play();
+    //m_viewModel.data()->list()->at(index.row()).staticCast<DownloadItemViewModel>()->play();
 }
 
 
@@ -276,10 +290,8 @@ void MainView::selectionChanged(const ComponentModel::SelectionChangedSignalArgs
 }
 
 
-void MainView::downloadComplited(const ComponentModel::SignalArgs& args)
+void MainView::downloadCompleted()
 {
-    Q_UNUSED(args)
-
     QApplication::alert(this);
 }
 
@@ -322,9 +334,28 @@ void MainView::layoutControlArea()
         ui->btnRemove->setGeometry(btnRect);
 
         btnRect = QRect(QPoint(0, 0), ui->btnAction->minimumSizeHint());
-        btnRect.moveLeft(ui->btnRemove->geometry().left() - btnRect.width());
-        btnRect.moveTop(itemRect.top() + (itemRect.height() - btnRect.height()) / 2);
+        if (ui->btnAction->isEnabled())
+        {
+            btnRect.moveLeft(ui->btnRemove->geometry().left() - btnRect.width());
+            btnRect.moveTop(itemRect.top() + (itemRect.height() - btnRect.height()) / 2);
+        }
+        else
+        {
+            btnRect.moveLeft(-1000);
+        }
         ui->btnAction->setGeometry(btnRect);
+
+        btnRect = QRect(QPoint(0, 0), ui->btnTogglePlay->minimumSizeHint());
+        if (ui->btnTogglePlay->isEnabled())
+        {
+            btnRect.moveLeft(itemRect.left() + BorderOffset);
+            btnRect.moveTop((itemRect.top() + itemRect.bottom() - btnRect.height()) / 2);
+        }
+        else
+        {
+            btnRect.moveLeft(-1000);
+        }
+        ui->btnTogglePlay->setGeometry(btnRect);
     }
 }
 
@@ -337,17 +368,24 @@ void MainView::updateControlArea()
         m_itemActionBinding.reset(new ButtonActionBinding(ui->btnAction, action, (ButtonActionBinding::BindOptions)ButtonActionBinding::notBindIcon));
         QObject::connect(action, SIGNAL(changed()), this, SLOT(layoutControlArea()));
 
+        action = m_viewModel.data()->list()->at(m_activeIndex.row()).staticCast<DownloadItemViewModel>()->togglePlayAction();
+        m_itemPlayerActionBinding.reset(new ButtonActionBinding(ui->btnTogglePlay, action, (ButtonActionBinding::BindOptions)ButtonActionBinding::notBindText));
+        QObject::connect(action, SIGNAL(changed()), this, SLOT(layoutControlArea()));
+
         layoutControlArea();
 
         ui->btnAction->show();
         ui->btnRemove->show();
+        ui->btnTogglePlay->show();
     }
     else
     {
         ui->btnAction->hide();
         ui->btnRemove->hide();
+        ui->btnTogglePlay->hide();
 
         m_itemActionBinding.reset();
+        m_itemPlayerActionBinding.reset();
     }
 }
 
@@ -373,9 +411,6 @@ void MainView::fillMenu()
     if (m_selection.currentIndex().isValid())
     {
         QAction* action = m_viewModel.data()->list()->at(m_selection.currentIndex().row()).staticCast<DownloadItemViewModel>()->basicAction();
-        if (action->isEnabled())
-            list.append(action);
-        action = m_viewModel.data()->list()->at(m_selection.currentIndex().row()).staticCast<DownloadItemViewModel>()->folderAction();
         if (action->isEnabled())
             list.append(action);
         action = m_viewModel.data()->list()->at(m_selection.currentIndex().row()).staticCast<DownloadItemViewModel>()->urlAction();
@@ -438,6 +473,7 @@ void MainView::resizeEvent(QResizeEvent* event)
 void MainView::layoutContainers()
 {
     QSize size = ui->centralWidget->size();
+
     QRect listRect = QRect(0, 0, size.width(), size.height());
 
     ui->listView->setGeometry(listRect);
@@ -450,4 +486,13 @@ void MainView::notifyUser()
 {
     raise();
     activateWindow();
+}
+
+
+bool MainView::eventFilter(QObject *object, QEvent *event)
+{
+    if (!m_viewModel)
+        return false;
+
+    return false;
 }

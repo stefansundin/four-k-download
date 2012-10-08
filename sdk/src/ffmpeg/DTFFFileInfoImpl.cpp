@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include "DTFFFileInfoImpl.h"
 
@@ -101,8 +104,10 @@ dt_ts_t ff_file_info_general_impl::get_duration() const
 
 dt_filesize_t ff_file_info_general_impl::get_file_size() const
 {
-    DT_ASSERT(NULL != m_FormatContext);
-    return m_FormatContext->file_size;
+    //DT_ASSERT(NULL != m_FormatContext);
+    DT_ASSERT(false);
+    // TODO remove it
+    return 0;
 }
 
 int ff_file_info_general_impl::get_bit_rate() const

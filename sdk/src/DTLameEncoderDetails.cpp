@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 #include "DTLameEncoder.h"
 #include "DTLameEncoderImpl.h"
@@ -227,8 +227,8 @@ private:
 };
 
 lame_encoder_impl_internal::lame_encoder_impl_internal() : 
-m_TotalSamplesEncoded(0),
-m_Lame(details::dt_create_lame_encoder())
+m_Lame(details::dt_create_lame_encoder()),
+m_TotalSamplesEncoded(0)
 {
     id3tag_add_v2(m_Lame.get());
 }
@@ -410,12 +410,12 @@ void lame_encoder_impl_internal::set_vbr_max_bitrate_kbps(int _Bitrate)
     DT_LAME_CHECK_ERR(lameRet);
 }
 
-void     lame_encoder_impl_internal::set_artist(const std::string & Artist)
+void lame_encoder_impl_internal::set_artist(const std::string & Artist)
 {
     id3tag_set_artist(m_Lame.get(), Artist.c_str());
 }
 
-void     lame_encoder_impl_internal::set_title(const std::string & Title)
+void lame_encoder_impl_internal::set_title(const std::string & Title)
 {
     id3tag_set_title(m_Lame.get(), Title.c_str()); 
 }
@@ -437,11 +437,13 @@ std::vector<uint16_t> add_bom(const std::wstring & str)
 void lame_encoder_impl_internal::set_artist(const std::wstring & Artist)
 {
     int lameRet = id3tag_set_textinfo_ucs2(m_Lame.get(), "TPE1", &add_bom(Artist)[0]);
+    lameRet;
 }
 
 void lame_encoder_impl_internal::set_title(const std::wstring & Title)
 {
     int lameRet = id3tag_set_textinfo_ucs2(m_Lame.get(), "TIT2", &add_bom(Title)[0]); 
+    lameRet;
 }
 
 int lame_encoder_impl_internal::get_vbr_max_bitrate_kbps() const
@@ -525,17 +527,21 @@ media_packet_ptr lame_encoder_impl_internal::finish()
 class audio_encoder_lame_utils::properties
 {
 public:
-    properties() {};
-    properties(const std::string & Artist, const std::string & Title) : artist_(Artist), title_(Title) {};
+    properties() : bitrate_(0) {};
+    properties(const std::string & Artist, const std::string & Title, int Bitrate) :
+        artist_(Artist),
+        title_(Title),
+        bitrate_(Bitrate){};
     std::string artist() const { return artist_; }
     std::string title() const { return title_; }
     std::wstring artist_w() const { return utf8_to_utf16(artist_); }
     std::wstring title_w() const { return utf8_to_utf16(title_); }
-
+    int bitrate() const { return bitrate_; }
 
 private:
     std::string artist_;
     std::string title_;
+    int bitrate_;
 
 };
 
@@ -544,79 +550,10 @@ boost::shared_ptr<audio_encoder_lame_utils::properties> audio_encoder_lame_utils
     return boost::make_shared<audio_encoder_lame_utils::properties>();
 }
 
-boost::shared_ptr<audio_encoder_lame_utils::properties> audio_encoder_lame_utils::create_properties(const char * Artist, const char * Title)
+boost::shared_ptr<audio_encoder_lame_utils::properties> audio_encoder_lame_utils::create_properties(const char * Artist, const char * Title, int Bitrate)
 {
-    return boost::make_shared<audio_encoder_lame_utils::properties>(Artist, Title);
+    return boost::make_shared<audio_encoder_lame_utils::properties>(Artist, Title, Bitrate);
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-audio_encoder_lame_impl::audio_encoder_lame_impl(const audio_format * _AudioFormat, const audio_encoder_lame_utils::properties * _Properties) 
-: m_Lame(NULL)
-{
-    std::auto_ptr<lame_encoder_impl_internal> lameEnc = std::auto_ptr<lame_encoder_impl_internal>( new lame_encoder_impl_internal() );
-
-    lameEnc->set_input_sample_rate( _AudioFormat->get_sample_rate() );
-    lameEnc->set_channels_count( _AudioFormat->get_channels_count() );
-    if (1 == _AudioFormat->get_channels_count())
-    {
-        lameEnc->set_stereo_mode( lame_encoder_impl_internal::StereoMode_MONO );
-    }
-
-    // TODO: default preset
-    lameEnc->set_preset( lame_encoder_impl_internal::PresetMode_V2 );
-    
-    if (!_Properties->artist_w().empty())
-        lameEnc->set_artist(_Properties->artist_w().c_str());
-
-    if (!_Properties->title_w().empty())
-        lameEnc->set_title(_Properties->title_w().c_str());
-
-        
-    lameEnc->start();
-
-    boost::shared_ptr<openmedia::codec_extra_data_common> extraData = boost::make_shared<openmedia::codec_extra_data_common>();
-
-    unsigned char mp3buffer[LAME_MAXMP3BUFFER];
-    int imp3 = lame_get_id3v2_tag(lameEnc->lame().get(), mp3buffer, sizeof(mp3buffer));
-    DT_ASSERT(imp3 <= LAME_MAXMP3BUFFER);
-
-    extraData->setter()->add_data("ID3V2TAG", mp3buffer, imp3, openmedia::bufferAllocNew);
-
-    m_CodecExtraData = extraData;
-    m_Lame = lameEnc.release();
-}
-
-codec_extra_data_ptr audio_encoder_lame_impl::get_extra_data() const
-{
-    return m_CodecExtraData;    
-}
-
-media_packet_ptr audio_encoder_lame_impl::encode(const audio_data * _AudioData)
-{
-    DT_ASSERT(NULL != m_Lame);
-    media_packet_ptr mediaPacket = m_Lame->encode( _AudioData );
-
-    if (NULL == _AudioData) // last packet
-    {
-        unsigned char mp3buffer[LAME_MAXMP3BUFFER];
-        int imp3 = lame_get_id3v1_tag(m_Lame->lame().get(), mp3buffer, sizeof(mp3buffer));
-        DT_ASSERT(imp3 <= LAME_MAXMP3BUFFER);
-        m_CodecExtraData->setter()->add_data("ID3V1TAG", mp3buffer, imp3, openmedia::bufferAllocNew);
-
-        imp3 = lame_get_lametag_frame(m_Lame->lame().get(), mp3buffer, sizeof(mp3buffer));
-        m_CodecExtraData->setter()->add_data("LAMETAG", mp3buffer, imp3, openmedia::bufferAllocNew);
-
-    }
-    return mediaPacket;
-}
-
-audio_encoder_lame_impl::~audio_encoder_lame_impl()
-{
-    delete m_Lame;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 audio_encoder_queue_lame_impl::audio_encoder_queue_lame_impl(const audio_format * _AudioFormat, const audio_encoder_lame_utils::properties * _Properties) 
 : m_Lame(NULL), m_AudioBuffer( audio_buffer::create( audio_buffer::audio_buffer_SameFormat, _AudioFormat ) )
@@ -632,7 +569,15 @@ audio_encoder_queue_lame_impl::audio_encoder_queue_lame_impl(const audio_format 
     }
 
     // TODO: default preset
-    lameEnc->set_preset( lame_encoder_impl_internal::PresetMode_V2 );
+    //
+    if (_Properties->bitrate() > 0)
+        lameEnc->set_bit_rate(_Properties->bitrate());
+    else
+    {
+        lameEnc->set_preset( lame_encoder_impl_internal::PresetMode_V2);
+    }
+
+    lameEnc->set_quality(5);
     
     if (!_Properties->artist_w().empty())
         lameEnc->set_artist(_Properties->artist_w().c_str());
@@ -670,6 +615,15 @@ void audio_encoder_queue_lame_impl::send_audio(const audio_data * _AudioData)
     else
     {
         lastData_ = true;
+    }
+}
+
+void audio_encoder_queue_lame_impl::send_audio(const audio_data_timed * audioDataTimed)
+{
+    if (audioDataTimed)
+    {
+        audio_data_ptr audioData = audioDataTimed->get_media_data();
+        send_audio(audioData.get());        
     }
 }
 
@@ -714,7 +668,5 @@ audio_encoder_queue_lame_impl::~audio_encoder_queue_lame_impl()
 {
     delete m_Lame;
 }
-
-
 
 } // namespace openmedia

@@ -14,11 +14,12 @@
 */
 
 
-#ifndef LISTCHANGEDSIGNALARGS_H
-#define LISTCHANGEDSIGNALARGS_H
+#ifndef COMPONENTMODEL_LISTCHANGEDSIGNALARGS_H
+#define COMPONENTMODEL_LISTCHANGEDSIGNALARGS_H
 
-#include "componentmodel/signalargs.h"
 #include <QSharedPointer>
+#include "componentmodel/signalargs.h"
+#include "componentmodel/metatypes.h"
 
 namespace ComponentModel
 {
@@ -52,4 +53,4 @@ private:
 Q_DECLARE_METATYPE(ComponentModel::ListChangedSignalArgs)
 Q_DECLARE_METATYPE(ComponentModel::ListChangedSignalArgs::Action)
 
-#endif // LISTCHANGEDSIGNALARGS_H
+#endif // COMPONENTMODEL_LISTCHANGEDSIGNALARGS_H

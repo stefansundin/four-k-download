@@ -14,7 +14,10 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
+
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTAudioBufferSameFormat.cpp
 
@@ -39,12 +42,12 @@ public:
     audio_buffer_same_format_impl(const audio_format * _AudioFormat);
     virtual                     ~audio_buffer_same_format_impl();
 
-private:
-    virtual void                push_back_impl(const audio_data * _AudioData);
-    virtual audio_data_ptr      pop_front_impl(int _SamplesCount); 
-    virtual void                push_back_raw_impl(const uint8_t * _Data, size_t _DataSize);
-    virtual audio_format_ptr    get_output_audio_format_impl() const;
-    virtual int                 get_samples_count_impl() const;
+public:
+    virtual void                push_back(const audio_data * _AudioData);
+    virtual audio_data_ptr      pop_front(int _SamplesCount); 
+    virtual void                push_back_raw(const uint8_t * _Data, size_t _DataSize);
+    virtual audio_format_ptr    get_output_audio_format() const;
+    virtual int                 get_samples_count() const;
 
 private:
     bool check_format(const audio_data * _AudioData) const;
@@ -55,7 +58,7 @@ private:
 
 };
 
-int audio_buffer_same_format_impl::get_samples_count_impl() const
+int audio_buffer_same_format_impl::get_samples_count() const
 {
     DT_ASSERT(0 != m_AudioFormat->get_sample_align());
     return m_MemoryBuffer.size() / m_AudioFormat->get_sample_align();            
@@ -87,7 +90,7 @@ audio_buffer_same_format_impl::audio_buffer_same_format_impl(const audio_format 
         );
 }
 
-inline void audio_buffer_same_format_impl::push_back_impl(const audio_data * _AudioData)
+inline void audio_buffer_same_format_impl::push_back(const audio_data * _AudioData)
 {
     if (!check_format(_AudioData))
     {
@@ -98,7 +101,7 @@ inline void audio_buffer_same_format_impl::push_back_impl(const audio_data * _Au
     m_MemoryBuffer.push_back(_AudioData->get_raw_data(), _AudioData->get_raw_size());
 }
 
-inline audio_data_ptr audio_buffer_same_format_impl::pop_front_impl(int _SamplesCount)
+inline audio_data_ptr audio_buffer_same_format_impl::pop_front(int _SamplesCount)
 {
     const size_t sizeBytes = _SamplesCount * m_AudioFormat->get_sample_align();
     uint8_t * buffer = audio_data_common::alloc_buffer(sizeBytes);
@@ -107,12 +110,12 @@ inline audio_data_ptr audio_buffer_same_format_impl::pop_front_impl(int _Samples
     return audio_data_ptr(new audio_data_common(m_AudioFormat.get(), buffer, bytesReceived, audio_data_common::bufferGetOwn) );
 }
 
-inline void audio_buffer_same_format_impl::push_back_raw_impl(const uint8_t * _Data, size_t _DataSize)
+inline void audio_buffer_same_format_impl::push_back_raw(const uint8_t * _Data, size_t _DataSize)
 {
     m_MemoryBuffer.push_back(_Data, _DataSize);
 }
 
-inline audio_format_ptr audio_buffer_same_format_impl::get_output_audio_format_impl() const
+inline audio_format_ptr audio_buffer_same_format_impl::get_output_audio_format() const
 {
     return m_AudioFormat;
 }

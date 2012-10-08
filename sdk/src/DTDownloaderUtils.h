@@ -89,8 +89,16 @@ std::string url_encode(const std::string & url);
 std::string url_decode(const std::string & str);
 
 bool download_page(const std::string & url, std::string & headers, std::string & content, const std::string & cookies, const std::string & connectionType);
+bool download_page(const std::string & url, std::string & headers, std::string & content, const std::vector<HttpHeader> & additionalHeaders);
 bool download_page_header(const std::string & url, std::string & headers, const std::string & cookies, const std::string & connectionType);
 bool download_page_header_ref(const std::string & url, std::string & headers, const std::string & cookies, const std::string & Referer, const std::string & connectionType);
+
+
+bool download_page_header(const std::string & url,
+                          std::string & headers,
+                          const std::string & cookies,
+                          const std::string & connectionType,
+                          const std::vector<HttpHeader> & additionalHeaders);
 
 bool download_bytes(const std::string & url, std::string & headers, 
                     std::string & content, 
@@ -101,6 +109,7 @@ void replace_xml_esc(std::string & Str);
 
 std::string replace_u_codes(const std::string & input);
 std::string replace_u_codes_6(const std::string & input);
+std::string replace_u_codes_4(const std::string & input);
 
 } }
 

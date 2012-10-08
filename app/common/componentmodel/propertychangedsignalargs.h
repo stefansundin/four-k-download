@@ -14,12 +14,13 @@
 */
 
 
-#ifndef PROPERTYCHANGEDSIGNALARGS_H
-#define PROPERTYCHANGEDSIGNALARGS_H
+#ifndef COMPONENTMODEL_PROPERTYCHANGEDSIGNALARGS_H
+#define COMPONENTMODEL_PROPERTYCHANGEDSIGNALARGS_H
 
-#include "componentmodel/signalargs.h"
 #include <QString>
 #include <QVariant>
+#include "componentmodel/signalargs.h"
+#include "componentmodel/metatypes.h"
 
 namespace ComponentModel
 {
@@ -41,4 +42,4 @@ private:
 
 Q_DECLARE_METATYPE(ComponentModel::PropertyChangedSignalArgs)
 
-#endif // PROPERTYCHANGEDSIGNALARGS_H
+#endif // COMPONENTMODEL_PROPERTYCHANGEDSIGNALARGS_H

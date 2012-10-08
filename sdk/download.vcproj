@@ -47,7 +47,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersDownload.h"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -113,7 +113,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+				PrecompiledHeaderThrough="DTHeadersDownload.h"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -163,6 +163,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\DTHttpDownloader2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\include\openmedia\DTHttpDownloader2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\src\DTHttpDownloaderImpl.cpp"
 				>
 			</File>
@@ -203,292 +211,22 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="services"
+		<File
+			RelativePath=".\src\DTController.cpp"
 			>
-			<File
-				RelativePath=".\src\DTServiceScript.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\src\DTServiceScript.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DTServiceScriptUrl.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-						PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<Filter
-				Name="vimeo"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderVimeo.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderVimeo.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="facebook"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderFacebook.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderFacebook.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="xnxx"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderXnxx.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderXnxx.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="youtube"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderYoutube.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderYoutube.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderYoutubeDetails.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderYoutubeDetails.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderYoutubeTools.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderYoutubeTools.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="dailymotion"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderDailymotion.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderDailymotion.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="megavideo"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderMegavideo.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-							PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderMegavideo.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderMegavideoScript.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderMegavideoScript.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="metacafe"
-				>
-				<File
-					RelativePath=".\src\DTDownloaderMetacafe.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\DTDownloaderMetacafe.h"
-					>
-				</File>
-			</Filter>
-		</Filter>
+		</File>
+		<File
+			RelativePath=".\include\openmedia\DTController.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTControllerImpl.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\src\DTControllerImpl.h"
+			>
+		</File>
 		<File
 			RelativePath=".\src\DTDownloaderUtils.cpp"
 			>
@@ -498,7 +236,7 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+					PrecompiledHeaderThrough="DTHeadersDownload.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -507,7 +245,7 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
+					PrecompiledHeaderThrough="DTHeadersDownload.h"
 				/>
 			</FileConfiguration>
 		</File>
@@ -516,7 +254,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\src\DTHeaders.cpp"
+			RelativePath=".\src\DTHeadersDownload.cpp"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
@@ -524,7 +262,6 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -537,7 +274,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\include\openmedia\DTHeaders.h"
+			RelativePath=".\src\DTHeadersDownload.h"
 			>
 		</File>
 		<File
@@ -546,92 +283,6 @@
 		</File>
 		<File
 			RelativePath=".\src\DTIOService.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\DTMediaDownloader.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\include\openmedia\DTMediaDownloader.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\DTMediaDownloaderDetails.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\DTMediaDownloaderImpl.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\DTMediaSite.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\include\openmedia\DTMediaSite.h"
-			>
-		</File>
-		<File
-			RelativePath=".\src\DTSimpleMediaParser.cpp"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="2"
-					PrecompiledHeaderThrough="openmedia/DTHeaders.h"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath=".\src\DTSimpleMediaParser.h"
 			>
 		</File>
 		<File

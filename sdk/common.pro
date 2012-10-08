@@ -1,11 +1,8 @@
-TEMPLATE = lib
 TARGET = sdkcommon
-
-include ($$SOURCE_TREE/common.pri)
+TEMPLATE = lib
+CONFIG += staticlib
 
 QT -= core gui
-
-CONFIG += staticlib
 
 DEFINES += URDL_DISABLE_SSL
 #DEFINES += URDL_HEADER_ONLY
@@ -14,9 +11,15 @@ win32 {
     DEFINES += WIN32_LEAN_AND_MEAN=1
 }
 
+
+include ($$SOURCE_TREE/common.pri)
+
+
 INCLUDEPATH += \
-    include \
-    $$SOURCE_TREE/3rdparty/urdl/include
+    $$BOOST_PATH/include \
+    $$SOURCE_TREE/3rdparty/urdl/include \
+    $$SOURCE_TREE/sdk/src/ \
+    include
 
 HEADERS += \
     src/DTAllocator.h \
@@ -28,26 +31,18 @@ HEADERS += \
     include/openmedia/DTCStdInt.h \
     include/openmedia/DTDeclareImpl.h \
     include/openmedia/DTError.h \
-    include/openmedia/DTHeaders.h \
     include/openmedia/DTPlatform.h \
     include/openmedia/DTTypes.h \
     include/openmedia/DTString.h \
     include/openmedia/DTScript.h \
-    src/DTPythonScript.h \
-    src/DTScriptImpl.h \
-    src/DTQtScript.h \
-    src/md5/md5.h
+    src/md5/md5.h \
+    src/DTFOpen.h \
+    src/fake_stream.h
 
 SOURCES += \
     src/DTError.cpp \
     src/DTCommon.cpp \
     src/DTString.cpp \
-    src/DTScript.cpp \
-    src/DTScriptCreate.cpp \
-    src/DTQtScript.cpp \
-    src/md5/md5.c
-
-DEPENDENCY_LIBS = \
-    urdl
-
-include ($$SOURCE_TREE/dependencies.pri)
+    src/md5/md5.c \
+    src/DTFOpen.cpp \
+    src/fake_stream.cpp

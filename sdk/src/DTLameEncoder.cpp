@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersMedia.h"
+// precompiled header end
 
 /// \file   DTLameEncoder.cpp
 
@@ -26,7 +26,7 @@
 
 namespace openmedia {
 
-audio_encoder_lame::audio_encoder_lame(
+/*audio_encoder_lame::audio_encoder_lame(
                                        const audio_format * _InputAudioFormat,
                                        const audio_encoder_lame_utils::properties * _Properties
                                        ) :
@@ -34,6 +34,7 @@ audio_encoder( new audio_encoder_lame_impl(_InputAudioFormat, _Properties) )
 {
 
 }
+*/
 
 audio_encoder_queue_lame::audio_encoder_queue_lame(
     const audio_format * _InputAudioFormat,

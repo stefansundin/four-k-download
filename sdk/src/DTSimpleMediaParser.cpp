@@ -15,9 +15,9 @@
 
 
 
-
-#include <openmedia/DTHeaders.h>
-
+// precompiled header begin
+#include "DTHeadersVideoDownload.h"
+// precompiled header end
 
 #include "DTSimpleMediaParser.h"
 #include <boost/algorithm/string.hpp>

@@ -14,9 +14,9 @@
 */
 
 
-#include <openmedia/DTHeaders.h>
-
 /// \file   DTAudioDataCreate.cpp
+
+#include "DTHeadersMedia.h"
 
 #include <openmedia/DTAudioData.h>
 #include <openmedia/DTAudioFormat.h>
@@ -66,9 +66,9 @@ audio_data_ptr audio_data::create_silence(const audio_format * _AudioFormat, dou
     int samplesCount = 0;
     details::create_buffer(_AudioFormat, _DurationMS, buffer, bufferSizeBytes, samplesCount);
 
+    // TODO : 
     memset(buffer, utils::audio::silence_value(_AudioFormat->get_sample_format()), bufferSizeBytes);
     return audio_data_ptr( new audio_data_common(_AudioFormat, buffer, bufferSizeBytes, audio_data_common::bufferGetOwn ) );
 }
 
 } // namespace openmedia
-

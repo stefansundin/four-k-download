@@ -25,7 +25,7 @@
 #include "componentmodel/notifyobject.h"
 #include "componentmodel/xmlserializable.h"
 #include "componentmodel/progress.h"
-#include "mvvm/dialog.h"
+#include "mvvm/cxx/dialog.h"
 #include "openmedia/DTMediaDownloader.h"
 #include "openmedia/DTVideo2Mp3.h"
 #include "viewmodel/mediadownload.h"
@@ -85,6 +85,7 @@ public:
 
 signals:
     void parsed(ViewModel::MediaDownloadList downloadList);
+    void downloadCompleted();
 
 public slots:
     void pause();
